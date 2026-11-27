@@ -8,14 +8,14 @@ import Foundation
 import Testing
 @testable import Riichi
 
-/// Scenarios this engine disagrees with, and why. A disputed scenario that starts
-/// passing fails the run (the known issue is not recorded), so this list cannot go
-/// stale silently.
-let disputedScenarios: [String: String] = [
-    "declined_tsumo_outside_riichi.tenhou":
-        "expects Tenhou furiten after a tsumo declined by a closed kan; Tenhou's records have such seats ron "
-        + "(4 of 6 chances, 2010–21), so `temporaryFuritenOnDeclinedTsumo` is now off (docs/notes/p3-closeout.md)",
-]
+/// Scenarios this engine disagrees with: the reason, and the text of the one
+/// difference expected (a problem line containing it). Only that difference is a
+/// known issue: any other problem in the same scenario fails the run, and a
+/// disputed difference that no longer occurs fails it too, so this list cannot go
+/// stale silently (Codex final review, test strength). Empty: the close-out's
+/// dispute (`declined_tsumo_outside_riichi`, Tenhou) was settled by the scenario's
+/// correction.
+let disputedScenarios: [String: (reason: String, problem: String)] = [:]
 
 enum ScenarioFiles {
     static let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
@@ -56,25 +56,43 @@ struct ScenarioFailure: Error, CustomStringConvertible {
     @Test(arguments: ScenarioFiles.names) func scenario(_ name: String) throws {
         let json = try ScenarioFiles.load(name)
         if let error = json["error"] as? String {
-            if let reason = disputedScenarios[name] {
-                withKnownIssue(Comment(rawValue: reason)) { Issue.record("scenario.py rejects \(name): \(error)") }
-            } else {
-                Issue.record("scenario.py rejects \(name): \(error)")
-            }
+            Issue.record("scenario.py rejects \(name): \(error)")
             return
         }
         let runs = try #require(json["runs"] as? [String: Any])
         for (ruleset, run) in runs.sorted(by: { $0.key < $1.key }) {
             let label = "\(name) [\(ruleset)]"
             let problems = ScenarioRunner(json: json, ruleset: ruleset, spec: run as! [String: Any]).run()
-            let reason = disputedScenarios[name] ?? disputedScenarios["\(name).\(ruleset)"]
-            if let reason {
-                withKnownIssue(Comment(rawValue: "\(label): \(reason)")) {
-                    for p in problems { Issue.record("\(label): \(p)") }
-                }
-            } else {
+            guard let dispute = disputedScenarios[name] ?? disputedScenarios["\(name).\(ruleset)"] else {
                 for p in problems { Issue.record("\(label): \(p)") }
+                continue
             }
+            let (disputed, other) = (problems.filter { $0.contains(dispute.problem) },
+                                     problems.filter { !$0.contains(dispute.problem) })
+            for p in other { Issue.record("\(label): \(p)") }
+            withKnownIssue(Comment(rawValue: "\(label): \(dispute.reason)")) {
+                for p in disputed { Issue.record("\(label): \(p)") }
+            }
+        }
+    }
+
+    /// Gemini final finding 8: a seat asked in a window but not listed in the
+    /// scenario's `window:` line is a difference, not a silent pass. Dropping seat
+    /// 1's chi from a two-seat window makes the scenario fail.
+    @Test func unlistedAskedSeatFails() throws {
+        let json = try ScenarioFiles.load("call_priority_daiminkan_over_chi")
+        let runs = json["runs"] as! [String: Any]
+        for (ruleset, run) in runs {
+            var spec = run as! [String: Any]
+            #expect(ScenarioRunner(json: json, ruleset: ruleset, spec: spec).run().isEmpty)
+            var steps = spec["steps"] as! [[String: Any]]
+            let i = try #require(steps.firstIndex { ($0["answers"] as? [String: Any])?["1"] != nil })
+            var answers = steps[i]["answers"] as! [String: Any]
+            answers["1"] = nil
+            steps[i]["answers"] = answers
+            spec["steps"] = steps
+            let problems = ScenarioRunner(json: json, ruleset: ruleset, spec: spec).run()
+            #expect(problems.count == 1 && problems[0].contains("seat 1 is asked but not listed"), "\(problems)")
         }
     }
 
@@ -105,15 +123,21 @@ struct ScenarioRunner {
         guard let wall = Wall(tiles: tiles(json["wall"])) else { return ["bad wall"] }
         let wind = Wind(letter: Substring(round["wind"] as! String))!
         if let length = round["game_length"] as? String { rules.length = length == "east" ? .east : .south }
-        let position = GamePosition(roundWind: wind, kyoku: round["round"] as! Int,
-                                    honba: round["honba"] as! Int, sticks: round["sticks"] as! Int,
-                                    scores: round["scores"] as? [Int] ?? [25_000, 25_000, 25_000, 25_000])
+        let position: GamePosition
+        do {
+            position = try GamePosition(roundWind: wind, kyoku: round["round"] as! Int,
+                                        honba: round["honba"] as! Int, sticks: round["sticks"] as! Int,
+                                        scores: round["scores"] as? [Int] ?? [25_000, 25_000, 25_000, 25_000])
+        } catch { return ["bad position: \(error)"] }
         guard position.dealer.index == round["dealer"] as! Int else {
             return ["dealer \(round["dealer"]!) is not seat kyoku − 1 (\(position.dealer))"]
         }
         var events: [Event] = []
-        var state = GameState(rules: rules, seed: 0, position: position, wall: wall, startGame: false,
-                              events: &events)
+        var state: GameState
+        do {
+            state = try GameState(rules: rules, seed: 0, position: position, wall: wall, startGame: false,
+                                  events: &events)
+        } catch { return ["bad position: \(error)"] }
         let steps = spec["steps"] as? [[String: Any]] ?? []
 
         for (n, step) in steps.enumerated() {
@@ -142,7 +166,30 @@ struct ScenarioRunner {
         if named, end + 1 < events.count, case .endGame = events[end + 1] { mine.append(events[end + 1]) }
         problems += check(spec["expect"] as? [String: Any] ?? [:], result, mine, position)
         problems += checkGame(spec["expect"] as? [String: Any] ?? [:], transition, state)
+        problems += checkLedgerAndViews(result, position, state, events)
         return problems
+    }
+
+    /// What every scenario must satisfy whatever its fixture states (Codex final
+    /// review, test strength): both sides of the point ledger, the final result's
+    /// award of leftover sticks, and each seat's fold of its masked events against
+    /// its view where the game rests (the next hand, or the end of the game).
+    func checkLedgerAndViews(_ r: RoundResult, _ position: GamePosition, _ g: GameState, _ events: [Event]) -> [String] {
+        var p: [String] = []
+        if zip(position.scores, r.deltas).map(+) != r.scores { p.append("ledger: scores \(r.scores) ≠ start + deltas") }
+        if r.deltas.reduce(0, +) + 1000 * (r.sticks - position.sticks) != 0 { p.append("ledger: points not conserved") }
+        if let end = g.result {
+            var award = r.scores
+            award[end.ranks[0].index] += 1000 * r.sticks
+            if end.scores != award || end.sticksAwarded != r.sticks { p.append("final scores \(end.scores) ≠ \(award)") }
+        }
+        for seat in Seat.all {
+            var f = ViewFolder(seat: seat)
+            for e in events { f.apply(e.masked(for: seat)) }
+            let v = g.view(of: seat)
+            if f.table(asked: !v.legalActions.isEmpty) != v.table { p.append("seat \(seat)'s folded view differs from its view") }
+        }
+        return p
     }
 
     func describe(_ step: [String: Any]) -> String {
@@ -201,7 +248,12 @@ struct ScenarioRunner {
             }
             for s in Seat.all {
                 guard let g = given[String(s.index)] else {
-                    if asked.contains(s) { answers[s] = .pass }
+                    // FORMAT.md: the window lists every seat asked in it. A seat the
+                    // scenario does not list is not silently passed (Gemini final
+                    // finding 8): being asked is a difference.
+                    if asked.contains(s) {
+                        throw ScenarioFailure("seat \(s) is asked but not listed (legal: \(legalSummary(state)))")
+                    }
                     continue
                 }
                 let a = windowAction(g)

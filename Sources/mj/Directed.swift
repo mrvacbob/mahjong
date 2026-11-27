@@ -111,7 +111,8 @@ enum Scenario: String, CaseIterable, Sendable {
             let a = r.below(4), b = (a + 1 + r.below(3)) % 4
             fill([a: v, b: v])
         }
-        return (GamePosition(roundWind: wind, kyoku: kyoku, honba: honba, sticks: sticks, scores: scores), zero)
+        // In range by construction.
+        return (try! GamePosition(roundWind: wind, kyoku: kyoku, honba: honba, sticks: sticks, scores: scores), zero)
     }
 
     /// Whether the hand is arranged.
@@ -369,14 +370,14 @@ struct DirectedBot: Player {
         eager = BuiltinBot(kind: .eager, rng: rng)
     }
 
-    mutating func receive(_ events: [MaskedEvent], view: PlayerView?) -> Action? {
-        for e in events {
-            if case .startKyoku(_, _, _, _, let oya, _, _, _) = e {
-                hand += 1
-                goal = scenario.plan(seed: seed, hand: hand).goals?[seat.distance(from: oya)]
-            }
+    mutating func receive(_ e: MaskedEvent, prompt: PlayerView?) {
+        if case .startKyoku(_, _, _, _, let oya, _, _, _) = e {
+            hand += 1
+            goal = scenario.plan(seed: seed, hand: hand).goals?[seat.distance(from: oya)]
         }
-        guard let view else { return nil }
+    }
+
+    mutating func decision(_ view: PlayerView) -> Action? {
         guard let goal else { return eager.eager(view) }
         return decide(view, goal)
     }

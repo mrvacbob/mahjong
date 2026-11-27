@@ -8,7 +8,7 @@ import Testing
 func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
               step: (GameState, [Event]) throws -> Void = { _, _ in }) throws -> (GameState, [Event]) {
     var events: [Event] = []
-    var g = GameState(rules: rules, seed: seed, events: &events)
+    var g = try GameState(rules: rules, seed: seed, events: &events)
     var all = events
     try step(g, events)
     var n = 0
@@ -48,20 +48,20 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
             #expect(events.last == .endGame(scores: r.scores))
             #expect(events.count(where: { $0 == .startGame }) == 1)
             // Each hand's header follows from the last.
-            let starts = events.compactMap { e -> GamePosition? in
+            let starts = try events.compactMap { e throws -> GamePosition? in
                 if case .startKyoku(let b, let k, let h, let s, let o, _, let sc, _) = e {
                     #expect(o.index == k - 1)
-                    return GamePosition(roundWind: b, kyoku: k, honba: h, sticks: s, scores: sc)
+                    return try GamePosition(roundWind: b, kyoku: k, honba: h, sticks: s, scores: sc)
                 }
                 return nil
             }
             #expect(starts.count == g.handsDealt)
-            #expect(starts.first == GamePosition(scores: Array(repeating: rules.startingPoints, count: 4)))
+            #expect(try starts.first == GamePosition(scores: Array(repeating: rules.startingPoints, count: 4)))
         }
         print("game ends \(bot) \(ruleset): \(ends)")
     }
 
-    @Test func transitions() {
+    @Test func transitions() throws {
         let rules = Rules.mahjongSoul
         func result(_ scores: [Int], dealer: Int, repeats: Bool, outcome: RoundResult.Outcome = .exhaustiveDraw(tenpai: [], nagashi: []),
                     sticks: Int = 0) -> RoundResult {
@@ -70,55 +70,55 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         }
         let even = [25_000, 25_000, 25_000, 25_000]
         // Ordinary: the deal passes, honba +1 after a draw.
-        var (n, t) = GameFlow.next(after: result(even, dealer: 0, repeats: false), at: GamePosition(scores: even), rules: rules)
-        #expect(t == .ordinary && n == GamePosition(roundWind: .east, kyoku: 2, honba: 1, scores: even))
+        var (n, t) = try GameFlow.next(after: result(even, dealer: 0, repeats: false), at: try GamePosition(scores: even), rules: rules)
+        #expect(try t == .ordinary && n == GamePosition(roundWind: .east, kyoku: 2, honba: 1, scores: even))
         // East 4 to South 1.
-        (n, t) = GameFlow.next(after: result(even, dealer: 3, repeats: false), at: GamePosition(kyoku: 4, scores: even), rules: rules)
+        (n, t) = try GameFlow.next(after: result(even, dealer: 3, repeats: false), at: try GamePosition(kyoku: 4, scores: even), rules: rules)
         #expect(n?.roundWind == .south && n?.kyoku == 1)
         // Below zero ends at once, even with a dealer repeat; zero continues.
-        (n, t) = GameFlow.next(after: result([-100, 25_100, 50_000, 25_000], dealer: 0, repeats: true), at: GamePosition(scores: even), rules: rules)
+        (n, t) = try GameFlow.next(after: result([-100, 25_100, 50_000, 25_000], dealer: 0, repeats: true), at: try GamePosition(scores: even), rules: rules)
         #expect(n == nil && t == .ends(.belowZero))
-        (n, t) = GameFlow.next(after: result([0, 25_000, 50_000, 25_000], dealer: 0, repeats: true), at: GamePosition(scores: even), rules: rules)
+        (n, t) = try GameFlow.next(after: result([0, 25_000, 50_000, 25_000], dealer: 0, repeats: true), at: try GamePosition(scores: even), rules: rules)
         #expect(n != nil)
         // All last, the dealer tied for first is not first (seat-order tie-break).
-        let s4 = GamePosition(roundWind: .south, kyoku: 4, scores: even)
-        (n, t) = GameFlow.next(after: result([31_000, 20_000, 18_000, 31_000], dealer: 3, repeats: true), at: s4, rules: rules)
+        let s4 = try GamePosition(roundWind: .south, kyoku: 4, scores: even)
+        (n, t) = try GameFlow.next(after: result([31_000, 20_000, 18_000, 31_000], dealer: 3, repeats: true), at: s4, rules: rules)
         #expect(t == .allLastRepeat && n?.kyoku == 4)
-        (n, t) = GameFlow.next(after: result([30_000, 20_000, 18_000, 32_000], dealer: 3, repeats: true), at: s4, rules: rules)
+        (n, t) = try GameFlow.next(after: result([30_000, 20_000, 18_000, 32_000], dealer: 3, repeats: true), at: s4, rules: rules)
         #expect(t == .ends(.dealerFirst))
         // An abortive draw repeats even for a dealer first on 30,000.
-        (n, t) = GameFlow.next(after: result([20_000, 20_000, 20_000, 40_000], dealer: 3, repeats: true, outcome: .abortiveDraw(.kyuushu)), at: s4, rules: rules)
+        (n, t) = try GameFlow.next(after: result([20_000, 20_000, 20_000, 40_000], dealer: 3, repeats: true, outcome: .abortiveDraw(.kyuushu)), at: s4, rules: rules)
         #expect(t == .allLastRepeat)
         // Nobody on 30,000: into West; in West 4, beyond it the game ends.
-        (n, t) = GameFlow.next(after: result([29_000, 21_000, 25_000, 25_000], dealer: 3, repeats: false), at: s4, rules: rules)
+        (n, t) = try GameFlow.next(after: result([29_000, 21_000, 25_000, 25_000], dealer: 3, repeats: false), at: s4, rules: rules)
         #expect(t == .allLastAdvance && n?.roundWind == .west && n?.kyoku == 1)
-        (n, t) = GameFlow.next(after: result([29_000, 21_000, 25_000, 25_000], dealer: 3, repeats: false),
-                               at: GamePosition(roundWind: .west, kyoku: 4, scores: even), rules: rules)
+        (n, t) = try GameFlow.next(after: result([29_000, 21_000, 25_000, 25_000], dealer: 3, repeats: false),
+                               at: try GamePosition(roundWind: .west, kyoku: 4, scores: even), rules: rules)
         #expect(t == .ends(.extensionOver))
         // A non-dealer on 30,000 while the dealer repeats: the repeat wins unless the
         // Rules field says otherwise.
-        (n, t) = GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true), at: s4, rules: rules)
+        (n, t) = try GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true), at: s4, rules: rules)
         #expect(t == .allLastRepeat)
         var r2 = rules
         r2.dealerRepeatBeforeTarget = false
-        (n, t) = GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true), at: s4, rules: r2)
+        (n, t) = try GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true), at: s4, rules: r2)
         #expect(t == .ends(.target))
         // ... but an abortive draw in all last still repeats (Gemini C/D finding 12).
-        (n, t) = GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true,
+        (n, t) = try GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true,
                                              outcome: .abortiveDraw(.kyuushu)), at: s4, rules: r2)
         #expect(t == .allLastRepeat && n?.kyoku == 4)
         // North 4 never wraps to East 1 (Codex C/D finding 4).
-        (n, t) = GameFlow.next(after: result(even, dealer: 3, repeats: false),
-                               at: GamePosition(roundWind: .north, kyoku: 4, scores: even), rules: rules)
+        (n, t) = try GameFlow.next(after: result(even, dealer: 3, repeats: false),
+                               at: try GamePosition(roundWind: .north, kyoku: 4, scores: even), rules: rules)
         #expect(n == nil && t == .ends(.extensionOver))
         // East game: East 4 is all last, South is the extension.
         var east = rules
         east.length = .east
-        (n, t) = GameFlow.next(after: result([29_000, 21_000, 25_000, 25_000], dealer: 3, repeats: false),
-                               at: GamePosition(kyoku: 4, scores: even), rules: east)
+        (n, t) = try GameFlow.next(after: result([29_000, 21_000, 25_000, 25_000], dealer: 3, repeats: false),
+                               at: try GamePosition(kyoku: 4, scores: even), rules: east)
         #expect(t == .allLastAdvance && n?.roundWind == .south)
         // Final result: sticks to first, uma and oka (Tenhou).
-        let g = GameFlow.result(scores: [30_000, 30_000, 20_000, 18_000], sticks: 2, rules: .tenhou, end: .target)
+        let g = try GameFlow.result(scores: [30_000, 30_000, 20_000, 18_000], sticks: 2, rules: .tenhou, end: .target)
         #expect(g.ranks == [Seat(0), Seat(1), Seat(2), Seat(3)])
         #expect(g.scores == [32_000, 30_000, 20_000, 18_000])
         #expect(g.adjusted == [32_000 - 30_000 + 20_000 + 20_000, 30_000 - 30_000 + 10_000, 20_000 - 30_000 - 10_000, 18_000 - 30_000 - 20_000])
@@ -143,11 +143,16 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
                         }
                         folders[seat.index].apply(m)
                     }
-                    guard !g.isOver else { continue }
-                    let v = g.round.view(of: seat)
+                    // Also once the game is over: the final scores, no sticks left
+                    // (Codex final finding 4).
+                    let v = g.view(of: seat)
                     #expect(folders[seat.index].table(asked: !v.legalActions.isEmpty) == v.table, "seed \(seed) seat \(seat)")
                     if v.legalActions.isEmpty { #expect(v.table.reacting == nil) }
-                    #expect(v.legalActions == g.legalActions(for: seat))
+                    // A seat asked to decide finds the event that asks it among the
+                    // step's events (the mjai adapter binds the reply to it).
+                    if !v.legalActions.isEmpty {
+                        #expect(v.prompt(in: events.map { $0.masked(for: seat) }) != nil, "seed \(seed) seat \(seat)")
+                    }
                 }
             }
         }
@@ -164,7 +169,7 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
                                     "1m4m7m5p9p2s5s8s9s1z2z4z6z", "23p456m789m340s99s"],
                             draws: "9m6z6z6z1s1s3z", rinshan: "1p8p", dora: "1z2z")
         var events: [Event] = []
-        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &events)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall, events: &events)
         var folders = Seat.all.map(ViewFolder.init)
         func fold(_ label: String) {
             for seat in Seat.all {
@@ -197,7 +202,7 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
 
     /// Codex C/D finding 5: rules are bounded so that the game-end arithmetic fits
     /// 32-bit Int at the extremes allowed.
-    @Test func rulesBounds() {
+    @Test func rulesBounds() throws {
         #expect(Rules.mahjongSoul.isValid && Rules.tenhou.isValid)
         var r = Rules.tenhou
         r.returnPoints = 600_025_000
@@ -213,7 +218,7 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         r.uma = [1_000_000, 1_000_000, -1_000_000, -1_000_000]
         #expect(r.isValid)
         let m = RoundState.maxScore
-        let g = GameFlow.result(scores: [m, m, -m, -m], sticks: RoundState.maxCount, rules: r, end: .target)
+        let g = try GameFlow.result(scores: [m, m, -m, -m], sticks: RoundState.maxCount, rules: r, end: .target)
         let int32 = Int(Int32.min)...Int(Int32.max)
         #expect(int32.contains(r.oka))
         #expect((g.scores + g.adjusted).allSatisfy { int32.contains($0) })

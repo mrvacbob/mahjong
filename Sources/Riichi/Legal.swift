@@ -64,8 +64,39 @@ public func isTenpaiAtDraw(_ concealed: Counts, melds: [Meld], rules: Rules) -> 
 }
 
 extension LegalRequest {
-    /// The `legal` answer: distinct actions, sorted as strings.
+    /// Throws unless the request can be answered: valid rules, at most four melds,
+    /// 13 − 3 × melds concealed tiles (14 − 3 × melds right after a call), a
+    /// possible tile set, `wall` 0...70 and `kans` 0...4.
+    public func check() throws(InputError) {
+        try rules.validate()
+        guard melds.count <= 4 else { throw InputError("melds", "\(melds.count) melds") }
+        let extra: [Tile]
+        let size: Int
+        switch situation {
+        case .draw(let t), .discard(let t, _): extra = [t]; size = 13 - 3 * melds.count
+        case .called(let m, let took):
+            guard m.kind == .chi || m.kind == .pon, m.tiles.contains(took), melds.contains(m) else {
+                throw InputError("called", "not a chi or pon among the melds that takes \(took)")
+            }
+            extra = []; size = 14 - 3 * melds.count
+        }
+        guard hand.count == size else { throw InputError("hand", "\(hand.count) tiles, not \(size)") }
+        guard isPossibleTileSet(hand + extra + melds.tiles) else {
+            throw InputError("hand", "more than four of a kind or two red fives of a suit")
+        }
+        guard (0...Wall.liveDraws).contains(wall) else { throw InputError("wall", "\(wall) is not 0...\(Wall.liveDraws)") }
+        guard (0...4).contains(kans) else { throw InputError("kans", "\(kans) is not 0...4") }
+    }
+
+    /// The `legal` answer: distinct actions, sorted as strings (after `check()`).
     public var actions: [String] {
+        get throws(InputError) {
+            try check()
+            return answer
+        }
+    }
+
+    private var answer: [String] {
         let out = switch situation {
         case .draw(let t): afterDraw(drawn: t)
         case .discard(let t, let kamicha): onDiscard(tile: t, fromKamicha: kamicha)

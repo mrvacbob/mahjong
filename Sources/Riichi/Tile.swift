@@ -118,14 +118,16 @@ public struct Tile: Hashable, Comparable, Sendable, CustomStringConvertible {
     }
 }
 
-/// Parses "123m406p77z" (or "-") into tiles in the order written.
+/// Parses "123m406p77z" (or "-") into tiles in the order written. Only the ASCII
+/// digits `0`–`9` are digits (Gemini final finding 1: other numeric characters
+/// such as `⑽` are refused, not read as numbers).
 public func parseTiles(_ text: Substring) -> [Tile]? {
     if text == "-" { return [] }
     var out: [Tile] = []
     var digits: [Int] = []
     for ch in text {
-        if let d = ch.wholeNumberValue {
-            digits.append(d)
+        if let a = ch.asciiValue, (0x30...0x39).contains(a) {
+            digits.append(Int(a) - 0x30)
         } else if let suit = Suit(letter: ch), !digits.isEmpty {
             for d in digits {
                 if d == 0 {
@@ -250,13 +252,12 @@ public struct Meld: Hashable, Sendable {
 
     /// Kinds that may not be discarded right after making this chi or pon by
     /// taking `took` (kuikae). Red and plain fives are the same kind. Empty for a
-    /// kan, which is followed by a replacement draw. `took` must be in the meld.
+    /// kan, which is followed by a replacement draw, and when `took` is not in the
+    /// meld (there is no such call).
     public func kuikaeForbidden(took: Kind) -> Set<Kind> {
         guard kind == .chi || kind == .pon else { return [] }
         var fromHand = tiles.map(\.kind)
-        guard let i = fromHand.firstIndex(of: took) else {
-            preconditionFailure("kuikaeForbidden: the taken kind \(took) is not in the meld")
-        }
+        guard let i = fromHand.firstIndex(of: took) else { return [] }
         var out: Set<Kind> = [took]
         guard kind == .chi else { return out }
         fromHand.remove(at: i)

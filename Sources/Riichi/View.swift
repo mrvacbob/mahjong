@@ -95,10 +95,38 @@ public struct PlayerView: Hashable, Sendable {
     public var table: Table
     /// The seat's own furiten (any kind), as the engine decides it.
     public var furiten: Bool
+    /// Its three sorts (`RoundState.furitenParts(of:)`).
+    public var furitenParts: FuritenParts
     /// The seat's legal actions now, in `legalActions` order.
     public var legalActions: [Action]
 
     public var seat: Seat { table.seat }
+
+    /// The index in `events` (the masked events of the step that brought the seat
+    /// to this decision) of the event that asks for it: the seat's draw, its chi or
+    /// pon, or its riichi declaration on its turn; the discard in a discard window;
+    /// the `ankan` or `kakan` in a robbing window. Only indicators (`dora`) can come
+    /// after it: Mahjong Soul shows an owed one just after a chained added kan,
+    /// before that kan's robbing window. Nil if the seat has no decision or the
+    /// prompt is not among `events`.
+    public func prompt(in events: [MaskedEvent]) -> Int? {
+        guard !legalActions.isEmpty else { return nil }
+        let me = seat
+        guard let i = events.lastIndex(where: { e in
+            switch (table.reacting, e) {
+            case (.discard(let d)?, .dahai(let a, let t, _)): a == d.seat && t == d.tile
+            case (.kan(let k)?, .kakan(let a, _, _)): a == k.seat && k.kind == .added
+            case (.kan(let k)?, .ankan(let a, _)): a == k.seat && k.kind == .closed
+            case (nil, .tsumo(let a, _)), (nil, .reach(let a)): a == me
+            case (nil, .chi(let a, _, _, _)), (nil, .pon(let a, _, _, _)): a == me
+            default: false
+            }
+        }) else { return nil }
+        for e in events[(i + 1)...] {
+            guard case .dora = e else { return nil }
+        }
+        return i
+    }
 }
 
 extension RoundState {
@@ -127,7 +155,8 @@ extension RoundState {
         case .robbing(let k) where !legal.isEmpty: t.reacting = .kan(k)
         default: t.reacting = nil
         }
-        return PlayerView(table: t, furiten: players[seat.index].isFuriten, legalActions: legal)
+        return PlayerView(table: t, furiten: players[seat.index].isFuriten, furitenParts: furitenParts(of: seat),
+                          legalActions: legal)
     }
 }
 
@@ -201,8 +230,13 @@ public struct ViewFolder: Sendable {
         }
         if !(indicator && pendingKan != nil) { table.reacting = nil }
         switch e {
-        case .startGame, .endGame:
+        case .startGame:
             break
+        case .endGame(let s):
+            // The final scores: leftover sticks paid to first place (Codex final
+            // finding 4), as `GameState.view(of:)` shows them.
+            table.scores = s
+            table.sticks = 0
         case .startKyoku(let b, let k, let h, let s, let o, let d, let sc, let th):
             table = PlayerView.Table(seat: me)
             table.roundWind = b
@@ -233,7 +267,8 @@ public struct ViewFolder: Sendable {
                 riichiDeclared = nil
                 table.riichi[a.index] = .pending
             }
-            table.ponds[a.index].append(PondTile(tile: t, tsumogiri: g, riichi: riichi, calledAway: false))
+            let order = table.ponds.reduce(0) { $0 + $1.count }
+            table.ponds[a.index].append(PondTile(tile: t, tsumogiri: g, riichi: riichi, calledAway: false, order: order))
             table.reacting = .discard(Discard(seat: a, tile: t, tsumogiri: g, riichi: riichi))
         case .chi(let a, let tg, let t, let c), .pon(let a, let tg, let t, let c), .daiminkan(let a, let tg, let t, let c):
             let meld: TableMeld

@@ -60,17 +60,18 @@ import Riichi
     /// discard it takes.
     @Test func callFieldsValidated() throws {
         let k = Kind(.man, 1)
-        let legal: [Action] = [.ankan(k), .pass]
+        let turn = Mjai.Decision(seat: Seat(0), legal: [.ankan(k), .discard(Tile(k), tsumogiri: true)],
+                                 trigger: .turn(drawn: Tile(k)), concealed: t("1111m234p567s789s"))
         for c in [#"["1m"]"#, #"["1m","9p","2s","E"]"#, #"["1m","1m","1m"]"#] {
             let m = try Mjai.decode(#"{"type":"ankan","actor":0,"consumed":"# + c + "}")
-            #expect(Mjai.action(m, seat: Seat(0), legal: legal) == nil, "\(c)")
+            #expect(Mjai.action(m, for: turn) == nil, "\(c)")
         }
         let good = try Mjai.decode(#"{"type":"ankan","actor":0,"consumed":["1m","1m","1m","1m"]}"#)
-        #expect(Mjai.action(good, seat: Seat(0), legal: legal) == .ankan(k))
+        #expect(Mjai.action(good, for: turn) == .ankan(k))
         let five = Tile(Kind(.pin, 5))
-        let offered = (tile: five, from: Seat(3))
-        let calls: [Action] = [.daiminkan, .pon(five, five), .pass]
-        func act(_ s: String) throws -> Action? { Mjai.action(try Mjai.decode(s), seat: Seat(0), legal: calls, offered: offered) }
+        let calls = Mjai.Decision(seat: Seat(0), legal: [.daiminkan, .pon(five, five), .pass],
+                                  trigger: .discard(tile: five, from: Seat(3)), concealed: t("555p123m456m789m1z"))
+        func act(_ s: String) throws -> Action? { Mjai.action(try Mjai.decode(s), for: calls) }
         #expect(try act(#"{"type":"daiminkan","actor":0,"target":3,"pai":"5p","consumed":["5p","5p","5p"]}"#) == .daiminkan)
         #expect(try act(#"{"type":"daiminkan","actor":0}"#) == .daiminkan)
         #expect(try act(#"{"type":"daiminkan","actor":0,"target":2,"pai":"5p"}"#) == nil)
@@ -79,4 +80,29 @@ import Riichi
         #expect(try act(#"{"type":"pon","actor":0,"target":3,"pai":"5p","consumed":["5p","5p"]}"#) == .pon(five, five))
         #expect(try act(#"{"type":"pon","actor":0,"target":1,"pai":"5p","consumed":["5p","5p"]}"#) == nil)
     }
+
+    /// Gemini final finding 3: a kan names the very tiles it uses, so impossible red
+    /// fives are refused; an added kan's `consumed`, when given, is the pon.
+    @Test func kanTilesAreTheHand() throws {
+        let five = Kind(.man, 5)
+        let ankan = Mjai.Decision(seat: Seat(0), legal: [.ankan(five), .discard(Tile(five), tsumogiri: true)],
+                                  trigger: .turn(drawn: Tile(five)), concealed: t("0555m234p567s789s"))
+        func act(_ s: String, _ d: Mjai.Decision) throws -> Action? { Mjai.action(try Mjai.decode(s), for: d) }
+        #expect(try act(#"{"type":"ankan","actor":0,"consumed":["5mr","5m","5m","5m"]}"#, ankan) == .ankan(five))
+        for bad in [#"["5mr","5mr","5mr","5mr"]"#, #"["5m","5m","5m","5m"]"#, #"["5mr","5mr","5m","5m"]"#] {
+            #expect(try act(#"{"type":"ankan","actor":0,"consumed":"# + bad + "}", ankan) == nil, "\(bad)")
+        }
+        let open = Mjai.Decision(seat: Seat(0), legal: [.daiminkan, .pass],
+                                 trigger: .discard(tile: Tile(five), from: Seat(1)), concealed: t("055m234p567s789s1z"))
+        #expect(try act(#"{"type":"daiminkan","actor":0,"target":1,"pai":"5m","consumed":["5mr","5m","5m"]}"#, open) == .daiminkan)
+        #expect(try act(#"{"type":"daiminkan","actor":0,"target":1,"pai":"5m","consumed":["5mr","5mr","5mr"]}"#, open) == nil)
+        let pon = t("055m")
+        let kakan = Mjai.Decision(seat: Seat(0), legal: [.kakan(Tile(five)), .discard(Tile(five), tsumogiri: true)],
+                                  trigger: .turn(drawn: Tile(five)), concealed: t("234p567s789s5m"), pons: [pon])
+        #expect(try act(#"{"type":"kakan","actor":0,"pai":"5m"}"#, kakan) == .kakan(Tile(five)))
+        #expect(try act(#"{"type":"kakan","actor":0,"pai":"5m","consumed":["5mr","5m","5m"]}"#, kakan) == .kakan(Tile(five)))
+        #expect(try act(#"{"type":"kakan","actor":0,"pai":"5m","consumed":["5m","5m","5m"]}"#, kakan) == nil)
+    }
 }
+
+func t(_ s: String) -> [Tile] { parseTiles(Substring(s))! }

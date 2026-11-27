@@ -75,17 +75,17 @@ import Testing
         #expect(!isTenpaiAtDraw(concealed, melds: m, rules: strict))
     }
 
-    @Test func calledSituationWithRedFives() {
+    @Test func calledSituationWithRedFives() throws {
         // Chi 0m with 67m: 5m (either copy) and 8m are forbidden.
-        let chi = LegalRequest(hand: t("058m1z"), melds: melds("c067m"),
-                               situation: .called(Meld(kind: .chi, tiles: t("067m"))!, took: t1("0m")),
-                               rules: .mahjongSoul).actions
-        #expect(chi == ["discard:1z"])
+        let chi = try LegalRequest(hand: t("558m1z111p234p5s"), melds: melds("c067m"),
+                                   situation: .called(Meld(kind: .chi, tiles: t("067m"))!, took: t1("0m")),
+                                   rules: .mahjongSoul).actions
+        #expect(chi == ["discard:1p", "discard:1z", "discard:2p", "discard:3p", "discard:4p", "discard:5s"])
         // Pon of 5p with 0p5p: no 5p of either colour.
-        let pon = LegalRequest(hand: t("5p3s"), melds: melds("p055p"),
-                               situation: .called(Meld(kind: .pon, tiles: t("055p"))!, took: t1("5p")),
-                               rules: .mahjongSoul).actions
-        #expect(pon == ["discard:3s"])
+        let pon = try LegalRequest(hand: t("5p3s111m222m333m"), melds: melds("p055p"),
+                                   situation: .called(Meld(kind: .pon, tiles: t("055p"))!, took: t1("5p")),
+                                   rules: .mahjongSoul).actions
+        #expect(pon == ["discard:1m", "discard:2m", "discard:3m", "discard:3s"])
     }
 }
 
@@ -155,5 +155,49 @@ import Testing
         #expect(out[6] == "7 error=bad_by")
         #expect(out[7] == "8 error=bad_from")
         #expect(out[8] == "9 error=bad_called")
+    }
+
+    /// Gemini final finding 1 and Codex final finding 3: hostile requests are
+    /// answered with an error, never a crash. The two reproductions, then a
+    /// deterministic batch of malformed and physically impossible requests (non-ASCII
+    /// digits, 16 copies of a kind, too many melds, honba past `Int`, sizes far from
+    /// 13), every one answered.
+    @Test(.enabled(if: mjPath != nil)) func hostileRequestsAreAnswered() throws {
+        let fixed = [
+            "1 shanten hand=⑽m",
+            "2 shanten hand=1111111111111111m",
+            "3 waits hand=１m",
+            "4 score hand=123456m789p23s99s win=1s by=ron honba=9223372036854775807",
+            "5 agari hand=11m melds=p111p,p222p,p333p,p444p,p555p",
+            "6 legal hand=1m melds=p111p,p222p,p333p,p444p,p555p draw=1m",
+            "7 score hand=123456m789p23s9s win=1s by=ron",
+        ]
+        let out = try run(fixed)
+        #expect(out.count == fixed.count)
+        #expect(out[0] == "1 error=bad_hand" && out[1] == "2 error=impossible_tiles" && out[2] == "3 error=bad_hand")
+        #expect(out[3] == "4 error=bad_honba")
+        #expect(out[4] == "5 error=bad_melds" && out[5] == "6 error=bad_melds")
+        #expect(out[6] == "7 error=bad_hand_size")
+        var rng = TestRNG(state: 2026)
+        let parts = ["1", "5", "0", "9", "⑽", "１", "m", "p", "s", "z", "x", "-"]
+        func junk() -> String { (0..<rng.below(30)).map { _ in parts[rng.below(parts.count)] }.joined() }
+        func hand() -> String {
+            let n = [0, 1, 13, 14, 16, 40][rng.below(6)]
+            return (0..<n).map { _ in "\(1 + rng.below(9))\(["m", "p", "s"][rng.below(3)])" }.joined()
+        }
+        var lines: [String] = []
+        for i in 0..<3000 {
+            let op = ["agari", "shanten", "waits", "score", "legal"][rng.below(5)]
+            var q = "h\(i) \(op) hand=\(rng.chance(50) ? hand() : junk())"
+            if rng.chance(50) { q += " melds=\(["-", "p111m,p222m,p333m,p444m,p555m", "c123m", "a1111z", junk()][rng.below(5)])" }
+            if rng.chance(60) { q += " win=\(rng.chance(50) ? "1m" : junk()) by=\(rng.chance(50) ? "ron" : "tsumo")" }
+            if rng.chance(30) { q += " draw=\(junk())" }
+            if rng.chance(30) { q += " honba=\(["0", "999", "1000", "-1", "99999999999999999999"][rng.below(5)])" }
+            if rng.chance(30) { q += " dora=\(junk())" }
+            lines.append(q)
+        }
+        let answers = try run(lines)
+        #expect(answers.count == lines.count)
+        #expect(zip(lines, answers).allSatisfy { $1.hasPrefix(String($0.split(separator: " ")[0]) + " ") })
     }
 }

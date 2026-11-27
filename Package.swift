@@ -19,5 +19,7 @@ let package = Package(
         .testTarget(name: "RiichiTests", dependencies: ["Riichi"], path: "Tests/RiichiTests"),
         .testTarget(name: "RiichiMjaiTests", dependencies: ["Riichi", "RiichiMjai"],
                     path: "Tests/RiichiMjaiTests"),
+        // The driver and the mjai bot adapter, in process (`@testable import mj`).
+        .testTarget(name: "mjTests", dependencies: ["mj", "Riichi", "RiichiMjai"], path: "Tests/mjTests"),
     ]
 )

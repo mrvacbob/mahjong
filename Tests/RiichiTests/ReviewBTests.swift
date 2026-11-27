@@ -22,7 +22,7 @@ import Testing
         strict.temporaryFuritenOnDeclinedTsumo = true
         for rules in [Rules.tenhou, .mahjongSoul, strict] {
             let furiten = rules.temporaryFuritenOnDeclinedTsumo
-            var s = RoundState(rules: rules, wall: wall)
+            var s = try RoundState(rules: rules, wall: wall)
             #expect(s.legalActions(for: Seat(0)).contains(.tsumo))
             try s.apply(.ankan(t1("4s").kind), by: Seat(0))
             #expect(s.drawnTile(of: Seat(0)) == t1("7z"))
@@ -50,7 +50,7 @@ import Testing
         strict.temporaryFuritenOnDeclinedTsumo = true
         for rules in [Rules.tenhou, .mahjongSoul, strict] {
             var events: [Event] = []
-            var s = RoundState(rules: rules, wall: wall)
+            var s = try RoundState(rules: rules, wall: wall)
             for seat in 0..<4 {
                 try s.tsumogiri(seat, events: &events)
                 if !s.seatsToAnswer.isEmpty { try s.answer(events: &events) }
@@ -73,7 +73,7 @@ import Testing
                                     "23m678m234p567s88p", "234m678m234p56s88s"],
                             draws: "4z", rinshan: "7s", dora: "3z5z")
         var events: [Event] = []
-        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &events)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall, events: &events)
         try s.apply(.ankan(t1("1m").kind), by: Seat(0), events: &events)
         #expect(s.kanCount == 0)
         #expect(s.melds(of: Seat(0)).isEmpty)
@@ -98,7 +98,7 @@ import Testing
                             draws: "9p", rinshan: "3z4z4z5z", dora: "1z2z3z4z7z")
         for rules in [Rules.mahjongSoul, .tenhou] {
             var events: [Event] = []
-            var s = RoundState(rules: rules, wall: wall, events: &events)
+            var s = try RoundState(rules: rules, wall: wall, events: &events)
             for k in ["1m", "9m", "1p"] {
                 try s.apply(.ankan(t1(k).kind), by: Seat(0), events: &events)
             }
@@ -121,7 +121,7 @@ import Testing
         let wall = makeWall(hands: ["1111m234p567p88s4z", "99m19p19s1234567z",
                                     "234m567m234s567s2z", "345m678m345s678s2z"],
                             draws: "8s", rinshan: "7s", dora: "3z")
-        var s = RoundState(rules: .mahjongSoul, wall: wall)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall)
         let before = (s.hand(of: Seat(0)), s.drawnTile(of: Seat(0)), s.waits(of: Seat(0)))
         try s.apply(.ankan(t1("1m").kind), by: Seat(0))
         guard case .robbing(let pk) = s.phase, pk.kind == .closed else { Issue.record("no window"); return }
@@ -146,7 +146,7 @@ import Testing
                             draws: "5s", rinshan: "6s", dora: "2m")
         var rules = Rules.tenhou
         rules.kokushiRobsClosedKan = true
-        var s = RoundState(rules: rules, wall: wall)
+        var s = try RoundState(rules: rules, wall: wall)
         try s.apply(.ankan(t1("1m").kind), by: Seat(0))
         #expect(s.seatsToAnswer == [Seat(1), Seat(2), Seat(3)])
         var a = Answers()

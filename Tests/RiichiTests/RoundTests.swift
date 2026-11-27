@@ -63,7 +63,7 @@ let quietHands = [
         let wall = makeWall(hands: ["123m456m789p23s99s", quietHands[0], quietHands[1], quietHands[2]],
                             draws: "7z6z6z5z1s4s")
         var ev: [Event] = []
-        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
         try s.apply(.riichi, by: Seat(0), events: &ev)
         try s.tsumogiri(0, events: &ev)
         for seat in 1...3 { try s.tsumogiri(seat, events: &ev) }
@@ -85,7 +85,7 @@ let quietHands = [
                                     "123m456m789p23s99s", quietHands[1], quietHands[2]],
                             draws: "5s6z6z5z")
         var ev: [Event] = []
-        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
         try s.apply(.discard(t1("4s"), tsumogiri: false), by: Seat(0), events: &ev)
         #expect(s.legalActions(for: Seat(1)).contains(.ron))
         try s.answer(events: &ev)
@@ -100,7 +100,7 @@ let quietHands = [
         let wall = makeWall(hands: [quietHands[0], quietHands[1], "123m456m789p23s99s", quietHands[2]],
                             draws: "4s6z")
         var ev: [Event] = []
-        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
         try s.tsumogiri(0, events: &ev)  // 4s: seat 2 may ron
         #expect(s.seatsToAnswer == [Seat(2)])
         try s.answer(events: &ev)
@@ -111,7 +111,7 @@ let quietHands = [
         // Dealer's 13 + first draw 1s is complete.
         var wall = makeWall(hands: ["123m456m789p23s99s", quietHands[0], quietHands[1], quietHands[2]],
                             draws: "1s")
-        var s = RoundState(rules: .mahjongSoul, wall: wall)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall)
         #expect(s.legalActions(for: Seat(0)).first == .tsumo)
         try s.apply(.tsumo, by: Seat(0))
         let w = try #require(s.result?.wins.first)
@@ -121,7 +121,7 @@ let quietHands = [
         // Non-dealer: seat 1 completes on its first draw.
         wall = makeWall(hands: [quietHands[0], "123m456m789p23s99s", quietHands[1], quietHands[2]],
                         draws: "6z1s")
-        s = RoundState(rules: .tenhou, wall: wall)
+        s = try RoundState(rules: .tenhou, wall: wall)
         var ev: [Event] = []
         try s.tsumogiri(0, events: &ev)
         try s.apply(.tsumo, by: Seat(1))
@@ -133,7 +133,7 @@ let quietHands = [
         let wall = makeWall(hands: [quietHands[0], quietHands[1], "123m456m789p23s99s", quietHands[2]],
                             draws: "4s6z")
         var ev: [Event] = []
-        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
+        var s = try RoundState(rules: .mahjongSoul, wall: wall, events: &ev)
         #expect(throws: RoundError.wrongPhase) { try s.resolve(Answers()) }
         #expect(throws: RoundError.notYourTurn(Seat(1))) { try s.apply(.tsumo, by: Seat(1)) }
         #expect(throws: RoundError.illegal(Seat(0), .riichi)) { try s.apply(.riichi, by: Seat(0)) }
@@ -169,7 +169,7 @@ let quietHands = [
         let wall = makeWall(hands: ["055m1p4p7p2s5s8s1z2z3z4z", quietHands[0].replacingOccurrences(of: "5s", with: "6s"),
                                     quietHands[1].replacingOccurrences(of: "5m", with: "6m"), quietHands[2]],
                             draws: "5m")
-        let s = RoundState(rules: .mahjongSoul, wall: wall)
+        let s = try RoundState(rules: .mahjongSoul, wall: wall)
         let legal = s.legalActions(for: Seat(0)).map(\.description)
         #expect(legal.first == "ankan:5m")
         let discards = legal.filter { $0.hasPrefix("discard:") || $0.hasPrefix("tsumogiri:") }
@@ -218,14 +218,41 @@ let quietHands = [
         #expect(problems.isEmpty, "\(problems)")
     }
 
-    @Test func openKanDoraBeforeRonOnMahjongSoul() throws {
-        // Mahjong Soul with Tenhou's timing gives Tenhou's answer.
-        var r = Rules.mahjongSoul
-        r.openKanDoraBeforeRon = true
+    /// Gemini final finding 6: both presets have `openKanDoraBeforeRon` on, so the
+    /// earlier test here (setting it on) tested nothing. Off, the open kan's
+    /// indicator is still owed when the discard after the kan is ronned: no `dora`
+    /// event, no kan dora, 2 han instead of 4.
+    @Test(arguments: ["mahjongsoul", "tenhou"]) func openKanDoraAfterTheWindow(_ ruleset: String) throws {
+        var r: Rules = ruleset == "tenhou" ? .tenhou : .mahjongSoul
+        r.openKanDoraBeforeRon = false
+        let problems = try run("open_kan_discard_ron_dora", rules: r, ruleset: ruleset) { e in
+            e["win 2"] = nil
+            e["wins"] = ["2": ["han": 2, "fu": 30, "yaku": ["pinfu", "tanyao"]]]
+            e["deltas"] = [0, -2000, 2000, 0]
+            e["scores"] = [25000, 23000, 27000, 25000]
+            e["events"] = ["start_kyoku", "tsumo(0)", "dahai(0)", "daiminkan(1)", "tsumo(1)", "dahai(1)", "hora(2)",
+                           "end_kyoku"]
+        }
+        #expect(problems.isEmpty, "\(problems)")
+        // The unpatched expectation (the kan dora counted) fails with the field off.
         let json = try ScenarioFiles.load("open_kan_discard_ron_dora")
         let runs = json["runs"] as! [String: Any]
-        let problems = ScenarioRunner(json: json, ruleset: "tenhou", spec: runs["tenhou"] as! [String: Any],
-                                      rules: r).run()
+        #expect(!ScenarioRunner(json: json, ruleset: ruleset, spec: runs[ruleset] as! [String: Any], rules: r).run().isEmpty)
+    }
+
+    /// Gemini final finding 8: `allLastTestAfterNagashi` off, asserted somewhere. In
+    /// South 4 the tenpai dealer is first on 31,000 before a non-dealer's nagashi
+    /// and fourth after it: with the field off the test reads the scores before the
+    /// payments, so tenpai-yame ends the game.
+    @Test func allLastTestBeforeNagashi() throws {
+        var r = Rules.mahjongSoul
+        r.allLastTestAfterNagashi = false
+        let problems = try run("endgame_nagashi_pushes_dealer_out_of_first", rules: r) { e in
+            e["game_ended"] = true
+            for k in ["next_wind", "next_round", "next_dealer"] { e[k] = nil }
+            e["final_scores"] = [33000, 23000, 17000, 27000]
+            e["final_ranks"] = [0, 3, 1, 2]
+        }
         #expect(problems.isEmpty, "\(problems)")
     }
 }

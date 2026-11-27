@@ -18,18 +18,21 @@ public struct Rules: Sendable, Hashable {
     /// Subtracted from each final score before uma (`oka`: 25,000 on Mahjong Soul,
     /// 30,000 on Tenhou). See `oka`.
     public var returnPoints: Int
-    /// Added to the final score by rank, first to fourth, in points (`uma`).
-    public var uma: [Int] {
-        didSet { precondition(uma.count == 4, "uma has one entry per rank") }
-    }
+    /// Added to the final score by rank, first to fourth, in points (`uma`). Four
+    /// entries (`validate()`).
+    public var uma: [Int]
     /// Score that ends the game in all last and in the extension (`target_points`).
     public var targetPoints: Int
     public var length: GameLength
     /// Rules.md §5 item 8: in all last, a dealer repeat takes priority over another
-    /// seat reaching `targetPoints` (Tenhou's manual; Mahjong Soul unverified).
+    /// seat reaching `targetPoints`, unless the dealer is first with the target
+    /// (Tenhou's manual; both clients' records, docs/notes/p3-reallogs.md). On for
+    /// both. Off, another seat on the target ends the game after a dealer repeat
+    /// by a win or tenpai (an abortive draw still always continues).
     public var dealerRepeatBeforeTarget: Bool
-    /// Rules.md §5 item 6: the all-last tenpai-yame test uses scores after nagashi
-    /// mangan payments (the design's ordering; unverified on both clients).
+    /// Rules.md §5 item 6: the all-last tests read the scores after nagashi mangan
+    /// payments (both clients' records, docs/notes/p3-reallogs.md). On for both.
+    /// Off, they read the scores before those payments.
     public var allLastTestAfterNagashi: Bool
 
     // MARK: scoring
@@ -53,8 +56,8 @@ public struct Rules: Sendable, Hashable {
     /// three win (`triple_ron_enabled`).
     public var tripleRonAborts: Bool
     /// Rules.md §5 item 2: on a multiple ron, every winner collects honba, not only
-    /// the one nearest the discarder (`multi_ron_honba`, unverified for Mahjong Soul;
-    /// default off on both).
+    /// the one nearest the discarder (`multi_ron_honba`). Off for both (both
+    /// clients' records pay only the nearest winner, docs/notes/p3-reallogs.md).
     public var honbaToEveryRonWinner: Bool
     /// Kokushi may rob a closed kan (`chankan_ankan_kokushi`).
     public var kokushiRobsClosedKan: Bool
@@ -73,7 +76,7 @@ public struct Rules: Sendable, Hashable {
     /// closed kan always does, design §4.2). Mahjong Soul, from its records; off
     /// for Tenhou, whose manual flips it only before the next replacement draw
     /// (docs/notes/p3-reallogs.md).
-    public var owedDoraAtChainedAddedKan: Bool = false
+    public var owedDoraAtChainedAddedKan: Bool
 
     // MARK: pao
 
@@ -121,11 +124,10 @@ public struct Rules: Sendable, Hashable {
         length: GameLength, dealerRepeatBeforeTarget: Bool, allLastTestAfterNagashi: Bool,
         doubleYakuman: Bool, tenhouAnyWinningTile: Bool, kuitan: Bool, doubleWindPairFu: Int,
         tripleRonAborts: Bool, honbaToEveryRonWinner: Bool, kokushiRobsClosedKan: Bool,
-        openKanDoraBeforeRon: Bool, paoCoversWholeHand: Bool, riichiOnFifthCopyWait: Bool,
-        fifthCopyTenpaiAtDraw: Bool, fourWindsRiichiStickPaid: Bool,
+        openKanDoraBeforeRon: Bool, owedDoraAtChainedAddedKan: Bool, paoCoversWholeHand: Bool,
+        riichiOnFifthCopyWait: Bool, fifthCopyTenpaiAtDraw: Bool, fourWindsRiichiStickPaid: Bool,
         temporaryFuritenEndsOnCall: Bool, temporaryFuritenOnDeclinedTsumo: Bool
     ) {
-        precondition(uma.count == 4, "uma has one entry per rank")
         self.startingPoints = startingPoints
         self.returnPoints = returnPoints
         self.uma = uma
@@ -141,6 +143,7 @@ public struct Rules: Sendable, Hashable {
         self.honbaToEveryRonWinner = honbaToEveryRonWinner
         self.kokushiRobsClosedKan = kokushiRobsClosedKan
         self.openKanDoraBeforeRon = openKanDoraBeforeRon
+        self.owedDoraAtChainedAddedKan = owedDoraAtChainedAddedKan
         self.paoCoversWholeHand = paoCoversWholeHand
         self.riichiOnFifthCopyWait = riichiOnFifthCopyWait
         self.fifthCopyTenpaiAtDraw = fifthCopyTenpaiAtDraw
@@ -149,16 +152,27 @@ public struct Rules: Sendable, Hashable {
         self.temporaryFuritenOnDeclinedTsumo = temporaryFuritenOnDeclinedTsumo
     }
 
-    /// Every point setting within ±1,000,000 (non-negative where it must be) and the
-    /// double-wind fu 2 or 4, so that no intermediate of the payment and game-end
-    /// arithmetic can leave 32-bit `Int` (wasm32) when scores, honba and sticks
-    /// also keep within `RoundState`'s bounds (Codex C/D finding 5).
-    public var isValid: Bool {
+    /// Every point setting within ±1,000,000 (non-negative where it must be), four
+    /// uma entries and the double-wind fu 2 or 4, so that no intermediate of the
+    /// payment and game-end arithmetic can leave 32-bit `Int` (wasm32) when scores,
+    /// honba and sticks also keep within `RoundState`'s bounds (Codex C/D finding 5).
+    /// Every entry point that takes `Rules` checks this and returns the error.
+    public func validate() throws(InputError) {
         let p = 0...1_000_000
-        return p.contains(startingPoints) && p.contains(returnPoints) && p.contains(targetPoints)
-            && uma.count == 4 && uma.allSatisfy { (-1_000_000...1_000_000).contains($0) }
-            && [2, 4].contains(doubleWindPairFu)
+        for (name, v) in [("startingPoints", startingPoints), ("returnPoints", returnPoints),
+                          ("targetPoints", targetPoints)] where !p.contains(v) {
+            throw InputError("rules.\(name)", "\(v) is outside 0...1000000")
+        }
+        guard uma.count == 4 else { throw InputError("rules.uma", "\(uma.count) entries, not one per rank") }
+        guard uma.allSatisfy({ (-1_000_000...1_000_000).contains($0) }) else {
+            throw InputError("rules.uma", "an entry is outside -1000000...1000000")
+        }
+        guard [2, 4].contains(doubleWindPairFu) else {
+            throw InputError("rules.doubleWindPairFu", "\(doubleWindPairFu) is not 2 or 4")
+        }
     }
+
+    public var isValid: Bool { (try? validate()) != nil }
 
     /// The bonus to first place: what the four seats put in above `startingPoints`
     /// to reach `returnPoints` (`oka`; 0 on Mahjong Soul, 20,000 on Tenhou).
@@ -170,17 +184,15 @@ extension Rules {
     /// dora timing, fifth-copy and furiten fields are as its records show
     /// (docs/notes/p3-reallogs.md), not as first published in rules.md.
     public static let mahjongSoul: Rules = {
-        var r = Rules(
+        Rules(
             startingPoints: 25_000, returnPoints: 25_000, uma: [15_000, 5_000, -5_000, -15_000],
             targetPoints: 30_000, length: .south, dealerRepeatBeforeTarget: true,
             allLastTestAfterNagashi: true,
             doubleYakuman: true, tenhouAnyWinningTile: true, kuitan: true, doubleWindPairFu: 4,
             tripleRonAborts: false, honbaToEveryRonWinner: false, kokushiRobsClosedKan: true,
-            openKanDoraBeforeRon: true, paoCoversWholeHand: false, riichiOnFifthCopyWait: true,
-            fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
+            openKanDoraBeforeRon: true, owedDoraAtChainedAddedKan: true, paoCoversWholeHand: false,
+            riichiOnFifthCopyWait: true, fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
             temporaryFuritenEndsOnCall: true, temporaryFuritenOnDeclinedTsumo: false)
-        r.owedDoraAtChainedAddedKan = true
-        return r
     }()
 
     /// Tenhou four-player ranked, hanchan, red fives on.
@@ -190,7 +202,7 @@ extension Rules {
         allLastTestAfterNagashi: true,
         doubleYakuman: false, tenhouAnyWinningTile: false, kuitan: true, doubleWindPairFu: 4,
         tripleRonAborts: true, honbaToEveryRonWinner: false, kokushiRobsClosedKan: false,
-        openKanDoraBeforeRon: true, paoCoversWholeHand: true, riichiOnFifthCopyWait: true,
-        fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
+        openKanDoraBeforeRon: true, owedDoraAtChainedAddedKan: false, paoCoversWholeHand: true,
+        riichiOnFifthCopyWait: true, fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
         temporaryFuritenEndsOnCall: true, temporaryFuritenOnDeclinedTsumo: false)
 }

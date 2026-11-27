@@ -18,12 +18,30 @@ final class InvariantChecks: GameObserver {
         steps += 1
         for seat in Seat.all {
             for e in events { folders[seat.index].apply(e.masked(for: seat)) }
-            guard !game.isOver else { continue }
-            let view = game.round.view(of: seat)
+            // Also at the end of the game: the final scores, sticks paid out (Codex
+            // final finding 4).
+            let view = game.view(of: seat)
             if folders[seat.index].table(asked: !view.legalActions.isEmpty) != view.table {
                 fail("step \(steps): seat \(seat)'s folded view differs from its PlayerView\n  folded \(folders[seat.index].table)\n  engine \(view.table)")
             }
-            if view.legalActions != game.legalActions(for: seat) { fail("step \(steps): view's legal actions") }
+        }
+        // Every action offered is accepted (on a copy): the turn seat's by `apply`,
+        // each window answer by `resolve` with the other seats passing.
+        if case .turn(let s, _) = game.phase {
+            for a in game.legalActions(for: s) {
+                var copy = game
+                if (try? copy.apply(a, by: s)) == nil { fail("step \(steps): seat \(s)'s offered \(a) refused") }
+            }
+        } else if !game.isOver {
+            for s in game.seatsToAnswer {
+                for a in game.legalActions(for: s) {
+                    var answers = Answers()
+                    for o in game.seatsToAnswer { answers[o] = .pass }
+                    answers[s] = a
+                    var copy = game
+                    if (try? copy.resolve(answers)) == nil { fail("step \(steps): seat \(s)'s offered \(a) refused") }
+                }
+            }
         }
         // Points are conserved.
         if !game.isOver {
@@ -127,7 +145,7 @@ final class Coverage: GameObserver {
         case .allLastRepeat:
             hit("all_last_repeat")
             if case .abortiveDraw = r.outcome { hit("all_last_repeat_abort") }
-            else if GameFlow.ranking(r.scores)[0] != dealer { hit("all_last_repeat_not_first") }
+            else if (try? GameFlow.ranking(r.scores))?.first != dealer { hit("all_last_repeat_not_first") }
             else if r.scores[dealer.index] < rules.targetPoints { hit("all_last_repeat_below_target") }
             if case .abortiveDraw = r.outcome {} else if Seat.all.contains(where: { $0 != dealer && r.scores[$0.index] >= rules.targetPoints }) {
                 hit("all_last_repeat_other_at_target")

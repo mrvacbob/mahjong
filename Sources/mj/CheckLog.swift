@@ -149,10 +149,10 @@ func checkGame(text: String, rules: Rules, path: String) -> CheckReport {
                     report.diffs.append(Difference(hand: h + 1, event: hand.count, category: "game_continues",
                                                    message: "end_game, but the game continues (\(t))"))
                 } else if let scores = endGame?.scores, case .ends(let why) = t {
-                    let g = GameFlow.result(scores: outcome.result.scores, sticks: outcome.result.sticks, rules: rules, end: why)
-                    if g.scores != scores {
+                    let g = try? GameFlow.result(scores: outcome.result.scores, sticks: outcome.result.sticks, rules: rules, end: why)
+                    if g?.scores != scores {
                         report.diffs.append(Difference(hand: h + 1, event: hand.count, category: "end_game_scores",
-                                                       message: "end_game scores \(scores), expected \(g.scores)"))
+                                                       message: "end_game scores \(scores), expected \(g.map { "\($0.scores)" } ?? "none (rules out of range)")"))
                     }
                 }
             }
@@ -166,7 +166,8 @@ func checkGame(text: String, rules: Rules, path: String) -> CheckReport {
 
 /// The transition after a hand, with the scores the all-last test reads.
 func flow(_ o: HandOutcome, _ rules: Rules) -> (GamePosition?, GameTransition) {
-    GameFlow.next(after: o.result, at: o.position, rules: rules, testScores: o.testScores(rules))
+    // Four test scores, from the engine.
+    try! GameFlow.next(after: o.result, at: o.position, rules: rules, testScores: o.testScores(rules))
 }
 
 /// Tags for the game-flow rulings a hand's transition depends on.
@@ -338,19 +339,23 @@ struct HandChecker {
               let oya = start.oya else {
             fail(&r, 0, "format", "incomplete start_kyoku"); return nil
         }
-        let pos = GamePosition(roundWind: wind, kyoku: kyoku, honba: honba, sticks: sticks, scores: scores)
-        position = pos
         guard oya == kyoku - 1 else { fail(&r, 0, "format", "oya \(oya) is not kyoku − 1"); return nil }
-        // Bounds that keep the engine's preconditions and arithmetic safe.
-        guard (0...1000).contains(honba), (0...1000).contains(sticks),
-              scores.allSatisfy({ abs($0) <= 100_000_000 }) else {
+        guard let pos = try? GamePosition(roundWind: wind, kyoku: kyoku, honba: honba, sticks: sticks, scores: scores) else {
             fail(&r, 0, "format", "honba, kyotaku or scores out of range"); return nil
         }
+        position = pos
         guard let slots = given ?? revealedSlots(&r) else { return nil }
         let wall = Self.wall(slots)
         var engine: [Event] = []
-        var state = RoundState(rules: rules, wall: wall, roundWind: wind, kyoku: kyoku, honba: honba,
-                               sticks: sticks, scores: scores, events: &engine)
+        // The engine's own bounds on a starting position (`RoundState.init`).
+        let started: RoundState
+        do {
+            started = try RoundState(rules: rules, wall: wall, roundWind: wind, kyoku: kyoku, honba: honba,
+                                     sticks: sticks, scores: scores, events: &engine)
+        } catch {
+            fail(&r, 0, "format", "honba, kyotaku or scores out of range: \(error)"); return nil
+        }
+        var state = started
         var all = engine
         var queue = engine.map(Self.message)
         var n = 0  // next log event
@@ -465,7 +470,7 @@ struct HandChecker {
                     while n + 1 < events.count && events[n].type == "dora" { n += 1 }
                     let e = events[n]
                     let legal = state.legalActions(for: seat)
-                    var a = e.actor == seat.index || e.type == "ryukyoku" ? Mjai.action(e, seat: seat, legal: legal) : nil
+                    var a = e.actor == seat.index || e.type == "ryukyoku" ? Mjai.loggedAction(e, seat: seat, legal: legal) : nil
                     if a == nil, lite, e.type == "kakan", e.actor == seat.index, let p = e.pai,
                        legal.contains(.ankan(p.kind)) {
                         // The reduced format writes some closed kans as added kans.
@@ -528,7 +533,7 @@ struct HandChecker {
                         }
                     case "chi", "pon", "daiminkan":
                         guard let a = e.actor, asked.contains(Seat(a)),
-                              let act = Mjai.action(e, seat: Seat(a), legal: state.legalActions(for: Seat(a))) else {
+                              let act = Mjai.loggedAction(e, seat: Seat(a), legal: state.legalActions(for: Seat(a))) else {
                             fail(&r, n, "illegal:\(e.type)", "\(e.type) is not legal here"); return nil
                         }
                         answers[Seat(a)] = act

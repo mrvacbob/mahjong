@@ -17,31 +17,41 @@ struct BotRNG {
     mutating func chance(_ percent: Int) -> Bool { below(100) < percent }
 }
 
-/// One seat's player. The driver hands it every event it may see, in order, and
-/// with the last event of each step the seat's view if it must decide then.
+/// One seat's player. The driver hands it every event it may see, one at a time and
+/// in order. When the seat must decide, the event that asks it (the prompt: its
+/// draw, its call, its riichi declaration, the discard or the announced kan it may
+/// claim; `PlayerView.prompt(in:)`) comes with the seat's view, and once the step's
+/// remaining events (an owed dora indicator at most) are delivered the driver asks
+/// for the decision.
 protocol Player {
-    /// Returns the decision when `view` is given (it must be in
-    /// `view.legalActions`), else nil.
-    mutating func receive(_ events: [MaskedEvent], view: PlayerView?) -> Action?
+    mutating func receive(_ event: MaskedEvent, prompt: PlayerView?)
+    /// The decision the last prompt asked for; it must be in `view.legalActions`.
+    mutating func decision(_ view: PlayerView) -> Action?
     /// Bad replies substituted so far (mjai bots only).
     var substitutions: Substitutions { get }
     mutating func finish()
 }
 
 extension Player {
+    mutating func receive(_ event: MaskedEvent, prompt: PlayerView?) {}
     var substitutions: Substitutions { Substitutions() }
     mutating func finish() {}
 }
 
 /// Why a bot's reply was replaced, counted (design §6: the illegal-move rate).
+/// `unbound` counts replies other than `none` to an event that asked the bot
+/// nothing: they answer no decision, so nothing was played for them.
 struct Substitutions: Sendable {
-    var malformed = 0, illegal = 0, timeout = 0, crashed = 0
-    var total: Int { malformed + illegal + timeout + crashed }
+    var malformed = 0, illegal = 0, timeout = 0, crashed = 0, unbound = 0
+    var total: Int { malformed + illegal + timeout + crashed + unbound }
     static func + (a: Substitutions, b: Substitutions) -> Substitutions {
         Substitutions(malformed: a.malformed + b.malformed, illegal: a.illegal + b.illegal,
-                      timeout: a.timeout + b.timeout, crashed: a.crashed + b.crashed)
+                      timeout: a.timeout + b.timeout, crashed: a.crashed + b.crashed,
+                      unbound: a.unbound + b.unbound)
     }
-    var text: String { "malformed=\(malformed) illegal=\(illegal) timeout=\(timeout) crashed=\(crashed)" }
+    var text: String {
+        "malformed=\(malformed) illegal=\(illegal) timeout=\(timeout) crashed=\(crashed) unbound=\(unbound)"
+    }
 }
 
 enum BotKind: String {
@@ -52,9 +62,8 @@ struct BuiltinBot: Player {
     let kind: BotKind
     var rng: BotRNG
 
-    mutating func receive(_ events: [MaskedEvent], view: PlayerView?) -> Action? {
-        guard let view else { return nil }
-        return kind == .random ? random(view) : eager(view)
+    mutating func decision(_ view: PlayerView) -> Action? {
+        kind == .random ? random(view) : eager(view)
     }
 
     mutating func random(_ v: PlayerView) -> Action {
@@ -102,10 +111,7 @@ struct TracePlayer: Player {
     let seat: Seat
     var queue: Decisions
 
-    mutating func receive(_ events: [MaskedEvent], view: PlayerView?) -> Action? {
-        guard view != nil else { return nil }
-        return queue.next(for: seat)
-    }
+    mutating func decision(_ view: PlayerView) -> Action? { queue.next(for: seat) }
 }
 
 /// A trace's decisions, shared by the four `TracePlayer`s.

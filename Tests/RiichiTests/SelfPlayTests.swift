@@ -115,7 +115,7 @@ func playRound(rules: Rules, seed: UInt64, hand: Int, bot: Bot, rng: inout TestR
     let honba = rng.chance(30) ? rng.below(3) : 0
     let dealer = Seat(rng.below(4))
     var events: [Event] = []
-    var state = RoundState(rules: rules, wall: wall, roundWind: rng.chance(50) ? .east : .south,
+    var state = try RoundState(rules: rules, wall: wall, roundWind: rng.chance(50) ? .east : .south,
                            kyoku: dealer.index + 1, honba: honba, sticks: sticks, dealer: dealer,
                            scores: scores, events: &events)
     let total = scores.reduce(0, +) + 1000 * sticks
@@ -308,16 +308,31 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
             r.openKanDoraBeforeRon = flip(); r.paoCoversWholeHand = flip(); r.riichiOnFifthCopyWait = flip()
             r.fifthCopyTenpaiAtDraw = flip(); r.fourWindsRiichiStickPaid = flip()
             r.temporaryFuritenEndsOnCall = flip(); r.temporaryFuritenOnDeclinedTsumo = flip()
+            r.owedDoraAtChainedAddedKan = flip()
+            // The game-flow fields, played through `GameState` below (Gemini final
+            // finding 8, Codex final review: test strength).
+            r.dealerRepeatBeforeTarget = flip(); r.allLastTestAfterNagashi = flip()
+            r.length = flip() ? .east : .south
             for i in 0..<250 {
                 var d: [(Seat, Action)] = []
                 try playRound(rules: r, seed: UInt64(combo * 1000 + i), hand: i % 5, bot: .eager, rng: &rng,
                               coverage: &coverage, check: i % 4 == 0, decisions: &d)
             }
+            for g in 0..<4 {
+                var grng = TestRNG(state: UInt64(combo * 100 + g))
+                let (game, events) = try playGame(rules: r, seed: UInt64(combo * 100 + g), bot: .eager, rng: &grng)
+                let result = try #require(game.result)
+                #expect(result.scores.reduce(0, +) == 4 * r.startingPoints)
+                #expect(events.last == .endGame(scores: result.scores))
+                let last: Wind = r.length == .east ? .east : .south
+                #expect(game.position.roundWind.rawValue <= last.rawValue + 1)
+            }
         }
         print("coverage mixed rules: \(coverage)")
     }
 
-    /// A round replays exactly from its wall and decisions.
+    /// A round replays exactly from its wall and its recorded decisions alone (no
+    /// bot, Gemini final test audit: the old test re-ran the bot).
     @Test func replayIsExact() throws {
         var coverage = Coverage()
         for i in 0..<200 {
@@ -325,10 +340,31 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
             var d: [(Seat, Action)] = []
             let (a, ea) = try playRound(rules: .mahjongSoul, seed: UInt64(i), hand: 0, bot: .eager,
                                         rng: &rng, coverage: &coverage, check: false, decisions: &d)
-            var rng2 = TestRNG(state: UInt64(i))
-            var d2: [(Seat, Action)] = []
-            let (b, eb) = try playRound(rules: .mahjongSoul, seed: UInt64(i), hand: 0, bot: .eager,
-                                        rng: &rng2, coverage: &coverage, check: false, decisions: &d2)
+            var events: [Event] = []
+            var b = try RoundState(rules: .mahjongSoul, wall: a.wall, roundWind: a.roundWind, kyoku: a.kyoku,
+                                   honba: a.honba, sticks: a.initialSticks, dealer: a.dealer, scores: a.initialScores,
+                                   events: &events)
+            var eb = events
+            var k = 0
+            while b.result == nil {
+                events = []
+                switch b.phase {
+                case .turn(let s, _):
+                    let (seat, act) = d[k]; k += 1
+                    #expect(seat == s)
+                    try b.apply(act, by: s, events: &events)
+                default:
+                    var answers = Answers()
+                    for s in b.seatsToAnswer {
+                        let (seat, act) = d[k]; k += 1
+                        #expect(seat == s)
+                        answers[s] = act
+                    }
+                    try b.resolve(answers, events: &events)
+                }
+                eb += events
+            }
+            #expect(k == d.count)
             #expect(ea == eb)
             #expect(a.result == b.result)
         }
@@ -361,7 +397,7 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
             let ra = try #require(a.result)
             // Replay on the rotated wall with rotated decisions.
             let wall = Wall(tiles: a.wall.tiles.map(rot))!
-            var b = RoundState(rules: .mahjongSoul, wall: wall, roundWind: a.roundWind, kyoku: a.kyoku,
+            var b = try RoundState(rules: .mahjongSoul, wall: wall, roundWind: a.roundWind, kyoku: a.kyoku,
                            honba: a.honba, sticks: a.initialSticks, dealer: a.dealer, scores: a.initialScores)
             var k = 0
             while b.result == nil {

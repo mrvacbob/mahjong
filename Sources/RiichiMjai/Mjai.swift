@@ -176,10 +176,19 @@ public struct MjaiMessage: Sendable {
     public var dealerRepeats: Bool?
     public var tenpais: [Bool]?
     public var horaTehais: [Tile]?
+    /// `yakus`: each yaku's name (`spec/formats.md`) and han (or yakuman multiple).
+    public var yakus: [YakuText]?
     public var fu: Int?
     public var fan: Int?
 
     public init(type: String) { self.type = type }
+}
+
+/// One entry of `hora.yakus`.
+public struct YakuText: Sendable, Hashable {
+    public let name: String
+    public let value: Int
+    public init(_ name: String, _ value: Int) { self.name = name; self.value = value }
 }
 
 public struct MjaiError: Error, Sendable, CustomStringConvertible {
@@ -298,6 +307,17 @@ extension Mjai {
             m.tenpais = out
         }
         m.horaTehais = try known("hora_tehais")
+        if let v = o["yakus"], v != .null {
+            guard let a = v.array else { throw MjaiError(description: "yakus is not an array") }
+            var out: [YakuText] = []
+            for x in a {
+                guard let pair = x.array, pair.count == 2, let n = pair[0].string, let k = pair[1].int else {
+                    throw MjaiError(description: "yakus holds an entry that is not [name, value]")
+                }
+                out.append(YakuText(n, k))
+            }
+            m.yakus = out
+        }
         m.fu = try int("fu")
         m.fan = try int("fan")
         for s in [m.actor, m.target, m.oya, m.id].compactMap({ $0 }) where !(0..<4).contains(s) {
@@ -306,15 +326,17 @@ extension Mjai {
         return m
     }
 
-    /// The action a bot's reply asks for, given what `seat` may do now (`legal`):
-    /// `hora` is `tsumo` on the seat's own turn and `ron` otherwise, `ryukyoku` is
-    /// nine terminals, `none` is `pass`. A `dahai` whose tsumogiri flag does not
-    /// match but whose tile does is taken as the matching discard. Nil if the
-    /// reply names no action in `legal`.
-    /// `offered` is the discard a call would take, when there is one: a call's
-    /// `pai` and `target`, where given, must name it.
-    public static func action(_ m: MjaiMessage, seat: Seat, legal: [Action],
-                              offered: (tile: Tile, from: Seat)? = nil) -> Action? {
+    /// The action a logged event stands for, given what `seat` may do now
+    /// (`legal`): `hora` is `tsumo` on the seat's own turn and `ron` otherwise,
+    /// `ryukyoku` is nine terminals, `none` is `pass`. A `dahai` whose tsumogiri
+    /// flag does not match but whose tile does is taken as the matching discard.
+    /// Nil if the event names no action in `legal`. `offered` is the discard a call
+    /// would take, when there is one: a call's `pai` and `target`, where given, must
+    /// name it. For reading logs (`mj check-log`, which checks each win against the
+    /// engine's own); a bot's reply goes through `action(_:for:)`, which checks it
+    /// against the whole decision.
+    public static func loggedAction(_ m: MjaiMessage, seat: Seat, legal: [Action],
+                                    offered: (tile: Tile, from: Seat)? = nil) -> Action? {
         if let a = m.actor, a != seat.index, m.type != "none" { return nil }
         if ["pon", "chi", "daiminkan"].contains(m.type), let offered {
             if let p = m.pai, p != offered.tile { return nil }
@@ -351,25 +373,137 @@ extension Mjai {
         return wanted
     }
 
-    /// A bot's reply for an action (the same JSON a bot would send). `consumed`
-    /// for a daiminkan and ankan come from the hand, so they are passed in.
+    /// The decision a bot's reply answers: which seat, what it may do, and what
+    /// asked it (Codex final findings 1 and 5, Gemini final finding 3).
+    public struct Decision: Sendable, Hashable {
+        public enum Trigger: Sendable, Hashable {
+            /// The seat's own turn, with its drawn tile (nil after a chi or pon).
+            case turn(drawn: Tile?)
+            /// Another seat's discard.
+            case discard(tile: Tile, from: Seat)
+            /// Another seat's announced kan, which only a ron may answer.
+            case kan(tile: Tile, from: Seat, kind: KanKind)
+        }
+        public var seat: Seat
+        public var legal: [Action]
+        public var trigger: Trigger
+        /// The seat's concealed tiles, its drawn tile included: a closed kan or an
+        /// open kan must name the very tiles it uses.
+        public var concealed: [Tile]
+        /// The seat's pons, each sorted: an added kan's `consumed` must be one.
+        public var pons: [[Tile]]
+
+        public init(seat: Seat, legal: [Action], trigger: Trigger, concealed: [Tile] = [], pons: [[Tile]] = []) {
+            self.seat = seat
+            self.legal = legal
+            self.trigger = trigger
+            self.concealed = concealed
+            self.pons = pons
+        }
+
+        /// The decision `view` asks for.
+        public init(_ view: PlayerView) {
+            let t = view.table
+            let trigger: Trigger = switch t.reacting {
+            case .discard(let d)?: .discard(tile: d.tile, from: d.seat)
+            case .kan(let k)?: .kan(tile: k.tile, from: k.seat, kind: k.kind)
+            case nil: .turn(drawn: t.drawn)
+            }
+            self.init(seat: view.seat, legal: view.legalActions, trigger: trigger,
+                      concealed: t.hand + (t.drawn.map { [$0] } ?? []),
+                      pons: t.melds[view.seat.index].filter { $0.kind == .pon }.map(\.tiles))
+        }
+    }
+
+    /// The action a bot's reply asks for in `decision`, or nil if the reply does not
+    /// fit it: a message type that cannot answer this trigger, another seat's
+    /// `actor`, a `target` or `pai` that is not what was offered (a `hora`'s too:
+    /// the discarder or kan seat and its tile, or the seat itself and its drawn
+    /// tile), a kan's `consumed` that is not the tiles it would use, or an action
+    /// not in `decision.legal`. `hora` is `tsumo` on the seat's turn and `ron`
+    /// otherwise, `ryukyoku` is nine terminals, `none` is `pass`; a `dahai` whose
+    /// tsumogiri flag is wrong but whose tile is right is the matching discard.
+    /// Fields that mjai lets a bot leave out may be left out.
+    public static func action(_ m: MjaiMessage, for decision: Decision) -> Action? {
+        let seat = decision.seat, legal = decision.legal
+        if m.type != "none", let a = m.actor, a != seat.index { return nil }
+        func sameTiles(_ a: [Tile], _ b: [Tile]) -> Bool { a.sorted() == b.sorted() }
+        let wanted: Action
+        switch (m.type, decision.trigger) {
+        case ("none", .discard), ("none", .kan):
+            wanted = .pass
+        case ("hora", .turn(let drawn)):
+            if let t = m.target, t != seat.index { return nil }
+            if let p = m.pai, p != drawn { return nil }
+            wanted = .tsumo
+        case ("hora", .discard(let tile, let from)):
+            if let t = m.target, t != from.index { return nil }
+            if let p = m.pai, p != tile { return nil }
+            wanted = .ron
+        case ("hora", .kan(let tile, let from, let kind)):
+            if let t = m.target, t != from.index { return nil }
+            // A closed kan's tile is any of its four: the kind must match.
+            if let p = m.pai, kind == .closed ? p.kind != tile.kind : p != tile { return nil }
+            wanted = .ron
+        case ("dahai", .turn):
+            guard let t = m.pai else { return nil }
+            let exact = Action.discard(t, tsumogiri: m.tsumogiri ?? false)
+            let other = Action.discard(t, tsumogiri: !(m.tsumogiri ?? false))
+            wanted = legal.contains(exact) || !legal.contains(other) ? exact : other
+        case ("reach", .turn): wanted = .riichi
+        case ("ryukyoku", .turn): wanted = .kyuushu
+        case ("ankan", .turn):
+            guard let c = m.consumed, c.count == 4, let k = c.first?.kind, c.allSatisfy({ $0.kind == k }),
+                  sameTiles(c, decision.concealed.filter { $0.kind == k }) else { return nil }
+            wanted = .ankan(k)
+        case ("kakan", .turn):
+            guard let t = m.pai else { return nil }
+            if let c = m.consumed, !decision.pons.contains(where: { $0[0].kind == t.kind && sameTiles($0, c) }) {
+                return nil
+            }
+            wanted = .kakan(t)
+        case ("pon", .discard(let tile, let from)), ("chi", .discard(let tile, let from)),
+             ("daiminkan", .discard(let tile, let from)):
+            if let p = m.pai, p != tile { return nil }
+            if let t = m.target, t != from.index { return nil }
+            if m.type == "daiminkan" {
+                if let c = m.consumed, !(c.count == 3 && sameTiles(c, decision.concealed.filter { $0.kind == tile.kind })) {
+                    return nil
+                }
+                wanted = .daiminkan
+            } else {
+                guard let c = m.consumed?.sorted(), c.count == 2 else { return nil }
+                wanted = m.type == "pon" ? .pon(c[0], c[1]) : .chi(c[0], c[1])
+            }
+        default: return nil
+        }
+        return legal.contains(wanted) ? wanted : nil
+    }
+
+    /// A bot's reply for an action (the same JSON a bot would send), with every
+    /// field mjai has for it (Gemini final finding 5): `target` is the discarder or
+    /// kan seat of a ron or call, `tile` the drawn tile of a tsumo or the tile
+    /// taken; `consumed` for an open kan and a closed kan come from the hand, so
+    /// they are passed in (a closed kan defaults to four plain tiles).
     public static func reply(_ a: Action, seat: Seat, target: Seat? = nil, tile: Tile? = nil,
                              consumed: [Tile] = []) -> String {
         func r(_ type: String, _ f: [(String, JSONOut)] = []) -> String {
             JSONOut.object([("type", .string(type)), ("actor", .int(seat.index))] + f).text
         }
+        let tgt: [(String, JSONOut)] = target.map { [("target", .int($0.index))] } ?? []
+        let pai: [(String, JSONOut)] = tile.map { [("pai", .string(name($0)))] } ?? []
         switch a {
         case .pass: return JSONOut.object([("type", .string("none"))]).text
         case .discard(let t, let g): return r("dahai", [("pai", .string(name(t))), ("tsumogiri", .bool(g))])
         case .riichi: return r("reach")
-        case .tsumo: return r("hora", [("target", .int(seat.index))])
-        case .ron: return r("hora", [("target", .int(target?.index ?? seat.index))])
+        case .tsumo: return r("hora", [("target", .int(seat.index))] + pai)
+        case .ron: return r("hora", tgt + pai)
         case .kyuushu: return r("ryukyoku")
         case .ankan(let k): return r("ankan", [("consumed", tiles(consumed.isEmpty ? Array(repeating: Tile(k), count: 4) : consumed))])
-        case .kakan(let t): return r("kakan", [("pai", .string(name(t)))])
-        case .daiminkan: return r("daiminkan", [("consumed", tiles(consumed))])
-        case .pon(let x, let y): return r("pon", [("pai", .string(name(tile))), ("consumed", tiles([x, y]))])
-        case .chi(let x, let y): return r("chi", [("pai", .string(name(tile))), ("consumed", tiles([x, y]))])
+        case .kakan(let t): return r("kakan", [("pai", .string(name(t)))] + (consumed.isEmpty ? [] : [("consumed", tiles(consumed))]))
+        case .daiminkan: return r("daiminkan", tgt + pai + [("consumed", tiles(consumed))])
+        case .pon(let x, let y): return r("pon", tgt + pai + [("consumed", tiles([x, y]))])
+        case .chi(let x, let y): return r("chi", tgt + pai + [("consumed", tiles([x, y]))])
         }
     }
 }

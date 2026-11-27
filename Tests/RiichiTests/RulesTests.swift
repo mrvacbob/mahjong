@@ -1,5 +1,6 @@
 // Rules threaded through scoring and legality.
 
+import Foundation
 import Testing
 @testable import Riichi
 
@@ -118,47 +119,47 @@ import Testing
 
 @Suite struct RulesLegalTests {
     func actions(_ hand: String, melds m: String = "-", _ situation: Situation,
-                 flags: Set<Flag> = [], rules: Rules) -> [String] {
-        LegalRequest(hand: t(hand), melds: melds(m), situation: situation, flags: flags,
-                     rules: rules).actions
+                 flags: Set<Flag> = [], rules: Rules) throws -> [String] {
+        try LegalRequest(hand: t(hand), melds: melds(m), situation: situation, flags: flags,
+                         rules: rules).actions
     }
 
-    @Test func robbingAClosedKan() {
+    @Test func robbingAClosedKan() throws {
         // Single-wait kokushi on 1m; another seat declares a closed kan of 1m.
         let hand = "9m19p19s1234567z7z"
         let rob = Situation.discard(t1("1m"), fromKamicha: false)
-        #expect(actions(hand, rob, flags: [.ankan_rob], rules: .mahjongSoul) == ["pass", "ron"])
-        #expect(actions(hand, rob, flags: [.ankan_rob], rules: .tenhou) == ["pass"])
+        #expect(try actions(hand, rob, flags: [.ankan_rob], rules: .mahjongSoul) == ["pass", "ron"])
+        #expect(try actions(hand, rob, flags: [.ankan_rob], rules: .tenhou) == ["pass"])
         // An added kan can be robbed under both.
-        #expect(actions(hand, rob, flags: [.chankan], rules: .tenhou) == ["pass", "ron"])
+        #expect(try actions(hand, rob, flags: [.chankan], rules: .tenhou) == ["pass", "ron"])
     }
 
-    @Test func riichiOnFifthCopyWait() {
+    @Test func riichiOnFifthCopyWait() throws {
         // Discarding 9p leaves 234567789m1111z, whose only wait is a fifth 1z, all
         // four concealed: refused even where fifth-copy riichi is allowed.
         let draw = Situation.draw(t1("1z"))
         let hand = "234567789m9p111z"
         var strict = Rules.mahjongSoul
         strict.riichiOnFifthCopyWait = false
-        for r in [Rules.mahjongSoul, .tenhou, strict] { #expect(!actions(hand, draw, rules: r).contains("riichi:9p")) }
+        for r in [Rules.mahjongSoul, .tenhou, strict] { #expect(try !actions(hand, draw, rules: r).contains("riichi:9p")) }
         // A kanchan on 4m whose four copies are the seat's closed kan (as in the
         // real-log cases): allowed by both clients, refused by the strict reading.
         let kan = "35m123p789s22z"
         let d9p = Situation.draw(t1("9p"))
-        #expect(actions(kan, melds: "a4444m", d9p, rules: .mahjongSoul).contains("riichi:9p"))
-        #expect(actions(kan, melds: "a4444m", d9p, rules: .tenhou).contains("riichi:9p"))
-        #expect(!actions(kan, melds: "a4444m", d9p, rules: strict).contains("riichi:9p"))
+        #expect(try actions(kan, melds: "a4444m", d9p, rules: .mahjongSoul).contains("riichi:9p"))
+        #expect(try actions(kan, melds: "a4444m", d9p, rules: .tenhou).contains("riichi:9p"))
+        #expect(try !actions(kan, melds: "a4444m", d9p, rules: strict).contains("riichi:9p"))
     }
 
-    @Test func kuitanReachesRon() {
+    @Test func kuitanReachesRon() throws {
         var noKuitan = Rules.mahjongSoul
         noKuitan.kuitan = false
         let ron = Situation.discard(t1("8s"), fromKamicha: false)
-        #expect(actions("234m567p678s8s", melds: "c234s", ron, rules: .mahjongSoul).contains("ron"))
-        #expect(!actions("234m567p678s8s", melds: "c234s", ron, rules: noKuitan).contains("ron"))
+        #expect(try actions("234m567p678s8s", melds: "c234s", ron, rules: .mahjongSoul).contains("ron"))
+        #expect(try !actions("234m567p678s8s", melds: "c234s", ron, rules: noKuitan).contains("ron"))
     }
 
-    @Test func formalTenpaiAtDraw() {
+    @Test func formalTenpaiAtDraw() throws {
         // Only wait a fifth 1m; three copies are in chis, one concealed.
         let open = (Counts(t("1m234p")), melds("c123m,c123m,c123m"))
         var strict = Rules.mahjongSoul
@@ -174,5 +175,47 @@ import Testing
         #expect(isTenpaiAtDraw(Counts(t("123m456p789s1122z")), melds: [], rules: .mahjongSoul))
         #expect(isTenpaiAtDraw(Counts(t("123m456p789s1122z")), melds: [], rules: .tenhou))
         #expect(!isTenpaiAtDraw(Counts(t("123m456p789s1257z")), melds: [], rules: .tenhou))
+    }
+}
+
+/// `spec/rules.md` §1.1 and `Rules.swift` agree field by field (brief
+/// p3-final-fixes, documentation drift): every stored field of `Rules` is listed
+/// once, with both presets' values, and names a row of §1 that exists.
+@Suite struct RulesSpecTests {
+    @Test func specTableMatchesPresets() throws {
+        let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let text = try String(contentsOf: root.appendingPathComponent("spec/rules.md"), encoding: .utf8)
+        let lines = text.split(separator: "\n").map(String.init)
+        let start = try #require(lines.firstIndex { $0.hasPrefix("### 1.1") })
+        let end = try #require(lines.firstIndex { $0.hasPrefix("## 2.") })
+        let rowNames = Set(lines[..<start].compactMap { l -> String? in
+            guard l.hasPrefix("| `") else { return nil }
+            return String(l.dropFirst(3).prefix { $0 != "`" })
+        })
+        func cells(_ l: String) -> [String] {
+            l.split(separator: "|").map { $0.trimmingCharacters(in: .whitespaces) }
+        }
+        func strip(_ c: String) -> String { c.trimmingCharacters(in: CharacterSet(charactersIn: "`")) }
+        var listed: [String: (row: String, ms: String, th: String)] = [:]
+        for l in lines[start..<end] where l.hasPrefix("| `") && !l.hasPrefix("| `Rules` field") {
+            let c = cells(l)
+            let field = strip(c[0])
+            #expect(listed[field] == nil, "\(field) listed twice")
+            listed[field] = (c[1], strip(c[2]), strip(c[3]))
+        }
+        func values(_ r: Rules) -> [String: String] {
+            Dictionary(uniqueKeysWithValues: Mirror(reflecting: r).children.map { ($0.label!, "\($0.value)") })
+        }
+        let ms = values(.mahjongSoul), th = values(.tenhou)
+        #expect(Set(listed.keys) == Set(ms.keys), "fields: \(Set(ms.keys).symmetricDifference(listed.keys))")
+        for (field, entry) in listed {
+            #expect(entry.ms == ms[field], "\(field): spec \(entry.ms), mahjongSoul \(ms[field] ?? "-")")
+            #expect(entry.th == th[field], "\(field): spec \(entry.th), tenhou \(th[field] ?? "-")")
+            // Every row named in the second column exists in §1.
+            let named = entry.row.split(separator: "`", omittingEmptySubsequences: false).enumerated().filter { $0.offset % 2 == 1 }.map { String($0.element) }
+            #expect(!named.isEmpty && named.allSatisfy { rowNames.contains($0) || ["at_discard", "at_announcement", "closest_ccw", "whole_hand", "or own call"].contains($0) },
+                    "\(field): \(named)")
+        }
     }
 }

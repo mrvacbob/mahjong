@@ -116,13 +116,6 @@ public struct Answers: Sendable, Hashable {
 
     public init() {}
 
-    /// Every seat answering `ron` (to list ron winners in turn order).
-    static let allRon: Answers = {
-        var a = Answers()
-        for s in Seat.all { a[s] = .ron }
-        return a
-    }()
-
     public subscript(seat: Seat) -> Action? {
         get {
             switch seat.index {

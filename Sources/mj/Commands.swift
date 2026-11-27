@@ -94,16 +94,25 @@ func makePlayers(_ specs: [String], seed: UInt64, timeoutMs: Int) throws -> [any
     }
 }
 
-/// `mj selfplay --seed N --games K [--rules tenhou] [--bots random|eager|mjai:CMD]
-/// [--seat N=BOT] [--scenario NAME] [--out DIR] [--legal] [--requests FILE] [--check]
-/// [--timeout MS]`. `--scenario` plays directed bots on arranged walls (Directed.swift).
+/// `mj selfplay --seed N --games K [--rules tenhou] [--length east|south]
+/// [--bots random|eager|mjai:CMD] [--seat N=BOT] [--scenario NAME] [--out DIR] [--legal]
+/// [--requests FILE] [--check] [--timeout MS] [--quiet]`. `--scenario` plays directed
+/// bots on arranged walls (Directed.swift); `--length east` plays East-only games.
 func selfplay(_ args: [String]) throws -> Int32 {
     let o = try Options(args, flags: ["legal", "check", "quiet"])
     guard let seed = UInt64(o.values["seed"] ?? "0") else { throw UsageError(description: "--seed wants a number from 0 to 2^64 − 1") }
     let games = try o.int("games", 1)
     guard games >= 0 else { throw UsageError(description: "--games wants a count") }
-    let rules = try o.rules()
+    var rules = try o.rules()
+    switch o.values["length"] ?? "south" {
+    case "south": break
+    case "east": rules.length = .east
+    case let l: throw UsageError(description: "unknown length \(l) (east or south)")
+    }
     let timeout = try o.int("timeout", 10_000)
+    guard (1...MjaiBot.maxTimeoutMs).contains(timeout) else {
+        throw UsageError(description: "--timeout wants milliseconds from 1 to \(MjaiBot.maxTimeoutMs)")
+    }
     let scenario: Scenario? = try o.values["scenario"].map { v in
         guard let sc = Scenario(rawValue: v) else {
             throw UsageError(description: "unknown scenario \(v) (\(Scenario.allCases.map(\.rawValue).joined(separator: ", ")))")
@@ -144,7 +153,7 @@ func selfplay(_ args: [String]) throws -> Int32 {
         var observers: [any GameObserver] = [coverage]
         let legal = o.flags.contains("legal") ? LegalityRows(file: "\(out!)/\(name).jsonl") : nil
         if let legal { observers.append(legal) }
-        if let requests, rules == .mahjongSoul { observers.append(requests) }
+        if let requests, rulesetName(rules) == "mahjongsoul" { observers.append(requests) }
         let checks = o.flags.contains("check") ? InvariantChecks(label: "game \(g)") : nil
         if let checks { observers.append(checks) }
         var players: [any Player]
@@ -183,7 +192,7 @@ func selfplay(_ args: [String]) throws -> Int32 {
         try writeFile(path + ".expected", requests.expected.map { $0 + "\n" }.joined())
         try writeFile(path + ".lowpoints", requests.lowPoints.map { $0 + "\n" }.joined())
     }
-    print("games=\(games) hands=\(hands) decisions=\(decisions) rules=\(rulesetName(rules)) bots=\(label)")
+    print("games=\(games) hands=\(hands) decisions=\(decisions) rules=\(rulesetName(rules))\(rules.length == .east ? " length=east" : "") bots=\(label)")
     print(String(format: "time=%.2fs games/s=%.1f", secs, Double(games) / secs))
     print("substitutions \(subs.text)")
     if !o.flags.contains("quiet") { print(coverage.report) }

@@ -12,6 +12,9 @@ public struct PondTile: Hashable, Sendable {
     public let riichi: Bool
     /// Another seat called it.
     public internal(set) var calledAway: Bool
+    /// Its place among all the round's discards, every seat's (0 is the first):
+    /// what came after a riichi, or after a seat's last discard.
+    public let order: Int
 }
 
 public enum RiichiStatus: Hashable, Sendable {
@@ -97,10 +100,17 @@ enum WinSource {
 }
 
 public struct RoundState: Sendable {
-    /// Bounds on honba and sticks, and on each starting score, that keep every
-    /// payment and total within 32-bit `Int` (with `Rules.isValid`).
+    /// Bounds on honba and sticks, and on each starting score, of a position given
+    /// from outside (`init`, `GameState.init`): with `Rules.validate()` they keep every
+    /// payment and total within 32-bit `Int` (wasm32).
     public static let maxCount = 1_000
     public static let maxScore = 100_000_000
+    /// The largest honba a running game reaches: the game ends (`GameEnd.counterLimit`)
+    /// rather than deal a hand with more. Not a rule of either client, a bound that
+    /// keeps `300 × honba` payments within 32-bit `Int`. Sticks and scores need no
+    /// running bound: every point moves between the seats and the table, so their
+    /// total stays what it was at the start (Codex final finding 2).
+    public static let maxRunningHonba = 1_000_000
 
     public let rules: Rules
     public let wall: Wall
@@ -135,9 +145,12 @@ public struct RoundState: Sendable {
 
     /// Deals the hand from `wall` and makes the dealer's first draw.
     /// `dealer` defaults to seat `kyoku − 1`, `scores` to `rules.startingPoints`.
+    /// Throws if the rules or the position are out of range (`Rules.validate()`,
+    /// kyoku 1–4, honba and sticks 0...`maxCount`, four scores within ±`maxScore`).
     public init(rules: Rules, wall: Wall, roundWind: Wind = .east, kyoku: Int = 1,
                 honba: Int = 0, sticks: Int = 0, dealer: Seat? = nil, scores: [Int]? = nil,
-                events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) {
+                events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) throws(InputError) {
+        try RoundState.check(rules: rules, kyoku: kyoku, honba: honba, sticks: sticks, scores: scores)
         var e = Emitter(on: true, events: events, observe: observe)
         events = []
         self.init(rules: rules, wall: wall, roundWind: roundWind, kyoku: kyoku, honba: honba,
@@ -147,21 +160,34 @@ public struct RoundState: Sendable {
 
     /// As above, without events.
     public init(rules: Rules, wall: Wall, roundWind: Wind = .east, kyoku: Int = 1,
-                honba: Int = 0, sticks: Int = 0, dealer: Seat? = nil, scores: [Int]? = nil) {
+                honba: Int = 0, sticks: Int = 0, dealer: Seat? = nil, scores: [Int]? = nil) throws(InputError) {
+        try RoundState.check(rules: rules, kyoku: kyoku, honba: honba, sticks: sticks, scores: scores)
         var e = Emitter(on: false, events: [])
         self.init(rules: rules, wall: wall, roundWind: roundWind, kyoku: kyoku, honba: honba,
                   sticks: sticks, dealer: dealer, scores: scores, emitter: &e)
     }
 
+    /// The admission bounds of a position given from outside.
+    static func check(rules: Rules, kyoku: Int, honba: Int, sticks: Int, scores: [Int]?) throws(InputError) {
+        try rules.validate()
+        guard (1...4).contains(kyoku) else { throw InputError("kyoku", "\(kyoku) is not 1...4") }
+        guard (0...maxCount).contains(honba) else { throw InputError("honba", "\(honba) is not 0...\(maxCount)") }
+        guard (0...maxCount).contains(sticks) else { throw InputError("sticks", "\(sticks) is not 0...\(maxCount)") }
+        if let scores {
+            guard scores.count == 4 else { throw InputError("scores", "\(scores.count) scores, not one per seat") }
+            guard scores.allSatisfy({ abs($0) <= maxScore }) else {
+                throw InputError("scores", "a score is outside ±\(maxScore)")
+            }
+        }
+    }
+
+    /// The engine's own path (a game's next hand): its counters may pass the
+    /// admission bounds, within `maxRunningHonba` and the points in play.
     init(rules: Rules, wall: Wall, roundWind: Wind, kyoku: Int, honba: Int, sticks: Int,
          dealer: Seat?, scores: [Int]?, emitter e: inout Emitter) {
-        precondition((1...4).contains(kyoku), "kyoku is 1...4")
-        precondition(rules.isValid, "Rules out of range (Rules.isValid)")
-        precondition((0...RoundState.maxCount).contains(honba) && (0...RoundState.maxCount).contains(sticks),
-                     "honba and sticks are 0...\(RoundState.maxCount)")
         let scores = scores ?? Array(repeating: rules.startingPoints, count: 4)
-        precondition(scores.count == 4, "one score per seat")
-        precondition(scores.allSatisfy { abs($0) <= RoundState.maxScore }, "scores within ±\(RoundState.maxScore)")
+        precondition((1...4).contains(kyoku) && scores.count == 4 && (0...RoundState.maxRunningHonba).contains(honba)
+                     && sticks >= 0, "internal: position out of range")
         self.rules = rules
         self.wall = wall
         self.roundWind = roundWind
@@ -219,9 +245,9 @@ public struct RoundState: Sendable {
     public func isFuriten(_ seat: Seat) -> Bool { players[seat.index].isFuriten }
     /// The three sorts separately: a wait in the seat's own pond, temporary (until
     /// its next live draw), riichi (for the rest of the hand).
-    public func furitenParts(of seat: Seat) -> (ownDiscard: Bool, temporary: Bool, riichi: Bool) {
+    public func furitenParts(of seat: Seat) -> FuritenParts {
         let p = players[seat.index]
-        return (p.waits & p.pondKinds != 0, p.temporaryFuriten, p.riichiFuriten)
+        return FuritenParts(ownDiscard: p.waits & p.pondKinds != 0, temporary: p.temporaryFuriten, riichi: p.riichiFuriten)
     }
 
     /// Seats that must answer the open window, ascending.
@@ -395,7 +421,8 @@ public struct RoundState: Sendable {
             players[i].refresh()
         }
         players[i].kuikae = 0
-        players[i].pond.append(PondTile(tile: t, tsumogiri: tsumogiri, riichi: riichi, calledAway: false))
+        let order = players.reduce(0) { $0 + $1.pond.count }
+        players[i].pond.append(PondTile(tile: t, tsumogiri: tsumogiri, riichi: riichi, calledAway: false, order: order))
         players[i].pondKinds |= bit(t.kind)
         if !t.kind.isYaochu { players[i].nagashi = false }
         if riichi { players[i].riichi = .pending }
@@ -693,22 +720,37 @@ public struct RoundState: Sendable {
 
     /// Scores `seat` winning on `tile`, or nil if it is not a win with a yaku.
     func scoreWin(_ seat: Seat, _ tile: Tile, source: WinSource, honba: Int) -> Scored? {
-        try? score(winRequest(seat, tile, source: source, honba: honba), rules: rules)
+        try? scoreChecked(winRequest(seat, tile, source: source, honba: honba), rules: rules)
     }
 
     /// The `score` question for the win `seat` may declare now (its `tsumo`, or a
-    /// `ron` on the open window's tile), with the honba it would be paid; nil if it
-    /// has no such option. For tools (the Mercury cross-check dump).
-    public func winRequest(for seat: Seat) -> ScoreRequest? {
+    /// `ron` on the open window's tile); nil if it has no such option. A host-side
+    /// tool (the Mercury cross-check dump): the request holds the ura indicators,
+    /// which no seat may see before the win.
+    ///
+    /// The honba of a ron depend on the other answers: they go to the winner
+    /// nearest the discarder (every winner under `Rules.honbaToEveryRonWinner`).
+    /// Given `answers` (the window's answers), the winners are the seats that answer
+    /// `ron` there, and the request is nil if `seat` does not, or if three rons
+    /// abort the hand; without them, `seat` is taken to be the only winner (Gemini
+    /// final finding 2).
+    public func winRequest(for seat: Seat, answers: Answers? = nil) -> ScoreRequest? {
+        func ronHonba(from discarder: Seat) -> Int? {
+            guard let answers else { return honba }
+            guard answers[seat] == .ron else { return nil }
+            let winners = rons(answers, from: discarder)
+            if winners.count == 3 && rules.tripleRonAborts { return nil }
+            return winners.first == seat || rules.honbaToEveryRonWinner ? honba : 0
+        }
         switch phase {
         case .turn(let s, let start) where s == seat && canTsumo(seat, start):
             return winRequest(seat, players[seat.index].drawn!, source: .draw(start), honba: honba)
         case .reactions(let d) where legalActions(for: seat).contains(.ron):
-            let first = rons(Answers.allRon, from: d.seat).first { legalActions(for: $0).contains(.ron) }
-            return winRequest(seat, d.tile, source: .discard, honba: first == seat ? honba : 0)
+            guard let h = ronHonba(from: d.seat) else { return nil }
+            return winRequest(seat, d.tile, source: .discard, honba: h)
         case .robbing(let k) where legalActions(for: seat).contains(.ron):
-            let first = rons(Answers.allRon, from: k.seat).first { legalActions(for: $0).contains(.ron) }
-            return winRequest(seat, k.tile, source: .robbing(k.kind), honba: first == seat ? honba : 0)
+            guard let h = ronHonba(from: k.seat) else { return nil }
+            return winRequest(seat, k.tile, source: .robbing(k.kind), honba: h)
         default:
             return nil
         }

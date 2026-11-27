@@ -26,13 +26,19 @@ final class RequestDump: GameObserver {
 
     func deciding(_ game: GameState, seat: Seat, action: Action) {
         let s = game.round
-        if action == .tsumo || action == .ron, let req = s.winRequest(for: seat) {
-            addScore(req)
-        }
+        if action == .tsumo, let req = s.winRequest(for: seat) { addScore(req) }
         guard let req = legalRequest(s, seat) else { return }
         add(req, "actions=\(expectedActions(s, seat).joined(separator: ","))")
         // `legal` assumes enough points for riichi; the round does not.
         if s.scores[seat.index] < 1000 { lowPoints.append("\(prefix)\(next)") }
+    }
+
+    /// A ron's honba depend on every answer (Gemini final finding 2), so its
+    /// request is made with all of them.
+    func resolving(_ game: GameState, answers: Answers) {
+        for seat in game.seatsToAnswer where answers[seat] == .ron {
+            if let req = game.round.winRequest(for: seat, answers: answers) { addScore(req) }
+        }
     }
 
     func addScore(_ r: ScoreRequest) {

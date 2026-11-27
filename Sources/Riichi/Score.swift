@@ -21,6 +21,14 @@ public struct ScoreRequest: Sendable {
 
 public enum ScoreError: String, Error, Sendable {
     case notAgari = "not_agari", noYaku = "no_yaku"
+    /// The request itself cannot be scored (Codex final finding 3): the rules fail
+    /// `Rules.validate()`; the hand, winning tile, melds and indicators are not a
+    /// possible tile set (`isPossibleTileSet`); the hand is not 13 − 3 × melds tiles
+    /// (at most four melds); honba outside 0...`RoundState.maxRunningHonba`. (The
+    /// number of indicators is not checked: `spec/formats.md` leaves it open and
+    /// the corpus has a request with eight.)
+    case badRules = "bad_rules", impossibleTiles = "impossible_tiles", badHandSize = "bad_hand_size",
+         badHonba = "bad_honba"
 }
 
 /// What the winner is paid, honba included, riichi sticks not.
@@ -162,8 +170,24 @@ public func doraCount(_ tiles: [Tile], indicators: [Tile]) -> Int {
 private func best(_ all: [Scored]) -> Scored? { all.max { $1.isBetter(than: $0) } }
 
 /// Scores a winning hand under `rules`: the best interpretation by the order of
-/// `spec/formats.md` (`score`).
+/// `spec/formats.md` (`score`). Checks the request first (`ScoreError`).
 public func score(_ req: ScoreRequest, rules: Rules) throws(ScoreError) -> Scored {
+    try req.check(rules: rules)
+    return try scoreChecked(req, rules: rules)
+}
+
+extension ScoreRequest {
+    /// What `score` requires of a request (see `ScoreError`).
+    func check(rules: Rules) throws(ScoreError) {
+        guard rules.isValid else { throw .badRules }
+        guard melds.count <= 4, hand.count == 13 - 3 * melds.count else { throw .badHandSize }
+        guard (0...RoundState.maxRunningHonba).contains(honba) else { throw .badHonba }
+        guard isPossibleTileSet(hand + [win] + melds.tiles + dora + ura) else { throw .impossibleTiles }
+    }
+}
+
+/// `score` for a request the engine built itself (always valid).
+func scoreChecked(_ req: ScoreRequest, rules: Rules) throws(ScoreError) -> Scored {
     guard req.context.flags.contains(.tenhou) && rules.tenhouAnyWinningTile else {
         return try scoreWithWinningTile(req, rules: rules)
     }

@@ -62,11 +62,12 @@ extension Request {
     /// the physical tile set: at most four of a kind, one red five per suit.
     func hand(plus extra: Tile? = nil) throws(BadInput) -> (tiles: [Tile], melds: [Meld]) {
         let hand = try tiles("hand"), melds = try value("melds", default: "-", parseMelds)
-        let all = hand + (extra.map { [$0] } ?? []) + melds.tiles
-        let reds = all.filter(\.isRed).map(\.kind)
-        guard Counts(all).count(where: { $0 > 4 }) == 0, Set(reds).count == reds.count else {
+        // Counted before any `Counts` is built (Gemini final finding 1: `Counts`
+        // holds at most 15 of a kind).
+        guard isPossibleTileSet(hand + (extra.map { [$0] } ?? []) + melds.tiles) else {
             throw BadInput(reason: "impossible_tiles")
         }
+        guard melds.count <= 4 else { throw BadInput(reason: "bad_melds") }
         return (hand, melds)
     }
 
@@ -155,7 +156,8 @@ func answer(_ q: Request) throws(BadInput) -> String {
             inRiichi: try q.bool("riichi"), furiten: try q.bool("furiten"),
             wall: try q.int("wall", default: 70, in: 0...136), firstTurn: try q.bool("first"),
             kans: try q.int("kans", default: 0, in: 0...4), rules: try q.rules())
-        return "actions=\(req.actions.joined(separator: ","))"
+        do { return "actions=\(try req.actions.joined(separator: ","))" }
+        catch { throw BadInput(reason: "bad_\(error.field)") }
 
     default:
         throw BadInput(reason: "unknown_op")
@@ -185,8 +187,8 @@ func benchRounds(_ args: [String]) {
         let start = clock.now
         for i in 0..<rounds {
             let wall = Wall(seed: UInt64(i), hand: 0)
-            var s = collect ? RoundState(rules: rules, wall: wall, events: &events)
-                            : RoundState(rules: rules, wall: wall)
+            var s = collect ? try! RoundState(rules: rules, wall: wall, events: &events)
+                            : try! RoundState(rules: rules, wall: wall)
             while s.result == nil {
                 decisions += 1
                 if case .turn(let seat, _) = s.phase {

@@ -63,6 +63,35 @@ import Testing
         #expect(xs != 0)
     }
 
+    /// Gemini final finding 8: East-only games through `mj selfplay`, with every
+    /// invariant, the trace's `length east` line replayed, and check-log of the logs
+    /// with the same length.
+    @Test(.enabled(if: mj != nil), arguments: ["tenhou", "mahjongsoul"]) func eastOnlySelfplay(_ rules: String) throws {
+        let dir = tempDir("east-\(rules)")
+        let (status, out) = try run(["selfplay", "--seed", "21", "--games", "6", "--rules", rules, "--length", "east",
+                                     "--bots", "eager", "--seat", "1=random", "--out", dir, "--check"])
+        #expect(status == 0 && out.contains("invariants ok") && out.contains("length=east"), "\(out)")
+        let traces = (0..<6).map { String(format: "%@/%06d.trace", dir, $0) }
+        #expect(try String(contentsOfFile: traces[0], encoding: .utf8).contains("\nlength east\n"))
+        let (rs, ro) = try run(["replay"] + traces)
+        #expect(rs == 0 && ro.contains("identical=6"), "\(ro)")
+        let logs = (0..<6).map { String(format: "%@/%06d.jsonl", dir, $0) }
+        let text = try logs.map { try String(contentsOfFile: $0, encoding: .utf8) }.joined()
+        #expect(!text.contains(#""bakaze":"W""#))
+        let (cs, co) = try run(["check-log", "--rules", rules, "--set", "length=east"] + logs)
+        #expect(cs == 0 && co.contains("errors=0"), "\(co)")
+        let (bad, _) = try run(["selfplay", "--games", "1", "--length", "north"])
+        #expect(bad != 0)
+    }
+
+    /// Codex final finding 6: the timeout is checked before any bot starts.
+    @Test(.enabled(if: mj != nil)) func timeoutIsChecked() throws {
+        for t in ["3000000000", "0", "-5"] {
+            let (status, out) = try run(["selfplay", "--games", "1", "--seat", "0=mjai:cat", "--timeout", t])
+            #expect(status == 2 && out.contains("--timeout"), "\(t): \(out)")
+        }
+    }
+
     /// The mjai adapter with the scripted fake bot: two-step riichi, and each kind
     /// of bad reply substituted and counted.
     @Test(.enabled(if: mj != nil)) func mjaiAdapter() throws {

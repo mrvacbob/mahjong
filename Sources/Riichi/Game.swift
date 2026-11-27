@@ -2,17 +2,37 @@
 // transition, and the final result.
 
 /// Where the game stands at the start of a hand: what `start_kyoku` announces.
+/// Always in range (the initializer checks it), so the game flow never traps on one.
 public struct GamePosition: Hashable, Sendable {
-    public var roundWind: Wind
+    public internal(set) var roundWind: Wind
     /// 1–4.
-    public var kyoku: Int
-    public var honba: Int
-    /// Riichi sticks on the table.
-    public var sticks: Int
-    public var scores: [Int]
+    public internal(set) var kyoku: Int
+    /// 0...`RoundState.maxRunningHonba`.
+    public internal(set) var honba: Int
+    /// Riichi sticks on the table: 0...`GamePosition.maxSticks`.
+    public internal(set) var sticks: Int
+    /// Four scores, each within ±`GamePosition.maxScore`.
+    public internal(set) var scores: [Int]
 
-    public init(roundWind: Wind = .east, kyoku: Int = 1, honba: Int = 0, sticks: Int = 0, scores: [Int]) {
-        precondition((1...4).contains(kyoku) && scores.count == 4)
+    /// The bounds a running game keeps to: every point stays among the seats and
+    /// the table, so neither the sticks nor any score can pass what four seats
+    /// admitted at `RoundState.maxScore` with `RoundState.maxCount` sticks hold.
+    public static let maxSticks = 4 * RoundState.maxScore / 1000 + RoundState.maxCount
+    public static let maxScore = 4 * RoundState.maxScore + 1000 * RoundState.maxCount
+
+    public init(roundWind: Wind = .east, kyoku: Int = 1, honba: Int = 0, sticks: Int = 0,
+                scores: [Int]) throws(InputError) {
+        guard (1...4).contains(kyoku) else { throw InputError("kyoku", "\(kyoku) is not 1...4") }
+        guard (0...RoundState.maxRunningHonba).contains(honba) else {
+            throw InputError("honba", "\(honba) is not 0...\(RoundState.maxRunningHonba)")
+        }
+        guard (0...GamePosition.maxSticks).contains(sticks) else {
+            throw InputError("sticks", "\(sticks) is not 0...\(GamePosition.maxSticks)")
+        }
+        guard scores.count == 4 else { throw InputError("scores", "\(scores.count) scores, not one per seat") }
+        guard scores.allSatisfy({ abs($0) <= GamePosition.maxScore }) else {
+            throw InputError("scores", "a score is outside ±\(GamePosition.maxScore)")
+        }
         self.roundWind = roundWind
         self.kyoku = kyoku
         self.honba = honba
@@ -36,6 +56,9 @@ public enum GameEnd: String, Hashable, Sendable {
     case target
     /// All last: the next hand would start a wind beyond the extension.
     case extensionOver = "extension_over"
+    /// The next hand would have more than `RoundState.maxRunningHonba` honba (not a
+    /// rule of either client: the bound that keeps payments in 32-bit `Int`).
+    case counterLimit = "counter_limit"
 }
 
 /// What the after-round transition decided.
@@ -66,8 +89,14 @@ public struct GameResult: Hashable, Sendable {
 }
 
 public enum GameFlow {
-    /// Seats in rank order for these scores: higher first, ties to the lower seat.
-    public static func ranking(_ scores: [Int]) -> [Seat] {
+    /// Seats in rank order for these four scores: higher first, ties to the lower
+    /// seat.
+    public static func ranking(_ scores: [Int]) throws(InputError) -> [Seat] {
+        guard scores.count == 4 else { throw InputError("scores", "\(scores.count) scores, not one per seat") }
+        return rank(scores)
+    }
+
+    static func rank(_ scores: [Int]) -> [Seat] {
         Seat.all.sorted { scores[$0.index] != scores[$1.index] ? scores[$0.index] > scores[$1.index] : $0 < $1 }
     }
 
@@ -85,13 +114,22 @@ public enum GameFlow {
     /// the scores before nagashi payments when `allLastTestAfterNagashi` is off).
     /// Returns the next hand's position, or nil when the game ends.
     public static func next(after result: RoundResult, at position: GamePosition, rules: Rules,
-                            testScores: [Int]? = nil) -> (GamePosition?, GameTransition) {
+                            testScores: [Int]? = nil) throws(InputError) -> (GamePosition?, GameTransition) {
+        if let testScores, testScores.count != 4 {
+            throw InputError("testScores", "\(testScores.count) scores, not one per seat")
+        }
+        return transition(after: result, at: position, rules: rules, testScores: testScores)
+    }
+
+    static func transition(after result: RoundResult, at position: GamePosition, rules: Rules,
+                           testScores: [Int]?) -> (GamePosition?, GameTransition) {
         let scores = result.scores
         let test = testScores ?? scores
         // 1. Below zero ends the game; zero continues.
         if scores.contains(where: { $0 < 0 }) { return (nil, .ends(.belowZero)) }
         // 2. Honba. 3. Dealer repeat.
         let honba = result.nextHonba(after: position.honba)
+        if honba > RoundState.maxRunningHonba { return (nil, .ends(.counterLimit)) }
         let repeats = result.dealerRepeats
         var next = position
         next.honba = honba
@@ -113,7 +151,7 @@ public enum GameFlow {
         if repeats {
             let abort: Bool = if case .abortiveDraw = result.outcome { true } else { false }
             let dealer = position.dealer
-            if !abort && ranking(test)[0] == dealer && test[dealer.index] >= rules.targetPoints {
+            if !abort && rank(test)[0] == dealer && test[dealer.index] >= rules.targetPoints {
                 return (nil, .ends(.dealerFirst))
             }
             // An abortive draw in all last always continues (design §5).
@@ -130,8 +168,20 @@ public enum GameFlow {
     }
 
     /// Step 5: leftover sticks to first place, ranks, return points, oka and uma.
-    public static func result(scores: [Int], sticks: Int, rules: Rules, end: GameEnd) -> GameResult {
-        let ranks = ranking(scores)
+    public static func result(scores: [Int], sticks: Int, rules: Rules, end: GameEnd) throws(InputError) -> GameResult {
+        try rules.validate()
+        guard scores.count == 4 else { throw InputError("scores", "\(scores.count) scores, not one per seat") }
+        guard scores.allSatisfy({ abs($0) <= GamePosition.maxScore }) else {
+            throw InputError("scores", "a score is outside ±\(GamePosition.maxScore)")
+        }
+        guard (0...GamePosition.maxSticks).contains(sticks) else {
+            throw InputError("sticks", "\(sticks) is not 0...\(GamePosition.maxSticks)")
+        }
+        return final(scores: scores, sticks: sticks, rules: rules, end: end)
+    }
+
+    static func final(scores: [Int], sticks: Int, rules: Rules, end: GameEnd) -> GameResult {
+        let ranks = rank(scores)
         var final = scores
         final[ranks[0].index] += 1000 * sticks
         var adjusted = [0, 0, 0, 0]
@@ -162,33 +212,47 @@ public struct GameState: Sendable {
     public let walls: (@Sendable (_ seed: UInt64, _ hand: Int) -> Wall)?
 
     /// A new game: every seat on `rules.startingPoints`, East 1, seat 0 dealing.
+    /// Throws if `rules` are out of range (`Rules.validate()`).
     public init(rules: Rules, seed: UInt64, events: inout [Event],
-                observe: ((RoundState, Event) -> Void)? = nil) {
-        self.init(rules: rules, seed: seed,
-                  position: GamePosition(scores: Array(repeating: rules.startingPoints, count: 4)),
-                  events: &events, observe: observe)
+                observe: ((RoundState, Event) -> Void)? = nil) throws(InputError) {
+        try rules.validate()
+        try self.init(rules: rules, seed: seed,
+                      position: GamePosition(scores: Array(repeating: rules.startingPoints, count: 4)),
+                      events: &events, observe: observe)
     }
 
     /// A game from `position` (default: a new game) whose walls come from `walls`.
     public init(rules: Rules, seed: UInt64, position: GamePosition? = nil,
                 walls: @escaping @Sendable (_ seed: UInt64, _ hand: Int) -> Wall,
-                events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) {
-        self.init(rules: rules, seed: seed,
-                  position: position ?? GamePosition(scores: Array(repeating: rules.startingPoints, count: 4)),
-                  handsDealt: 0, wall: nil, walls: walls, events: &events, observe: observe)
+                events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) throws(InputError) {
+        try rules.validate()
+        let start: GamePosition
+        if let position { start = position } else {
+            start = try GamePosition(scores: Array(repeating: rules.startingPoints, count: 4))
+        }
+        try self.init(rules: rules, seed: seed, position: start,
+                      handsDealt: 0, wall: nil, walls: walls, events: &events, observe: observe)
     }
 
     /// A game from a given position (scenarios, tools). The first hand uses `wall`
-    /// if given, else the seeded wall for `handsDealt`.
+    /// if given, else the seeded wall for `handsDealt`. Throws if the rules or the
+    /// position are out of range: `Rules.validate()`, and the position's honba and
+    /// sticks within 0...`RoundState.maxCount` and its scores within
+    /// ±`RoundState.maxScore` (the bounds of `RoundState.init`); `handsDealt` ≥ 0.
     public init(rules: Rules, seed: UInt64, position: GamePosition, handsDealt: Int = 0, wall: Wall? = nil,
                 walls: (@Sendable (_ seed: UInt64, _ hand: Int) -> Wall)? = nil,
-                startGame: Bool = true, events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) {
+                startGame: Bool = true, events: inout [Event],
+                observe: ((RoundState, Event) -> Void)? = nil) throws(InputError) {
+        try RoundState.check(rules: rules, kyoku: position.kyoku, honba: position.honba,
+                             sticks: position.sticks, scores: position.scores)
+        guard (0..<Int.max).contains(handsDealt) else { throw InputError("handsDealt", "\(handsDealt) is negative") }
         self.rules = rules
         self.seed = seed
         self.position = position
         self.handsDealt = handsDealt + 1
         self.walls = walls
         var e = Emitter(on: true, events: events, observe: observe)
+        events = []
         let w = wall ?? walls?(seed, handsDealt) ?? Wall(seed: seed, hand: handsDealt)
         // (No round exists yet to show the observer; start_game has no state anyway.)
         if startGame { e.events.append(.startGame) }
@@ -199,9 +263,9 @@ public struct GameState: Sendable {
     }
 
     /// As above without events.
-    public init(rules: Rules, seed: UInt64) {
+    public init(rules: Rules, seed: UInt64) throws(InputError) {
         var ev: [Event] = []
-        self.init(rules: rules, seed: seed, events: &ev)
+        try self.init(rules: rules, seed: seed, events: &ev)
     }
 
     public var phase: Phase { round.phase }
@@ -209,9 +273,23 @@ public struct GameState: Sendable {
     public func legalActions(for seat: Seat) -> [Action] { isOver ? [] : round.legalActions(for: seat) }
     public var seatsToAnswer: [Seat] { round.seatsToAnswer }
 
+    /// What `seat` may know now (`RoundState.view(of:)`). Once the game is over the
+    /// table shows the final scores, leftover sticks paid to first place and none
+    /// left (what folding `end_game` gives, Codex final finding 4).
+    public func view(of seat: Seat) -> PlayerView {
+        var v = round.view(of: seat)
+        if let result {
+            v.table.scores = result.scores
+            v.table.sticks = 0
+            v.legalActions = []
+        }
+        return v
+    }
+
     public mutating func apply(_ action: Action, by seat: Seat, events: inout [Event],
                                observe: ((RoundState, Event) -> Void)? = nil) throws(RoundError) {
         var e = Emitter(on: true, events: events, observe: observe)
+        events = []  // the emitter owns the buffer: no copy on append (Gemini final finding 9)
         defer { events = e.events }
         try round.apply(action, by: seat, &e)
         advance(&e)
@@ -226,6 +304,7 @@ public struct GameState: Sendable {
     public mutating func resolve(_ answers: Answers, events: inout [Event],
                                  observe: ((RoundState, Event) -> Void)? = nil) throws(RoundError) {
         var e = Emitter(on: true, events: events, observe: observe)
+        events = []
         defer { events = e.events }
         try round.resolve(answers, &e)
         advance(&e)
@@ -250,11 +329,11 @@ public struct GameState: Sendable {
     /// After a round ends: the transition, then the next hand or the end.
     mutating func advance(_ e: inout Emitter) {
         guard let r = round.result else { return }
-        let (next, transition) = GameFlow.next(after: r, at: position, rules: rules, testScores: testScores(r))
+        let (next, transition) = GameFlow.transition(after: r, at: position, rules: rules, testScores: testScores(r))
         lastRound = (r, transition)
         guard let next else {
             guard case .ends(let end) = transition else { preconditionFailure() }
-            let g = GameFlow.result(scores: r.scores, sticks: r.sticks, rules: rules, end: end)
+            let g = GameFlow.final(scores: r.scores, sticks: r.sticks, rules: rules, end: end)
             result = g
             round.emit(.endGame(scores: g.scores), &e)
             return
