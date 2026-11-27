@@ -168,8 +168,14 @@ public struct ViewFolder: Sendable {
 
     public mutating func apply(_ e: MaskedEvent) {
         let me = table.seat
-        // A pending kan commits on whatever follows it, unless that is the robbing win.
-        if let pk = pendingKan {
+        // A pending kan commits on whatever follows it, unless that is the robbing win,
+        // or an indicator: Mahjong Soul shows one still owed by the seat's earlier kan
+        // right after a chained added kan, before its robbing window
+        // (`Rules.owedDoraAtChainedAddedKan`), and a committing kan's own indicator
+        // comes just before its replacement draw, which commits it here as well.
+        var indicator = false
+        if case .dora = e { indicator = true }
+        if let pk = pendingKan, !indicator {
             pendingKan = nil
             if case .hora = e {
                 // Robbed: the robbed tile is the winning tile.
@@ -193,7 +199,7 @@ public struct ViewFolder: Sendable {
                 replacementNext = true
             }
         }
-        table.reacting = nil
+        if !(indicator && pendingKan != nil) { table.reacting = nil }
         switch e {
         case .startGame, .endGame:
             break

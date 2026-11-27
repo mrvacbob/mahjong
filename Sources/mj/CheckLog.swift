@@ -355,7 +355,13 @@ struct HandChecker {
         var queue = engine.map(Self.message)
         var n = 0  // next log event
         var earlyDora: [Tile] = []  // log `dora` seen before the engine reveals it
-        var declined: Set<Seat> = []  // declined a tsumo since its last draw
+        // Declined a tsumo since its last live draw (and, with
+        // `temporaryFuritenEndsOnCall`, its last call): how ("kan", "riichi" or
+        // "discard"), and whether a ron has been offered to it since. Run with
+        // `temporaryFuritenOnDeclinedTsumo` off, the `dt_*` tags count the rons that
+        // field would refuse: offered, taken, passed.
+        var declined: [Seat: (how: String, offered: Bool)] = [:]
+        var afterKan = false  // the next tsumo is a replacement draw
         var inferredRon = false  // a ron the log leaves out (see the window below)
         var tags: [String] = []
         let multiRon = events.lazy.filter { $0.type == "hora" }.count > 1
@@ -477,8 +483,15 @@ struct HandChecker {
                         return nil
                     }
                     if legal.contains(.tsumo), a != .tsumo, a != .kyuushu, state.riichiStatus(of: seat) != .accepted {
-                        declined.insert(seat)
+                        let how: String
+                        switch a {
+                        case .ankan, .kakan: how = "kan"
+                        case .riichi: how = "riichi"
+                        default: how = "discard"
+                        }
+                        declined[seat] = (how, false)
                         tags.append("declined_tsumo")
+                        tags.append("declined_tsumo_\(how)")
                     }
                     try state.apply(a, by: seat, events: &out)
                 case .reactions, .robbing:
@@ -491,6 +504,11 @@ struct HandChecker {
                     var answers = Answers()
                     let asked = state.seatsToAnswer
                     for s in asked { answers[s] = .pass }
+                    var offeredNow: [Seat] = []
+                    for (s, d) in declined where asked.contains(s) && state.legalActions(for: s).contains(.ron) {
+                        if !d.offered { tags.append("dt_\(d.how)_offered"); declined[s]!.offered = true }
+                        offeredNow.append(s)
+                    }
                     switch e.type {
                     case "hora":
                         // One hora per winner, in turn order.
@@ -502,7 +520,10 @@ struct HandChecker {
                                 fail(&r, k, "illegal:ron", "hora by a seat that may not ron [seat \(s.index): hand \(state.hand(of: s).map(\.description).joined()) waits \(state.waits(of: s).map(\.description).joined(separator: ",")) furiten own=\(f.ownDiscard) temp=\(f.temporary) riichi=\(f.riichi) asked=\(asked.contains(s))]"); return nil
                             }
                             answers[Seat(a)] = .ron
-                            if declined.contains(Seat(a)) { tags.append("ron_after_declined_tsumo") }
+                            if let d = declined[Seat(a)] {
+                                tags.append("ron_after_declined_tsumo")
+                                if offeredNow.contains(Seat(a)) { tags.append("dt_\(d.how)_ron") }
+                            }
                             k += 1
                         }
                     case "chi", "pon", "daiminkan":
@@ -529,6 +550,7 @@ struct HandChecker {
                     default:
                         r.note("passes")
                     }
+                    for s in offeredNow where answers[s] != .ron { tags.append("dt_\(declined[s]!.how)_passed") }
                     try state.resolve(answers, events: &out)
                 case .ended:
                     fail(&r, n, "sequence:after_end", "the hand is over"); return nil
@@ -536,7 +558,18 @@ struct HandChecker {
             } catch {
                 fail(&r, n, "refused", "refused: \(error)"); return nil
             }
-            for e in out { if case .tsumo(let a, _) = e { declined.remove(a) } }
+            for e in out {
+                switch e {
+                case .tsumo(let a, _):
+                    if !afterKan { declined[a] = nil }
+                    afterKan = false
+                case .ankan, .kakan, .daiminkan: afterKan = true
+                case .chi(let a, _, _, _), .pon(let a, _, _, _):
+                    if rules.temporaryFuritenEndsOnCall { declined[a] = nil }
+                default: break
+                }
+                if case .daiminkan(let a, _, _, _) = e, rules.temporaryFuritenEndsOnCall { declined[a] = nil }
+            }
             all += out
             queue = out.map(Self.message)
         }

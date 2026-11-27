@@ -32,7 +32,7 @@ import time
 from compression import zstd
 
 # Tags too common to keep a per-game line for.
-COMMON = {"ron", "tsumo", "exhaustive", "declined_tsumo", "all_last_repeat", "all_last_advance",
+COMMON = {"ron", "tsumo", "exhaustive", "declined_tsumo", "declined_tsumo_discard", "declined_tsumo_riichi", "all_last_repeat", "all_last_advance",
           "end_target", "end_below_zero", "end_dealer_first", "end_extension_over", "end_sticks_left",
           "riichi_discard_ronned", "rinshan", "rinshan_after_ankan", "rinshan_after_daiminkan",
           "rinshan_after_kakan", "riichi_ankan", "ron_x2", "multi_ron_sticks", "multi_ron_honba",

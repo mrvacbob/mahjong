@@ -187,6 +187,38 @@ import Testing
         }
     }
 
+    /// Directed self-play (docs/notes/p3-closeout.md): each scenario reaches its
+    /// branch with every invariant on, its traces replay to the same bytes (the
+    /// trace names the scenario, which rebuilds the walls and the starting
+    /// position), and check-log accepts the logs.
+    @Test(.enabled(if: mj != nil), arguments: ["tenhou", "mahjongsoul"]) func directedScenarios(_ rules: String) throws {
+        let tenhou = rules == "tenhou"
+        let branches: [(String, [String])] = [
+            ("fourwinds", ["abort_suufon_renda", "abort_suufon_renda_riichi"]),
+            ("fourriichi", ["abort_suucha_riichi"]),
+            ("tripleron", [tenhou ? "abort_sanchahou" : "ron_x3"]),
+            ("robkan", tenhou ? [] : ["robbed_closed_kan"]),
+            ("pao", ["pao_tsumo", "pao_third_party_ron", "pao_liable_ron"]),
+            ("nagashi", ["nagashi"]),
+            ("fourkans", ["four_kans_one_seat"]),
+            ("endgame", ["end_dealer_first", "end_target", "all_last_repeat", "all_last_advance"]),
+        ]
+        for (scenario, keys) in branches {
+            let dir = tempDir("dir-\(scenario)-\(rules)")
+            let (s, o) = try run(["selfplay", "--scenario", scenario, "--seed", "5", "--games", "12", "--rules", rules,
+                                  "--out", dir, "--check"])
+            #expect(s == 0 && o.contains("invariants ok"), "\(scenario): \(o)")
+            for k in keys { #expect(o.contains("  \(k)="), "\(scenario) \(rules): \(k) not reached\n\(o)") }
+            let traces = (0..<12).map { String(format: "%@/%06d.trace", dir, $0) }
+            let (rs, ro) = try run(["replay"] + traces)
+            #expect(rs == 0 && ro.contains("identical=12"), "\(scenario): \(ro)")
+            let trace = try String(contentsOfFile: traces[0], encoding: .utf8)
+            #expect(trace.contains("\nscenario \(scenario)\n"))
+        }
+        let (bs, bo) = try run(["selfplay", "--scenario", "nonesuch", "--games", "1"])
+        #expect(bs != 0 && bo.contains("unknown scenario"), "\(bo)")
+    }
+
     /// check-log on the reduced format of the real-log campaign (docs/notes/p3-reallogs.md):
     /// our own logs stripped to it (no deltas, scores, dora events or ura; the
     /// dealer's first draw dealt as a 14th tile) still check, the hidden

@@ -107,8 +107,13 @@ public struct Rules: Sendable, Hashable {
     /// design §4.1 had it ending at the next draw only).
     public var temporaryFuritenEndsOnCall: Bool
     /// A seat not in riichi that could win on its own draw and does anything else is
-    /// temporarily furiten until its next live-wall draw (design §4.2; Tenhou's
-    /// manual: 「和了放棄…後は同巡フリテン」). Unverified for Mahjong Soul: default off.
+    /// temporarily furiten until its next live-wall draw, through a kan's
+    /// replacement draw (the strict reading of Tenhou's manual: 「和了放棄…後は同巡
+    /// フリテン」). Off for both: declining by a discard leaves the seat furiten on the
+    /// discarded tile anyway (the 13 tiles left wait on it), so the field shows only
+    /// after a tsumo declined by a kan, and there Tenhou's records have the seat win
+    /// by ron before its next live draw (4 of the 6 chances, 2010–21; the other 2
+    /// passed), as do Mahjong Soul's (docs/notes/p3-closeout.md).
     public var temporaryFuritenOnDeclinedTsumo: Bool
 
     public init(
@@ -187,5 +192,5 @@ extension Rules {
         tripleRonAborts: true, honbaToEveryRonWinner: false, kokushiRobsClosedKan: false,
         openKanDoraBeforeRon: true, paoCoversWholeHand: true, riichiOnFifthCopyWait: true,
         fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
-        temporaryFuritenEndsOnCall: true, temporaryFuritenOnDeclinedTsumo: true)
+        temporaryFuritenEndsOnCall: true, temporaryFuritenOnDeclinedTsumo: false)
 }

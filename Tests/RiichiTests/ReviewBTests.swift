@@ -5,9 +5,12 @@ import Testing
 @testable import Riichi
 
 @Suite struct ReviewBTests {
-    /// Finding 1: declining a tsumo (here by a closed kan) makes a Tenhou seat
-    /// temporarily furiten, through the kan's replacement draw, until its next live
-    /// draw. Mahjong Soul (unverified) does not.
+    /// Finding 1, as settled by the real logs (docs/notes/p3-closeout.md): a seat
+    /// that declines a tsumo by a closed kan may ron before its next live draw on
+    /// both clients (Tenhou's records have such rons, 2010–18), so neither preset
+    /// sets `temporaryFuritenOnDeclinedTsumo`. With the field on (the strict
+    /// reading of Tenhou's manual) the furiten lasts through the kan's replacement
+    /// draw until the next live draw.
     @Test func declinedTsumoThenAnkan() throws {
         let wall = makeWall(hands: ["4444s56s678m234p8p",
                                     "1m4m7m1p4p7p2s5s8s1z2z3z4z",
@@ -15,18 +18,51 @@ import Testing
                                     "3m6m9m3p6p9p1s2s7s1z2z3z4z"],
                             draws: "8p7s", rinshan: "7z")
         var events: [Event] = []
-        for rules in [Rules.tenhou, .mahjongSoul] {
-            let tenhou = rules == .tenhou
+        var strict = Rules.tenhou
+        strict.temporaryFuritenOnDeclinedTsumo = true
+        for rules in [Rules.tenhou, .mahjongSoul, strict] {
+            let furiten = rules.temporaryFuritenOnDeclinedTsumo
             var s = RoundState(rules: rules, wall: wall)
             #expect(s.legalActions(for: Seat(0)).contains(.tsumo))
             try s.apply(.ankan(t1("4s").kind), by: Seat(0))
             #expect(s.drawnTile(of: Seat(0)) == t1("7z"))
-            #expect(s.isFuriten(Seat(0)) == tenhou)
+            #expect(s.isFuriten(Seat(0)) == furiten)
             try s.tsumogiri(0, events: &events)
             if !s.seatsToAnswer.isEmpty { try s.answer(events: &events) }
             try s.tsumogiri(1, events: &events)
-            #expect(s.isFuriten(Seat(0)) == tenhou)
-            #expect(s.legalActions(for: Seat(0)).contains(.ron) == !tenhou)
+            #expect(s.isFuriten(Seat(0)) == furiten)
+            #expect(s.legalActions(for: Seat(0)).contains(.ron) == !furiten)
+        }
+        #expect(!Rules.tenhou.temporaryFuritenOnDeclinedTsumo && !Rules.mahjongSoul.temporaryFuritenOnDeclinedTsumo)
+    }
+
+    /// Why the field cannot show except through a kan: a tsumo declined by a
+    /// discard leaves 13 tiles that wait on the discarded kind (with it they are the
+    /// winning hand), so the seat is own-discard furiten until its hand changes,
+    /// whatever the field says.
+    @Test func declinedTsumoByDiscardIsOwnDiscardFuriten() throws {
+        let wall = makeWall(hands: ["23456m456p789s55z",
+                                    "1m4m7m1p4p7p2s5s8s1z2z3z4z",
+                                    "2m5m8m2p5p8p3s6s9s1z2z3z4z",
+                                    "3m6m9m3p6p9p1s2s7s1z2z3z4z"],
+                            draws: "6z6z6z6z7m5m")
+        var strict = Rules.tenhou
+        strict.temporaryFuritenOnDeclinedTsumo = true
+        for rules in [Rules.tenhou, .mahjongSoul, strict] {
+            var events: [Event] = []
+            var s = RoundState(rules: rules, wall: wall)
+            for seat in 0..<4 {
+                try s.tsumogiri(seat, events: &events)
+                if !s.seatsToAnswer.isEmpty { try s.answer(events: &events) }
+            }
+            #expect(s.legalActions(for: Seat(0)).contains(.tsumo))
+            try s.apply(.discard(t1("2m"), tsumogiri: false), by: Seat(0))
+            let f = s.furitenParts(of: Seat(0))
+            #expect(f.ownDiscard)
+            #expect(f.temporary == rules.temporaryFuritenOnDeclinedTsumo)
+            #expect(s.waits(of: Seat(0)).map(\.description) == ["2m", "5m", "8m"])
+            try s.tsumogiri(1, events: &events)  // 5m: a wait, but furiten
+            #expect(!s.seatsToAnswer.contains(Seat(0)))
         }
     }
 

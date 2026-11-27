@@ -11,7 +11,11 @@ import Testing
 /// Scenarios this engine disagrees with, and why. A disputed scenario that starts
 /// passing fails the run (the known issue is not recorded), so this list cannot go
 /// stale silently.
-let disputedScenarios: [String: String] = [:]
+let disputedScenarios: [String: String] = [
+    "declined_tsumo_outside_riichi.tenhou":
+        "expects Tenhou furiten after a tsumo declined by a closed kan; Tenhou's records have such seats ron "
+        + "(4 of 6 chances, 2010–21), so `temporaryFuritenOnDeclinedTsumo` is now off (docs/notes/p3-closeout.md)",
+]
 
 enum ScenarioFiles {
     static let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()

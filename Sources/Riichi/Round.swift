@@ -364,7 +364,10 @@ public struct RoundState: Sendable {
     /// (whether or not it had a yaku: in riichi it always does). Under
     /// `Rules.temporaryFuritenOnDeclinedTsumo`, any other seat that could have
     /// declared `tsumo` is temporarily furiten until its next live-wall draw; a
-    /// replacement draw after a kan does not clear it (design §4.2).
+    /// replacement draw after a kan does not clear it (design §4.2). (Off in both
+    /// presets: a tsumo declined by a discard leaves the seat furiten on the
+    /// discarded tile anyway, and Tenhou's records show seats that declined by a
+    /// kan winning by ron before their next live draw.)
     mutating func declineWinningDraw(_ seat: Seat, _ start: TurnStart) {
         let i = seat.index
         guard start == .draw || start == .replacementDraw, let d = players[i].drawn else { return }

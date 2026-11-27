@@ -31,11 +31,31 @@ def cat(c, a, b, field):
     counts[c] += 1
     hands_with[c].add((a["file"], a["hand"]))
     if c not in examples: examples[c] = (field, a, b)
+def merged(eng, lib):
+    """Row pairs with the same key. libriichi writes no rows for a hand that failed
+    its board replay (a known board difference, e.g. a triple-ron abort): the
+    engine's rows of such hands are skipped and counted."""
+    global skipped_hands
+    lb = next(lib, None)
+    skipped = set()
+    for la in eng:
+        a = json.loads(la)
+        key = (a["file"], a["hand"], a["event_index"], a["seat"])
+        b = json.loads(lb) if lb is not None else None
+        if b is None or (b["file"], b["hand"]) != (a["file"], a["hand"]):
+            # (Both files are in the same (file, hand) order.)
+            skipped.add((a["file"], a["hand"]))
+            continue
+        assert key == (b["file"], b["hand"], b["event_index"], b["seat"]), (key, b)
+        yield a, b
+        lb = next(lib, None)
+    assert lb is None, "libriichi rows left over"
+    skipped_hands = len(skipped)
+skipped_hands = 0
 eng = open(eng_path); lib = open(lib_path)
-for la, lb in zip(eng, lib):
-    a = json.loads(la); b = json.loads(lb); rows += 1
+for a, b in merged(eng, lib):
+    rows += 1
     key = (a["file"], a["hand"], a["event_index"], a["seat"])
-    assert key == (b["file"], b["hand"], b["event_index"], b["seat"]), (key, b)
     hk = (a["file"], a["hand"]); seat = a["seat"]; et = a["event_type"]
     if et == "start_kyoku":
         ctx[(hk, seat)] = SeatCtx()
@@ -77,8 +97,20 @@ for la, lb in zip(eng, lib):
         # whose kind may be the only wait of a riichi discard (a fifth copy).
         n = sum(1 for ch in a.get("x_hand", "") if ch.isdigit())
         return four_concealed() or n < 14
+    def riichi_kan_of_waited_tile():
+        # In riichi (the drawn tile the only discard), the engine offers the closed
+        # kan of the drawn tile, a kind the hand waits on, and libriichi does not: its
+        # check_ankan_after_riichi refuses to kan a waited tile; spec/formats.md
+        # compares the structural wait kinds, which keep the kan kind as a fifth-copy
+        # wait (rule choice; a seat that kans its winning tile in riichi gives it up,
+        # so no record can show which Tenhou does).
+        return (et == "tsumo" and mine and a["ankan"] and not b["ankan"] and len(a["discard"]) == 1
+                and a["ankan"][0] in a["waits"] and a["discard"][0][:2] == a["ankan"][0])
     for f in diffs:
         x, y = a[f], b[f]
+        if f in ("flags", "ankan") and riichi_kan_of_waited_tile() and (f == "ankan" or all(
+                x[k] == y[k] for k in x if k != "can_ankan")):
+            cat("NEW riichi_ankan_waited_tile", a, b, f); continue
         if et == "ankan" and mine and f in ("waits", "shanten", "furiten"):
             cat("NEW ankan_eager_commit", a, b, f); continue
         if f == "flags":
@@ -138,7 +170,7 @@ for la, lb in zip(eng, lib):
     if et == "tsumo" and mine:
         c.last_tsumo_could_win = a["flags"]["can_tsumo_agari"]
         if "t" not in parts: c.declined = False
-out = {"rows": rows, "rows_with_difference_by_category": dict(counts.most_common()),
+out = {"rows": rows, "hands_without_libriichi_rows": skipped_hands, "rows_with_difference_by_category": dict(counts.most_common()),
        "hands_by_category": {k: len(v) for k, v in sorted(hands_with.items(), key=lambda kv: -len(kv[1]))}}
 print(json.dumps(out, indent=1))
 if show:

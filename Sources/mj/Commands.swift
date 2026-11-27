@@ -95,7 +95,8 @@ func makePlayers(_ specs: [String], seed: UInt64, timeoutMs: Int) throws -> [any
 }
 
 /// `mj selfplay --seed N --games K [--rules tenhou] [--bots random|eager|mjai:CMD]
-/// [--seat N=BOT] [--out DIR] [--legal] [--requests FILE] [--check] [--timeout MS]`
+/// [--seat N=BOT] [--scenario NAME] [--out DIR] [--legal] [--requests FILE] [--check]
+/// [--timeout MS]`. `--scenario` plays directed bots on arranged walls (Directed.swift).
 func selfplay(_ args: [String]) throws -> Int32 {
     let o = try Options(args, flags: ["legal", "check", "quiet"])
     guard let seed = UInt64(o.values["seed"] ?? "0") else { throw UsageError(description: "--seed wants a number from 0 to 2^64 − 1") }
@@ -103,7 +104,16 @@ func selfplay(_ args: [String]) throws -> Int32 {
     guard games >= 0 else { throw UsageError(description: "--games wants a count") }
     let rules = try o.rules()
     let timeout = try o.int("timeout", 10_000)
-    var specs = Array(repeating: o.values["bots"] ?? "eager", count: 4)
+    let scenario: Scenario? = try o.values["scenario"].map { v in
+        guard let sc = Scenario(rawValue: v) else {
+            throw UsageError(description: "unknown scenario \(v) (\(Scenario.allCases.map(\.rawValue).joined(separator: ", ")))")
+        }
+        return sc
+    }
+    var specs = Array(repeating: o.values["bots"] ?? (scenario == nil ? "eager" : "directed"), count: 4)
+    if scenario != nil && specs.contains(where: { $0 != "directed" }) {
+        throw UsageError(description: "--scenario plays directed bots at every seat")
+    }
     for (s, b) in o.seats { specs[s] = b }
     let names = specs.map { $0.hasPrefix("mjai:") ? "mjai" : $0 }
     let label = specs.map { $0.hasPrefix("mjai:") ? "mjai" : $0 }.joined(separator: ",")
@@ -137,9 +147,17 @@ func selfplay(_ args: [String]) throws -> Int32 {
         if let requests, rules == .mahjongSoul { observers.append(requests) }
         let checks = o.flags.contains("check") ? InvariantChecks(label: "game \(g)") : nil
         if let checks { observers.append(checks) }
-        var players = try makePlayers(specs, seed: playerSeed, timeoutMs: timeout)
+        var players: [any Player]
+        if let scenario {
+            players = Seat.all.map { s in
+                DirectedBot(scenario: scenario, seed: gameSeed, seat: s,
+                            rng: BotRNG(state: mix64(playerSeed &+ UInt64(s.index + 1))))
+            }
+        } else {
+            players = try makePlayers(specs, seed: playerSeed, timeoutMs: timeout)
+        }
         let rec = try playGame(rules: rules, seed: gameSeed, players: &players, names: names,
-                               observers: observers, botsLabel: label)
+                               observers: observers, botsLabel: label, scenario: scenario)
         hands += rec.game.handsDealt
         decisions += rec.decisions
         subs = subs + rec.substitutions
@@ -183,7 +201,7 @@ func replayTrace(_ text: String) throws -> String {
     let specs = t.bots.split(separator: ",").map(String.init)
     let names = specs.count == 4 ? specs : ["0", "1", "2", "3"]
     let rec = try playGame(rules: t.rules, seed: t.seed, players: &players, names: names, observers: [],
-                           botsLabel: t.bots)
+                           botsLabel: t.bots, scenario: t.scenario)
     if let m = decisions.mismatch { throw DriverError.trace(m) }
     if decisions.i != decisions.items.count { throw DriverError.trace("\(decisions.items.count - decisions.i) decisions left over") }
     return rec.log

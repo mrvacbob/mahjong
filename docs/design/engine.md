@@ -262,11 +262,15 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
 - **Event reason for nagashi mangan**: the `ryukyoku` event's reason is `exhaustive`;
   the nagashi seats are listed in the result, and the point changes show the payment.
 - **A robbed kan never counts** toward four kans.
-- **Declining a self-drawn win outside riichi** and then keeping the wait: whether
-  the clients treat that seat as temporarily furiten is unverified (Tenhou's manual:
-  「和了放棄…後は同巡フリテン」). `Rules` field; default yes for Tenhou, no for Mahjong
-  Soul until checked. A replacement draw does not clear temporary furiten; only a
-  live-wall draw does.
+- **Declining a self-drawn win outside riichi** and then keeping the wait: no
+  temporary furiten on either client (settled by the close-out,
+  `docs/notes/p3-closeout.md`). Declining by a discard leaves the seat furiten on
+  the discarded tile anyway (the 13 tiles left wait on it); declining by a closed or
+  added kan, Tenhou's records show the seat winning by ron before its next live
+  draw. `Rules.temporaryFuritenOnDeclinedTsumo` (off for both) keeps the strict
+  reading of Tenhou's manual (「和了放棄…後は同巡フリテン」), lasting through the kan's
+  replacement draw. A replacement draw does not clear temporary furiten; only a
+  live-wall draw (or, with `temporaryFuritenEndsOnCall`, the seat's own call) does.
 - **Nine terminals** is an action on the seat's own first draw and ends the round at
   once.
 
@@ -451,8 +455,10 @@ comparison is judged on action flags; furiten and waits are compared as evidence
 only, because libriichi updates them at different moments from ours. Random and
 eager bots never reach four winds, four riichi, triple ron, a robbed closed kan,
 pao, nagashi or four kans by one seat, so the coverage gate needs directed play
-(seeded walls or scripted bots) for those; until then the scenarios are their only
-test. A first pass of `check-log` over 300 real Tenhou and 300 real Mahjong Soul
+(seeded walls or scripted bots) for those. The close-out added it (`mj selfplay
+--scenario NAME`: arranged, randomly perturbed walls and scripted goals;
+`docs/notes/p3-closeout.md`), and each of those branches is now reached hundreds to
+thousands of times under both rulesets, through libriichi and Mercury. A first pass of `check-log` over 300 real Tenhou and 300 real Mahjong Soul
 games (2024) agreed on every point change; the only differences were log
 conventions (ura shown for a non-riichi winner in a double ron, and the position of
 the `dora` event after an open kan).

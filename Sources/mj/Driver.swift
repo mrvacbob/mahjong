@@ -69,7 +69,7 @@ func rulesetName(_ r: Rules) -> String { r == .tenhou ? "tenhou" : "mahjongsoul"
 
 /// Plays one game to the end with these players.
 func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [String],
-              observers: [any GameObserver], botsLabel: String) throws -> GameRecord {
+              observers: [any GameObserver], botsLabel: String, scenario: Scenario? = nil) throws -> GameRecord {
     // A version 1 trace names a preset only (Codex C/D finding 6).
     guard rules == .tenhou || rules == .mahjongSoul else {
         throw DriverError.trace("only the two preset rulesets can be recorded in a trace")
@@ -79,8 +79,15 @@ func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [S
     let observe: (RoundState, Event) -> Void = { s, e in for o in all { o.event(e, state: s) } }
     var events: [Event] = []
     log.addStartGame()
-    var game = GameState(rules: rules, seed: seed, events: &events, observe: observe)
+    var game: GameState
+    if let scenario {
+        game = GameState(rules: rules, seed: seed, position: scenario.position(seed: seed),
+                         walls: { scenario.wall(seed: $0, hand: $1) }, events: &events, observe: observe)
+    } else {
+        game = GameState(rules: rules, seed: seed, events: &events, observe: observe)
+    }
     var trace = "mj-trace 1\nrules \(rulesetName(rules))\nseed \(seed)\nbots \(botsLabel)\n"
+    if let scenario { trace += "scenario \(scenario.rawValue)\n" }
     var decisions = 0
 
     func deliver(_ events: [Event], _ game: GameState) -> [Action?] {
@@ -134,8 +141,10 @@ func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [S
 }
 
 /// Parses a trace written by `playGame`.
-func parseTrace(_ text: String) throws -> (rules: Rules, seed: UInt64, bots: String, decisions: [(Seat, Action)]) {
+func parseTrace(_ text: String) throws -> (rules: Rules, seed: UInt64, bots: String, scenario: Scenario?,
+                                          decisions: [(Seat, Action)]) {
     var rules: Rules?, seed: UInt64?, bots = ""
+    var scenario: Scenario?
     var decisions: [(Seat, Action)] = []
     for (n, line) in text.split(separator: "\n").enumerated() {
         let parts = line.split(separator: " ")
@@ -145,6 +154,9 @@ func parseTrace(_ text: String) throws -> (rules: Rules, seed: UInt64, bots: Str
         case "rules": rules = parts[1] == "tenhou" ? .tenhou : .mahjongSoul
         case "seed": seed = UInt64(parts[1])
         case "bots": bots = String(parts[1])
+        case "scenario":
+            guard let sc = Scenario(rawValue: String(parts[1])) else { throw DriverError.trace("unknown scenario \(parts[1])") }
+            scenario = sc
         default:
             guard let s = Int(parts[0]), (0..<4).contains(s), let a = Action(parts[1]) else {
                 throw DriverError.trace("line \(n + 1): \(line)")
@@ -153,5 +165,5 @@ func parseTrace(_ text: String) throws -> (rules: Rules, seed: UInt64, bots: Str
         }
     }
     guard let rules, let seed else { throw DriverError.trace("missing rules or seed") }
-    return (rules, seed, bots, decisions)
+    return (rules, seed, bots, scenario, decisions)
 }

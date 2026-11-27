@@ -153,6 +153,48 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         }
     }
 
+    /// Found by the close-out's directed self-play (docs/notes/p3-closeout.md): under
+    /// Mahjong Soul the owed indicator of an earlier added kan is shown right after a
+    /// chained added kan, before its robbing window; the folder took that `dora` for
+    /// the commit and so showed the kan made, the drawn tile gone and one live tile
+    /// fewer while the window was still open. Folds every step of such a hand, robbed
+    /// and not robbed, for all four seats.
+    @Test(arguments: [true, false]) func foldChainedAddedKanOwedDoraBeforeRob(_ robbed: Bool) throws {
+        let wall = makeWall(hands: ["1p1p234m678m567s33z", "1m4m7m9p1p2s5s8s1z2z3z4z5z",
+                                    "1m4m7m5p9p2s5s8s9s1z2z4z6z", "23p456m789m340s99s"],
+                            draws: "9m6z6z6z1s1s3z", rinshan: "1p8p", dora: "1z2z")
+        var events: [Event] = []
+        var s = RoundState(rules: .mahjongSoul, wall: wall, events: &events)
+        var folders = Seat.all.map(ViewFolder.init)
+        func fold(_ label: String) {
+            for seat in Seat.all {
+                for e in events { folders[seat.index].apply(e.masked(for: seat)) }
+                guard s.result == nil else { continue }
+                let v = s.view(of: seat)
+                #expect(folders[seat.index].table(asked: !v.legalActions.isEmpty) == v.table, "\(label): seat \(seat)")
+            }
+        }
+        fold("deal")
+        try s.tsumogiri(0, events: &events); fold("9m")
+        try s.apply(.discard(t1("3z"), tsumogiri: false), by: Seat(1), events: &events); fold("3z")
+        try s.answer([0: .pon(t1("3z"), t1("3z"))], events: &events); fold("pon 3z")
+        try s.apply(.discard(t1("8m"), tsumogiri: false), by: Seat(0), events: &events); fold("8m")
+        try s.apply(.discard(t1("1p"), tsumogiri: false), by: Seat(1), events: &events); fold("1p")
+        try s.answer([0: .pon(t1("1p"), t1("1p"))], events: &events); fold("pon 1p")
+        try s.apply(.discard(t1("7m"), tsumogiri: false), by: Seat(0), events: &events); fold("7m")
+        for seat in 1...3 {
+            try s.tsumogiri(seat, events: &events); fold("draw \(seat)")
+            if !s.seatsToAnswer.isEmpty { try s.answer(events: &events); fold("pass") }
+        }
+        try s.apply(.kakan(t1("3z")), by: Seat(0), events: &events); fold("kakan 3z")
+        #expect(s.drawnTile(of: Seat(0)) == t1("1p"))
+        try s.apply(.kakan(t1("1p")), by: Seat(0), events: &events); fold("kakan 1p")
+        #expect(events.map(\.text).suffix(2) == ["kakan(0)", "dora(2z)"])
+        #expect(s.seatsToAnswer == [Seat(3)])
+        try s.answer([3: robbed ? .ron : .pass], events: &events); fold("window")
+        #expect((s.result?.wins.first?.robbedKan == .added) == robbed)
+    }
+
     /// Codex C/D finding 5: rules are bounded so that the game-end arithmetic fits
     /// 32-bit Int at the extremes allowed.
     @Test func rulesBounds() {

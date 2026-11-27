@@ -157,6 +157,9 @@ public struct GameState: Sendable {
     public private(set) var lastRound: (result: RoundResult, transition: GameTransition)?
     /// Set when the game is over.
     public private(set) var result: GameResult?
+    /// Deals each hand's wall from the seed and the hand number; nil for the
+    /// seeded shuffle `Wall(seed:hand:)`. (Directed self-play arranges walls.)
+    public let walls: (@Sendable (_ seed: UInt64, _ hand: Int) -> Wall)?
 
     /// A new game: every seat on `rules.startingPoints`, East 1, seat 0 dealing.
     public init(rules: Rules, seed: UInt64, events: inout [Event],
@@ -166,16 +169,27 @@ public struct GameState: Sendable {
                   events: &events, observe: observe)
     }
 
+    /// A game from `position` (default: a new game) whose walls come from `walls`.
+    public init(rules: Rules, seed: UInt64, position: GamePosition? = nil,
+                walls: @escaping @Sendable (_ seed: UInt64, _ hand: Int) -> Wall,
+                events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) {
+        self.init(rules: rules, seed: seed,
+                  position: position ?? GamePosition(scores: Array(repeating: rules.startingPoints, count: 4)),
+                  handsDealt: 0, wall: nil, walls: walls, events: &events, observe: observe)
+    }
+
     /// A game from a given position (scenarios, tools). The first hand uses `wall`
     /// if given, else the seeded wall for `handsDealt`.
     public init(rules: Rules, seed: UInt64, position: GamePosition, handsDealt: Int = 0, wall: Wall? = nil,
+                walls: (@Sendable (_ seed: UInt64, _ hand: Int) -> Wall)? = nil,
                 startGame: Bool = true, events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) {
         self.rules = rules
         self.seed = seed
         self.position = position
         self.handsDealt = handsDealt + 1
+        self.walls = walls
         var e = Emitter(on: true, events: events, observe: observe)
-        let w = wall ?? Wall(seed: seed, hand: handsDealt)
+        let w = wall ?? walls?(seed, handsDealt) ?? Wall(seed: seed, hand: handsDealt)
         // (No round exists yet to show the observer; start_game has no state anyway.)
         if startGame { e.events.append(.startGame) }
         round = RoundState(rules: rules, wall: w, roundWind: position.roundWind, kyoku: position.kyoku,
@@ -246,7 +260,7 @@ public struct GameState: Sendable {
             return
         }
         position = next
-        let wall = Wall(seed: seed, hand: handsDealt)
+        let wall = walls?(seed, handsDealt) ?? Wall(seed: seed, hand: handsDealt)
         handsDealt += 1
         round = RoundState(rules: rules, wall: wall, roundWind: next.roundWind, kyoku: next.kyoku,
                            honba: next.honba, sticks: next.sticks, dealer: nil, scores: next.scores,
