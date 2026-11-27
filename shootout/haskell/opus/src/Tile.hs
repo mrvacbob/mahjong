@@ -4,10 +4,10 @@
 -- protocol keeps distinct (aka dora, @discard:0m@ vs @discard:5m@).
 module Tile
   ( Suit (..), Kind (..), Tile (..)
-  , numberSuits, allKinds, kindsOf
+  , numberSuits, numbers, allKinds, offset, east, winds, dragons
   , isHonor, isTerminal, isYaochu, isSimple, isDragon, isWind, isGreen
-  , next, doraOf
-  , parseTile, parseTiles, parseKind
+  , next, doraOf, count, countOf
+  , parseTile, parseTiles
   , showTile, showTiles, showKind, showKinds
   ) where
 
@@ -33,19 +33,31 @@ instance Ord Tile where
 numberSuits :: [Suit]
 numberSuits = [Man, Pin, Sou]
 
-allKinds :: [Kind]
-allKinds = [Kind s n | s <- numberSuits, n <- [1 .. 9]] ++ [Kind Honor n | n <- [1 .. 7]]
+numbers :: Suit -> [Int]
+numbers Honor = [1 .. 7]
+numbers _ = [1 .. 9]
 
-kindsOf :: [Tile] -> [Kind]
-kindsOf = map kind
+allKinds :: [Kind]
+allKinds = [Kind s n | s <- [minBound .. maxBound], n <- numbers s]
+
+-- | The kind @d@ numbers further along the same suit (may leave 1..9).
+offset :: Int -> Kind -> Kind
+offset d k = k { num = num k + d }
+
+east :: Kind
+east = Kind Honor 1
+
+winds, dragons :: [Kind]
+winds = [Kind Honor n | n <- [1 .. 4]]
+dragons = [Kind Honor n | n <- [5 .. 7]]
 
 isHonor, isTerminal, isYaochu, isSimple, isDragon, isWind, isGreen :: Kind -> Bool
 isHonor = (== Honor) . suit
 isTerminal k = not (isHonor k) && (num k == 1 || num k == 9)
 isYaochu k = isHonor k || isTerminal k
 isSimple = not . isYaochu
-isDragon k = isHonor k && num k >= 5
-isWind k = isHonor k && num k <= 4
+isDragon = (`elem` dragons)
+isWind = (`elem` winds)
 isGreen k = k `elem` [Kind Sou 2, Kind Sou 3, Kind Sou 4, Kind Sou 6, Kind Sou 8, Kind Honor 6]
 
 -- | The kind after this one, wrapping within its group (9→1, N→E, chun→haku).
@@ -59,6 +71,12 @@ next (Kind s n) = Kind s (if n == 9 then 1 else n + 1)
 -- | The dora indicated by an indicator tile.
 doraOf :: Tile -> Kind
 doraOf = next . kind
+
+count :: (a -> Bool) -> [a] -> Int
+count p = length . filter p
+
+countOf :: Eq a => a -> [a] -> Int
+countOf x = count (== x)
 
 suitChar :: Suit -> Char
 suitChar s = case s of Man -> 'm'; Pin -> 'p'; Sou -> 's'; Honor -> 'z'
@@ -75,22 +93,18 @@ mkTile s d = Just (Tile (Kind s d) False)
 -- | A tile list such as @123m406p77z@, or @-@ for none.
 parseTiles :: String -> Maybe [Tile]
 parseTiles "-" = Just []
-parseTiles str = go [] str
+parseTiles str = go str
   where
-    go [] [] = Just []
-    go _ [] = Nothing                       -- digits without a suit letter
-    go ds (c : cs)
-      | isDigit c = go (ds ++ [digitToInt c]) cs
-      | Just s <- charSuit c, not (null ds) = (++) <$> traverse (mkTile s) ds <*> go [] cs
-      | otherwise = Nothing
+    go [] = Just []
+    go cs = case span isDigit cs of
+      (ds@(_ : _), c : rest) | Just s <- charSuit c ->
+        (++) <$> traverse (mkTile s . digitToInt) ds <*> go rest
+      _ -> Nothing                          -- no digits, or digits without a suit
 
 parseTile :: String -> Maybe Tile
 parseTile str = case parseTiles str of
   Just [t] -> Just t
   _ -> Nothing
-
-parseKind :: String -> Maybe Kind
-parseKind = fmap kind . parseTile
 
 digitOf :: Tile -> Char
 digitOf t = if red t then '0' else intToDigit (num (kind t))
@@ -106,11 +120,8 @@ showTiles ts = concatMap group (groupBy ((==) `on` (suit . kind)) (sort ts))
 showTile :: Tile -> String
 showTile t = showTiles [t]
 
-plain :: Kind -> Tile
-plain k = Tile k False
-
 showKinds :: [Kind] -> String
-showKinds = showTiles . map plain
+showKinds = showTiles . map (`Tile` False)
 
 showKind :: Kind -> String
 showKind = showKinds . pure

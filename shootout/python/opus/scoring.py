@@ -2,14 +2,21 @@
 
 from collections.abc import Iterator
 from dataclasses import dataclass
+from enum import StrEnum
 
 from hand import Group, Shape, is_chiitoi, is_kokushi, standard_forms
-from tiles import DRAGONS, EAST, NUM_KINDS, Counts, Kind, Meld, MeldType, Tile, counts_of, digit, dora_of, is_yaochu
+from tiles import (
+    DRAGONS, EAST, Counts, Kind, Meld, MeldType, Tile,
+    counts_of, digit, dora_of, is_closed, is_yaochu, kinds_in, meld_tiles,
+)
 from yaku import YAKU, YAKUMAN, FormType, Wait, Win
 
 
-class ScoreError(Exception):
-    """`not_agari` or `no_yaku`."""
+class NoWin(StrEnum):
+    """Why a hand scores nothing (the `score` op answers `error=<this>`)."""
+
+    NOT_AGARI = "not_agari"
+    NO_YAKU = "no_yaku"
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,9 +46,9 @@ class Result:
     def yaku_str(self) -> str:
         return ",".join(f"{n}:{v}" for n, v in self.yaku)
 
-    def rank(self) -> tuple[int, bool, int, int]:
-        """Tie-break order (higher is better), before the yaku string."""
-        return (self.total, self.yakuman > 0, self.han, self.fu)
+    def preference(self) -> tuple[int, int, int, int, str]:
+        """Spec tie-break, smallest first: highest total, a real yakuman, han, fu, then the yaku string."""
+        return (-self.total, -(self.yakuman > 0), -self.han, -self.fu, self.yaku_str)
 
     def __str__(self) -> str:
         if self.yakuman:
@@ -76,12 +83,8 @@ def interpretations(concealed: Counts, melds: list[Meld], win: Kind, tsumo: bool
                     ctx: Context) -> Iterator[Win]:
     """Every reading of the hand `concealed` (win tile included) completed by `win`."""
     meld_groups = tuple(_meld_group(m) for m in melds)
-    all_counts = list(concealed)
-    for g in meld_groups:
-        for k in g.kinds:
-            all_counts[k] += 1
-    closed = not any(m.is_open for m in melds)
-    common = dict(win=win, tsumo=tsumo, closed=closed, has_melds=bool(melds), flags=ctx.flags,
+    all_counts = [a + b for a, b in zip(concealed, counts_of(meld_tiles(melds)))]
+    common = dict(win=win, tsumo=tsumo, closed=is_closed(melds), has_melds=bool(melds), flags=ctx.flags,
                   seat=ctx.seat, round=ctx.round, counts=all_counts)
     for form in standard_forms(concealed):
         seen: set[Group] = set()
@@ -94,10 +97,10 @@ def interpretations(concealed: Counts, melds: list[Meld], win: Kind, tsumo: bool
             if wait is Wait.SHANPON and not tsumo:
                 groups[i] = Group(g.kind, g.shape, open=True)  # ron completes an open triplet
             yield Win(FormType.STANDARD, tuple(groups) + meld_groups, wait, **common)
-    if not melds and is_chiitoi(concealed):
-        pairs = tuple(Group(k, Shape.PAIR) for k in range(NUM_KINDS) if concealed[k])
+    if is_chiitoi(concealed):
+        pairs = tuple(Group(k, Shape.PAIR) for k in kinds_in(concealed))
         yield Win(FormType.CHIITOI, pairs, Wait.TANKI, **common)
-    if not melds and is_kokushi(concealed):
+    if is_kokushi(concealed):
         wait = Wait.KOKUSHI_13 if concealed[win] == 2 else Wait.TANKI
         yield Win(FormType.KOKUSHI, (), wait, **common)
 
@@ -142,9 +145,7 @@ def _ceil100(x: int) -> int:
     return -(-x // 100) * 100
 
 
-def basic_points(han: int, fu_: int, yakuman: int) -> int:
-    if yakuman:
-        return 8000 * yakuman
+def basic_points(han: int, fu_: int) -> int:
     if han >= 13:
         return 8000  # kazoe yakuman, never more than 1x
     if han >= 11:
@@ -171,60 +172,46 @@ def payment(basic: int, tsumo: bool, ctx: Context) -> tuple[str, int]:
 # ---------------------------------------------------------------- evaluation
 
 
-@dataclass(frozen=True, slots=True)
-class Dora:
-    dora: int
-    aka: int
-    ura: int
+type Han = tuple[str, int]  # a yaku name and its han (or yakuman multiple)
 
 
-def count_dora(tiles: list[Tile], ctx: Context) -> Dora:
+def count_dora(tiles: list[Tile], ctx: Context) -> list[Han]:
+    """dora, aka and ura as yaku entries (ura only under riichi); zero counts left out."""
     counts = counts_of(tiles)
-    dora = sum(counts[dora_of(i)] for i in ctx.dora)
     with_riichi = bool({"riichi", "double_riichi"} & ctx.flags)
-    ura = sum(counts[dora_of(i)] for i in ctx.ura) if with_riichi else 0
-    return Dora(dora, sum(t.red for t in tiles), ura)
+    dora = [("dora", sum(counts[dora_of(i)] for i in ctx.dora)),
+            ("aka", sum(t.red for t in tiles)),
+            ("ura", sum(counts[dora_of(i)] for i in ctx.ura) if with_riichi else 0)]
+    return [(n, v) for n, v in dora if v]
 
 
-def evaluate(w: Win, d: Dora, ctx: Context) -> Result | None:
+def evaluate(w: Win, dora: list[Han], ctx: Context) -> Result | None:
     """Score one interpretation; None if it has no yaku."""
-    yakuman = [(y.name, y.han(w)) for y in YAKUMAN]
-    yakuman = [(n, v) for n, v in yakuman if v]
+    yakuman = [(y.name, v) for y in YAKUMAN if (v := y.han(w))]
     if yakuman:
-        total_mult = sum(v for _, v in yakuman)
-        pay, total = payment(basic_points(0, 0, total_mult), w.tsumo, ctx)
-        return Result(tuple(sorted(yakuman)), 0, 0, total_mult, pay, total)
-    yaku = [(y.name, y.han(w)) for y in YAKU]
-    yaku = [(n, v) for n, v in yaku if v]
+        mult = sum(v for _, v in yakuman)
+        pay, total = payment(8000 * mult, w.tsumo, ctx)
+        return Result(tuple(sorted(yakuman)), 0, 0, mult, pay, total)
+    yaku = [(y.name, v) for y in YAKU if (v := y.han(w))]
     if not yaku:
         return None
-    is_pinfu = any(n == "pinfu" for n, _ in yaku)
-    yaku += [(n, v) for n, v in (("dora", d.dora), ("aka", d.aka), ("ura", d.ura)) if v]
+    fu_ = fu(w, is_pinfu=any(n == "pinfu" for n, _ in yaku))
+    yaku += dora
     han = sum(v for _, v in yaku)
-    fu_ = fu(w, is_pinfu)
-    pay, total = payment(basic_points(han, fu_, 0), w.tsumo, ctx)
+    pay, total = payment(basic_points(han, fu_), w.tsumo, ctx)
     return Result(tuple(sorted(yaku)), han, fu_, 0, pay, total)
 
 
-def best(hand: list[Tile], melds: list[Meld], win: Tile, tsumo: bool, ctx: Context) -> Result:
-    """The best-paying interpretation (spec tie-break). Raises ScoreError."""
-    all_tiles = hand + [win] + [t for m in melds for t in m.tiles]
-    d = count_dora(all_tiles, ctx)
+def best(hand: list[Tile], melds: list[Meld], win: Tile, tsumo: bool, ctx: Context) -> Result | NoWin:
+    """The best-paying interpretation (spec tie-break), or why there is none."""
+    dora = count_dora(hand + [win] + meld_tiles(melds), ctx)
     concealed = counts_of(hand + [win])
     # Tenhou: any of the 14 tiles may be the winning tile.
-    candidates = ([k for k in range(NUM_KINDS) if concealed[k]] if "tenhou" in ctx.flags
-                  else [win.kind])
-    results: list[Result] = []
-    complete = False
-    for w_kind in candidates:
-        for w in interpretations(concealed, melds, w_kind, tsumo, ctx):
-            complete = True
-            r = evaluate(w, d, ctx)
-            if r is not None:
-                results.append(r)
-    if not complete:
-        raise ScoreError("not_agari")
+    candidates = kinds_in(concealed) if "tenhou" in ctx.flags else [win.kind]
+    wins = [w for k in candidates for w in interpretations(concealed, melds, k, tsumo, ctx)]
+    if not wins:
+        return NoWin.NOT_AGARI
+    results = [r for w in wins if (r := evaluate(w, dora, ctx)) is not None]
     if not results:
-        raise ScoreError("no_yaku")
-    top = max(r.rank() for r in results)
-    return min((r for r in results if r.rank() == top), key=lambda r: r.yaku_str)
+        return NoWin.NO_YAKU
+    return min(results, key=Result.preference)

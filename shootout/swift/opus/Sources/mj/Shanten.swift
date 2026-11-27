@@ -47,7 +47,8 @@ final class ShantenCalculator {
     /// Every reachable shape state for one suit's counts (9 kinds, or 7 honors).
     private func states(_ a: inout [Int], runs: Bool) -> ShapeStates {
         guard let i = a.firstIndex(where: { $0 > 0 }) else { return .empty }
-        let key = a.reduce(runs ? 1 : 2) { $0 * 5 + $1 }
+        // 3 bits per count (0...7), so no count can carry into its neighbour.
+        let key = a.reduce(runs ? 1 : 2) { $0 << 3 | $1 }
         if let hit = memo[key] { return hit }
 
         var out = ShapeStates()
@@ -87,8 +88,8 @@ final class ShantenCalculator {
 }
 
 func chiitoiShanten(_ counts: Counts) -> Int {
-    let pairs = counts.n.filter { $0 >= 2 }.count
-    let kinds = counts.n.filter { $0 >= 1 }.count
+    let pairs = counts.n.count { $0 >= 2 }
+    let kinds = counts.n.count { $0 >= 1 }
     return 6 - pairs + max(0, 7 - kinds)
 }
 
@@ -102,7 +103,7 @@ struct ShantenResult {
     let standard: Int
     let chiitoi: Int?   // nil when the hand has melds
     let kokushi: Int?
-    var min: Int { [standard, chiitoi ?? 99, kokushi ?? 99].min()! }
+    var min: Int { [standard, chiitoi, kokushi].compactMap { $0 }.min()! }
 }
 
 extension ShantenCalculator {
@@ -113,16 +114,10 @@ extension ShantenCalculator {
             kokushi: meldCount == 0 ? kokushiShanten(counts) : nil)
     }
 
-    /// Kinds whose draw lowers `min` shanten, ignoring availability.
-    func structuralWaits(_ counts: Counts, meldCount: Int) -> [Kind] {
-        let now = shanten(counts, meldCount: meldCount).min
-        return Kind.all.filter { shanten(counts.adding($0), meldCount: meldCount).min < now }
-    }
-
     /// The `waits` op: kinds that lower shanten and have a copy outside hand and melds.
     func waits(_ counts: Counts, melds: [Meld]) -> (shanten: Int, tiles: [Kind], count: Int) {
         var visible = counts
-        for t in melds.flatMap(\.tiles) { visible[t.kind] += 1 }
+        for t in melds.tiles { visible[t.kind] += 1 }
         let now = shanten(counts, meldCount: melds.count).min
         var tiles: [Kind] = []
         var total = 0

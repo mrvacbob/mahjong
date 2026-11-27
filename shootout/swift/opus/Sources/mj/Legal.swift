@@ -1,4 +1,4 @@
-// The `legal` op, built from score, shanten and waits.
+// The `legal` op, built from score and hand completion.
 
 enum Situation {
     case draw(Tile)
@@ -20,21 +20,11 @@ struct LegalRequest {
     var kans = 0
 }
 
-extension Array where Element == Tile {
-    /// This list without one copy of `t` (exact tile).
-    func removingOne(_ t: Tile) -> [Tile] {
-        var out = self
-        if let i = out.firstIndex(of: t) { out.remove(at: i) }
-        return out
-    }
-    var distinct: [Tile] { Array(Set(self)) }
-}
-
 /// Kinds that may not be discarded right after taking `took` with `fromHand`.
 func kuikaeForbidden(took: Kind, fromHand: [Kind]) -> Set<Kind> {
     var out: Set<Kind> = [took]
     let pair = fromHand.sorted()
-    if pair.count == 2, pair[0] != pair[1], pair[0].shifted(1) == pair[1] {
+    if pair.count == 2, pair[0].shifted(1) == pair[1] {
         // Took one end of a run whose other two tiles are adjacent: the far end too.
         if took < pair[0], let far = pair[1].shifted(1) { out.insert(far) }
         if took > pair[1], let far = pair[0].shifted(-1) { out.insert(far) }
@@ -42,74 +32,73 @@ func kuikaeForbidden(took: Kind, fromHand: [Kind]) -> Set<Kind> {
     return out
 }
 
-struct LegalEngine {
-    let shanten: ShantenCalculator
-
-    func actions(_ q: LegalRequest) -> [String] {
-        var out: [String]
-        switch q.situation {
-        case .draw(let t): out = afterDraw(q, drawn: t)
-        case .discard(let t, let kamicha): out = onDiscard(q, tile: t, fromKamicha: kamicha)
-        case .called(let meld, let took): out = afterCall(q, meld: meld, took: took)
+extension LegalRequest {
+    /// The `legal` answer: distinct actions, sorted as strings.
+    var actions: [String] {
+        let out = switch situation {
+        case .draw(let t): afterDraw(drawn: t)
+        case .discard(let t, let kamicha): onDiscard(tile: t, fromKamicha: kamicha)
+        case .called(let meld, let took): afterCall(meld: meld, took: took)
         }
-        return Set(out).sorted()  // distinct actions, sorted as strings
+        return Set(out).sorted()
     }
 
-    private func context(_ q: LegalRequest, tsumo: Bool, allowed: Set<Flag>) -> WinContext {
-        var flags = q.flags.intersection(allowed)
-        if q.inRiichi { flags.insert(.riichi) }
-        return WinContext(seat: q.seat, round: q.round, tsumo: tsumo, flags: flags)
-    }
-
-    private func wins(_ q: LegalRequest, tile: Tile, tsumo: Bool, allowed: Set<Flag>) -> Bool {
-        let req = ScoreRequest(hand: q.hand, melds: q.melds, win: tile,
-                               context: context(q, tsumo: tsumo, allowed: allowed))
-        return (try? score(req)) != nil
+    /// Whether `score` accepts this hand winning on `tile`, with the situational
+    /// flags `allowed` for this trigger.
+    private func wins(_ tile: Tile, tsumo: Bool, allowed: Set<Flag>) -> Bool {
+        var flags = flags.intersection(allowed)
+        if inRiichi { flags.insert(.riichi) }
+        let context = WinContext(seat: seat, round: round, tsumo: tsumo, flags: flags)
+        return (try? score(ScoreRequest(hand: hand, melds: melds, win: tile, context: context))) != nil
     }
 
     // MARK: own draw
 
-    private func afterDraw(_ q: LegalRequest, drawn: Tile) -> [String] {
-        let tiles = q.hand + [drawn]
+    private func afterDraw(drawn: Tile) -> [String] {
+        let tiles = hand + [drawn]
         let counts = Counts(tiles)
         var out: [String] = []
 
-        let discards = q.inRiichi ? [drawn] : tiles.distinct
+        let discards = inRiichi ? [drawn] : tiles.distinct
         out += discards.map { "discard:\($0)" }
 
-        if wins(q, tile: drawn, tsumo: true, allowed: [.rinshan, .haitei, .tenhou, .chiihou]) {
+        if wins(drawn, tsumo: true, allowed: [.rinshan, .haitei, .tenhou, .chiihou]) {
             out.append("tsumo")
         }
 
-        let closed = q.melds.allSatisfy { !$0.isOpen }
-        if !q.inRiichi && closed && q.wall >= 4 {
-            for t in tiles.distinct {
-                let rest = Counts(tiles.removingOne(t))
-                let w = shanten.waits(rest, melds: q.melds)
-                if w.shanten == 0 && w.count > 0 { out.append("riichi:\(t)") }
+        if !inRiichi && melds.isClosed && wall >= 4 {
+            // Tenpai after the discard, on a wait with a copy outside hand and melds.
+            let meldKinds = Counts(melds.tiles)
+            for k in counts.kinds {
+                let rest = counts.removing(k)
+                let tenpai = Kind.all.contains { w in
+                    rest[w] + meldKinds[w] < 4 && isComplete(rest.adding(w), meldCount: melds.count)
+                }
+                if tenpai { out += tiles.distinct.filter { $0.kind == k }.map { "riichi:\($0)" } }
             }
         }
 
-        if q.wall >= 1 && q.kans < 4 {
+        if wall >= 1 && kans < 4 {
             for k in counts.kinds where counts[k] == 4 {
-                if q.inRiichi {
+                if inRiichi {
+                    // The kan must use the drawn tile and keep the structural waits.
                     guard k == drawn.kind else { continue }
                     var after = counts
                     after[k] = 0
-                    let before = shanten.structuralWaits(Counts(q.hand), meldCount: q.melds.count)
-                    let now = shanten.structuralWaits(after, meldCount: q.melds.count + 1)
+                    let before = completingKinds(Counts(hand), meldCount: melds.count)
+                    let now = completingKinds(after, meldCount: melds.count + 1)
                     guard before == now else { continue }
                 }
                 out.append("ankan:\(Tile(k))")
             }
-            if !q.inRiichi {
-                for m in q.melds where m.kind == .pon {
+            if !inRiichi {
+                for m in melds where m.kind == .pon {
                     for t in tiles.distinct where t.kind == m.base { out.append("kakan:\(t)") }
                 }
             }
         }
 
-        if q.firstTurn && Kind.yaochu.filter({ counts[$0] > 0 }).count >= 9 {
+        if firstTurn && Kind.yaochu.count(where: { counts[$0] > 0 }) >= 9 {
             out.append("kyuushu")
         }
         return out
@@ -117,34 +106,34 @@ struct LegalEngine {
 
     // MARK: another seat's discard
 
-    private func onDiscard(_ q: LegalRequest, tile: Tile, fromKamicha: Bool) -> [String] {
+    private func onDiscard(tile: Tile, fromKamicha: Bool) -> [String] {
         var out = ["pass"]
-        let robbing = q.flags.contains(.chankan) || q.flags.contains(.ankan_rob)
+        let robbing = flags.contains(.chankan) || flags.contains(.ankan_rob)
 
-        if !q.furiten {
+        if !furiten {
             let canRon: Bool
-            if q.flags.contains(.ankan_rob) {
-                canRon = q.melds.isEmpty && isKokushi(Counts(q.hand + [tile]))
+            if flags.contains(.ankan_rob) {
+                canRon = melds.isEmpty && isKokushi(Counts(hand + [tile]))
             } else {
-                canRon = wins(q, tile: tile, tsumo: false, allowed: [.houtei, .chankan])
+                canRon = wins(tile, tsumo: false, allowed: [.houtei, .chankan])
             }
             if canRon { out.append("ron") }
         }
-        if robbing || q.inRiichi || q.wall < 1 { return out }
+        if robbing || inRiichi || wall < 1 { return out }
 
         let k = tile.kind
         // A call is offered only if some discard remains allowed afterwards.
         func leavesDiscard(_ used: [Tile], forbidden: Set<Kind>) -> Bool {
-            var rest = q.hand
+            var rest = hand
             for t in used { rest = rest.removingOne(t) }
             return rest.contains { !forbidden.contains($0.kind) }
         }
 
-        if fromKamicha && !k.isHonor {
+        if fromKamicha {
             for (a, b) in [(-2, -1), (-1, 1), (1, 2)] {
                 guard let ka = k.shifted(a), let kb = k.shifted(b) else { continue }
-                for ta in q.hand.distinct where ta.kind == ka {
-                    for tb in q.hand.distinct where tb.kind == kb {
+                for ta in hand.distinct where ta.kind == ka {
+                    for tb in hand.distinct where tb.kind == kb {
                         let forbidden = kuikaeForbidden(took: k, fromHand: [ka, kb])
                         if leavesDiscard([ta, tb], forbidden: forbidden) {
                             out.append("chi:\(format([ta, tb]))")
@@ -154,8 +143,8 @@ struct LegalEngine {
             }
         }
 
-        let same = q.hand.filter { $0.kind == k }
-        let plain = same.filter { !$0.isRed }.count
+        let same = hand.filter { $0.kind == k }
+        let plain = same.count { !$0.isRed }
         let red = same.count - plain
         var pons: [[Tile]] = []
         if plain >= 2 { pons.append([Tile(k), Tile(k)]) }
@@ -163,18 +152,17 @@ struct LegalEngine {
         for p in pons where leavesDiscard(p, forbidden: [k]) {
             out.append("pon:\(format(p))")
         }
-        if same.count == 3 && q.kans < 4 { out.append("kan:\(Tile(k))") }
+        if same.count == 3 && kans < 4 { out.append("kan:\(Tile(k))") }
         return out
     }
 
     // MARK: after this seat's own chi or pon
 
-    private func afterCall(_ q: LegalRequest, meld: Meld, took: Tile) -> [String] {
-        var fromHand = meld.tiles.map(\.kind)
-        fromHand.remove(at: fromHand.firstIndex(of: took.kind) ?? 0)
-        let forbidden = meld.isChi
-            ? kuikaeForbidden(took: took.kind, fromHand: fromHand)
-            : [took.kind]
-        return q.hand.distinct.filter { !forbidden.contains($0.kind) }.map { "discard:\($0)" }
+    private func afterCall(meld: Meld, took: Tile) -> [String] {
+        let k = took.kind
+        let forbidden = meld.kind == .chi
+            ? kuikaeForbidden(took: k, fromHand: meld.tiles.map(\.kind).filter { $0 != k })
+            : [k]
+        return hand.distinct.filter { !forbidden.contains($0.kind) }.map { "discard:\($0)" }
     }
 }

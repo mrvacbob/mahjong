@@ -73,7 +73,14 @@
 :- pred offset(kind::in, int::in, kind::out) is semidet.
 
 :- pred is_open_meld(meld::in) is semidet.
+:- pred all_closed(list(meld)::in) is semidet.
 :- func meld_kinds(meld) = list(kind).
+    % Every tile in these melds.
+:- func meld_tiles(list(meld)) = list(tile).
+
+    % No more than four copies of a kind, one red five per suit and three
+    % plain fives (one of the four fives is the red).
+:- pred physically_possible(list(tile)::in) is semidet.
 
 :- func east = kind.
 
@@ -119,9 +126,12 @@ make_tile(Suit, D, T) :-
         T = tile(kind(Suit, 5), red)
     else
         D >= 1,
-        ( if Suit = honor then D =< 7 else D =< 9 ),
+        D =< max_num(Suit),
         T = tile(kind(Suit, D), plain)
     ).
+
+:- func max_num(suit) = int.
+max_num(S) = ( if S = honor then 7 else 9 ).
 
 :- pred suit_char(char, suit).
 :- mode suit_char(in, out) is semidet.
@@ -136,18 +146,16 @@ parse_meld(S, meld(MK, Tiles)) :-
     meld_char(C, MK),
     parse_tiles(Rest, Tiles0),
     list.sort(Tiles0, Tiles),
-    list.length(Tiles, N),
     Ks = kinds_of(Tiles),
     ( MK = chi,
-        N = 3,
         Ks = [K1, K2, K3],
         offset(K1, 1, K2),
         offset(K1, 2, K3)
     ; MK = pon,
-        N = 3,
+        Ks = [_, _, _],
         list.all_same(Ks)
     ; ( MK = daiminkan ; MK = shouminkan ; MK = ankan ),
-        N = 4,
+        Ks = [_, _, _, _],
         list.all_same(Ks)
     ).
 
@@ -210,18 +218,17 @@ kind_of(T) = T ^ tkind.
 kinds_of(Ts) = list.map(kind_of, Ts).
 kind_bag(Ts) = bag.from_list(kinds_of(Ts)).
 
-all_kinds =
-    list.condense(list.map(
-        (func(S) = list.map((func(N) = kind(S, N)), 1 .. 9)),
-        [man, pin, sou])) ++
-    list.map((func(N) = kind(honor, N)), 1 .. 7).
+:- pragma memo(all_kinds/0).
+all_kinds = list.condense(list.map(
+    (func(S) = list.map((func(N) = kind(S, N)), 1 .. max_num(S))),
+    [man, pin, sou, honor])).
 
 dora_of(kind(S, N)) = kind(S, M) :-
     ( if S = honor then
         ( if N =< 4 then
-            M = N mod 4 + 1
+            M = N mod 4 + 1             % E -> S -> W -> N -> E
         else
-            M = (N - 5 + 1) mod 3 + 5
+            M = (N - 4) mod 3 + 5       % haku -> hatsu -> chun -> haku
         )
     else
         M = N mod 9 + 1
@@ -241,8 +248,21 @@ offset(kind(S, N), D, kind(S, N + D)) :-
     N + D =< 9.
 
 is_open_meld(meld(MK, _)) :- MK \= ankan.
+all_closed(Melds) :- not list.any_true(is_open_meld, Melds).
 
 meld_kinds(M) = kinds_of(M ^ mtiles).
+meld_tiles(Melds) = list.condense(list.map((func(M) = M ^ mtiles), Melds)).
+
+physically_possible(Tiles) :-
+    Kinds = kind_bag(Tiles),
+    Physical = bag.from_list(Tiles),
+    list.all_true((pred(K::in) is semidet :- bag.count_value(Kinds, K) =< 4),
+        bag.to_list_without_duplicates(Kinds)),
+    list.all_true(
+        (pred(S::in) is semidet :-
+            bag.count_value(Physical, tile(kind(S, 5), red)) =< 1,
+            bag.count_value(Physical, tile(kind(S, 5), plain)) =< 3),
+        [man, pin, sou]).
 
 east = kind(honor, 1).
 

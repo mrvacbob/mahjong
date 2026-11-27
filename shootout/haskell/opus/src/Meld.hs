@@ -1,11 +1,12 @@
 -- | Melds and the unified 'Group' that scoring works on.
 module Meld
   ( Form (..), Group (..), groupKinds, isSetLike
-  , MeldType (..), Meld (..), meldGroup, isKan, isOpenMeld
-  , parseMeld, parseMelds, showGroup
+  , MeldType (..), Meld (..), meldGroup, meldKinds, isOpenMeld, closedHand
+  , parseMeld, parseMelds, showGroup, splitOn
   ) where
 
 import Tile
+import Control.Monad (guard)
 import Data.List (sort)
 
 -- | Constructor order is the order groups print in within one starting tile:
@@ -22,7 +23,7 @@ data Group = Group { gform :: !Form, gbase :: !Kind, gopen :: !Bool }
 groupKinds :: Group -> [Kind]
 groupKinds (Group f k _) = case f of
   Pair -> [k, k]
-  Run -> [k, k { num = num k + 1 }, k { num = num k + 2 }]
+  Run -> [k, offset 1 k, offset 2 k]
   Triplet -> [k, k, k]
   Quad -> [k, k, k, k]
 
@@ -36,35 +37,35 @@ data MeldType = Chi | Pon | Daiminkan | Shouminkan | Ankan
 data Meld = Meld { mtype :: !MeldType, mtiles :: [Tile] }
   deriving (Eq, Show)
 
-isKan :: Meld -> Bool
-isKan m = mtype m `elem` [Daiminkan, Shouminkan, Ankan]
-
 -- | Does this meld open the hand? (A closed kan does not.)
 isOpenMeld :: Meld -> Bool
 isOpenMeld m = mtype m /= Ankan
 
+closedHand :: [Meld] -> Bool
+closedHand = not . any isOpenMeld
+
 meldGroup :: Meld -> Group
-meldGroup (Meld t ts) = Group form (minimum (map kind ts)) (t /= Ankan)
+meldGroup m = Group form (minimum (map kind (mtiles m))) (isOpenMeld m)
   where
-    form = case t of
+    form = case mtype m of
       Chi -> Run
       Pon -> Triplet
       _ -> Quad
 
--- | @c345m@, @p777z@, @k1111p@, @s0555s@, @a2222m@.
+meldKinds :: [Meld] -> [Kind]
+meldKinds = concatMap (map kind . mtiles)
+
+-- | @c345m@, @p777z@, @k1111p@, @s0555s@, @a2222m@: the tiles must be exactly
+-- the group the meld type names.
 parseMeld :: String -> Maybe Meld
 parseMeld [] = Nothing
 parseMeld (c : rest) = do
   t <- lookup c [('c', Chi), ('p', Pon), ('k', Daiminkan), ('s', Shouminkan), ('a', Ankan)]
-  ts <- parseTiles rest
-  ks@(k0 : _) <- Just (sort (map kind ts))
-  let isRun = not (isHonor k0) && ks == [k0, k0 { num = num k0 + 1 }, k0 { num = num k0 + 2 }]
-      isSame n = length ks == n && all (== k0) ks
-      ok = case t of
-        Chi -> isRun
-        Pon -> isSame 3
-        _ -> isSame 4
-  if ok then Just (Meld t ts) else Nothing
+  ts@(_ : _) <- parseTiles rest
+  let m = Meld t ts
+      g = meldGroup m
+  guard (not (gform g == Run && isHonor (gbase g)) && sort (map kind ts) == groupKinds g)
+  pure m
 
 parseMelds :: String -> Maybe [Meld]
 parseMelds "-" = Just []

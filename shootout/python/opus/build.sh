@@ -3,5 +3,5 @@
 set -e
 cd "$(dirname "$0")"
 python3.14 -m compileall -q -f . >/dev/null
-python3.14 -c "import sys; sys.path.insert(0, '.'); import main" 
+python3.14 -c "import sys; sys.path.insert(0, '.'); import main"
 chmod +x mj

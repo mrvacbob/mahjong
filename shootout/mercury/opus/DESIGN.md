@@ -164,3 +164,22 @@ are pooled.
   `completed_by_win/4` semidet; `interpretation/2`, `yaku/4`, `yakuman/4` nondet;
   `evaluate/1` det; `wins/3` semidet; `main/2` is `cc_multi` because it calls
   `exception.try`.
+
+## Finalization changes
+
+- `hand.complete(Bag, NumMelds)` (semidet) is the one definition of a complete
+  hand: `14 - 3k` tiles and an agari form. `agari_forms` is `solutions` over the
+  same nondet `agari_form`. `wait_kinds` (riichi ankan), `live_tenpai` (riichi)
+  and `waits` from tenpai all test completion directly instead of `shanten = -1`.
+- `shanten` returns `with_melds(Std) ; no_melds(Std, Chiitoi, Kokushi)`, so the
+  "no chiitoi or kokushi with melds" rule is a type; `min_of/1` is the only min.
+- `legal.actions` is `solutions(action(R))`: `action/2` is nondet with one clause
+  group per trigger (`on_draw/4`, `on_discard/4` multi, `call_on/5`), and each
+  clause carries its own guard. The `set` round trip and list assembly are gone.
+- `score.result` holds a `payment` (`ron_pay ; dealer_tsumo ; child_tsumo`); the
+  total is derived from it and printing is `payment_to_string`.
+- `evaluate` collects distinct `{ctx, interp}` readings before scoring them.
+- Validation moved to the boundary (`mj.dispatch`): hand size per op, physically
+  possible tiles (`tile.physically_possible`), no repeated keys, exactly one
+  `legal` trigger (and `called` must be one of `melds`, with `took` in it), and
+  `honba` 0..999, `wall` 0..70, `kans` 0..4. The core assumes well-formed input.

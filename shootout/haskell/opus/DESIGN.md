@@ -66,7 +66,11 @@ memoised on the remaining counts with `State (Map [Int] [Partial])`; `improving`
 the outcome tables of the three suits a draw does not touch. See NOTES.md Log.
 
 Waits = kinds whose addition lowers `min` shanten; the `waits` op filters them by copies
-left; `legal`'s riichi-ankan check uses the unfiltered (structural) list.
+left. *(Changed at finalization:)* `legal` no longer goes through shanten: its riichi and
+riichi-ankan checks use `structuralWaits`, the kinds whose addition makes the hand
+complete (`decompose`, chiitoi or kokushi), with no availability filter, so a fifth copy
+counts. Shanten results are one `Shanten` record whose chiitoi and kokushi fields are
+`Maybe Int` (`Nothing` with melds), so "only without melds" is stated once.
 
 ## Yaku declaration
 
@@ -104,8 +108,9 @@ Fu is a sum over groups plus base/menzen/tsumo/wait, then the three fixed except
 ## `legal`
 
 `legal` asks the other ops: `tsumo`/`ron` call the `score` evaluator with a constructed
-context (riichi=1 adds the `riichi` flag) and test for a non-error result; `riichi:` calls
-`waits` on the hand after each discard and checks `shanten == 0 && count > 0`; the riichi
-ankan check compares structural wait lists before the draw and after the kan; kokushi-only
-robbing checks the reading list for a kokushi reading. Call enumeration (chi/pon/kan) and
-kuikae are the only logic local to `Legal`.
+context (riichi=1 adds the `riichi` flag) and test for a non-error result; `riichi:` asks
+whether some structural wait of the hand after the discard has a copy left; the riichi
+ankan check compares `structuralWaits` before the draw and after the kan; kokushi-only
+robbing checks `isKokushi`. Call enumeration (chi/pon/kan) and one `kuikae` function,
+shared by the call filter and the post-call discard list, are the only logic local to
+`Legal`.

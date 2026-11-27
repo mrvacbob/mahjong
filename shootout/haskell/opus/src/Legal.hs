@@ -41,38 +41,32 @@ wins :: Table -> Tile -> Bool -> Bool
 wins t w tsumo = isRight (score s { winTile = w, byTsumo = tsumo, flags = fl })
   where
     s = context t
-    fl = S.delete AnkanRob (flags s) `S.union` (if inRiichi t then S.singleton Riichi else S.empty)
+    fl = if inRiichi t then S.insert Riichi (flags s) else flags s
 
 ownTurn :: Table -> Tile -> [String]
 ownTurn t d = concat
   [ ["discard:" ++ showTile x | x <- if inRiichi t then [d] else full]
-  , ["riichi:" ++ showTile x | closed, not (inRiichi t), wall t >= 4, x <- nub full, tenpaiAfter x]
+  , ["riichi:" ++ showTile x | closedHand ms, not (inRiichi t), wall t >= 4, x <- full, kind x `elem` tenpaiDiscards]
   , ["tsumo" | wins t d True]
-  , ["ankan:" ++ showKind q | canKan, q <- nub (map kind full), countOf q (map kind full) == 4, riichiKanOk q]
-  , ["kakan:" ++ showTile x | canKan, not (inRiichi t), m <- ms, mtype m == Pon, x <- full, kind x == ponKind m]
-  , ["kyuushu" | firstTurn t, length (nub (filter isYaochu (map kind full))) >= 9]
+  , ["ankan:" ++ showKind q | canKan, q <- nub fullKinds, countOf q fullKinds == 4, riichiKanOk q]
+  , ["kakan:" ++ showTile x | canKan, not (inRiichi t), m <- ms, mtype m == Pon, x <- full, kind x == gbase (meldGroup m)]
+  , ["kyuushu" | firstTurn t, length (nub (filter isYaochu fullKinds)) >= 9]
   ]
   where
     s = context t
     ms = melds s
-    k = length ms
     full = d : hand s
-    closed = not (any isOpenMeld ms)
-    meldKinds = concatMap (map kind . mtiles) ms
+    fullKinds = map kind full
     canKan = wall t >= 1 && kansMade t < 4
-    ponKind = kind . head' . mtiles
     -- Riichi needs tenpai with a live wait after the discard.
-    tenpaiAfter x =
-      let rest = map kind (delete x full)
-          (sh, _, n) = liveWaits k rest (rest ++ meldKinds)
-       in sh == 0 && n > 0
+    tenpaiDiscards =
+      [ x | x <- nub fullKinds
+      , let rest = delete x fullKinds
+      , any ((> 0) . copiesLeft (rest ++ meldKinds ms)) (structuralWaits rest) ]
     -- In riichi: only the drawn kind, and the waits must not change.
-    riichiKanOk q
-      | not (inRiichi t) = True
-      | otherwise =
-          q == kind d
-            && improving k (map kind (hand s))
-                 == improving (k + 1) (filter (/= q) (map kind full))
+    riichiKanOk q =
+      not (inRiichi t)
+        || (q == kind d && structuralWaits (map kind (hand s)) == structuralWaits (filter (/= q) fullKinds))
 
 response :: Table -> Tile -> From -> [String]
 response t d from = "pass" : ron ++ calls
@@ -82,7 +76,8 @@ response t d from = "pass" : ron ++ calls
     robbing = any (`S.member` flags s) [Chankan, AnkanRob]
     ron
       | furiten t = []
-      | AnkanRob `S.member` flags s = ["ron" | null (melds s), isKokushi (map kind (d : h))]
+      -- Only kokushi may rob a closed kan.
+      | AnkanRob `S.member` flags s = ["ron" | isKokushi (map kind (d : h))]
       | otherwise = ["ron" | wins t d False]
     calls
       | robbing || inRiichi t || wall t < 1 = []
@@ -91,36 +86,32 @@ response t d from = "pass" : ron ++ calls
     -- Every way to pick physical tiles of these kinds from the hand.
     picks [] _ = [[]]
     picks (q : qs) pool = [x : rest | x <- nub (filter ((== q) . kind) pool), rest <- picks qs (delete x pool)]
-    allowed forbidden used = any ((`notElem` forbidden) . kind) (h \\ used)
+    -- A call is left out if every remaining tile would be a kuikae discard.
+    leavesDiscard used = any ((`notElem` kuikae dk (map kind used)) . kind) (h \\ used)
     chi =
       [ "chi:" ++ showTiles used
       | from == Kamicha, not (isHonor dk)
       , (a, b) <- [(-2, -1), (-1, 1), (1, 2)]
       , num dk + a >= 1, num dk + b <= 9
-      , used <- nub (map sort (picks [dk { num = num dk + a }, dk { num = num dk + b }] h))
-      , allowed (dk : suji dk (map kind used)) used ]
+      , used <- nub (map sort (picks [offset a dk, offset b dk] h))
+      , leavesDiscard used ]
     pon =
       [ "pon:" ++ showTiles used
       | used <- nub (map sort (picks [dk, dk] h))
-      , allowed [dk] used ]
+      , leavesDiscard used ]
     kan = ["kan:" ++ showKind dk | countOf dk (map kind h) >= 3, kansMade t < 4]
 
 afterCall :: Table -> Meld -> Tile -> [String]
-afterCall t m took = ["discard:" ++ showTile x | x <- hand (context t), kind x `notElem` forbidden]
+afterCall t m took =
+  ["discard:" ++ showTile x | x <- hand (context t), kind x `notElem` kuikae (kind took) (map kind (delete took (mtiles m)))]
+
+-- | Kuikae: the kinds that may not be discarded after calling this kind with
+-- these tiles from hand. The called kind itself, and for a chi made with two
+-- adjacent tiles the kind at their other end (if it exists).
+kuikae :: Kind -> [Kind] -> [Kind]
+kuikae called used = called : suji (sort used)
   where
-    tk = kind took
-    forbidden = case mtype m of
-      Chi -> tk : suji tk (sort (map kind (delete took (mtiles m))))
-      _ -> [tk]
-
--- | Kuikae beyond the called kind: when the two tiles from hand are adjacent,
--- the kind at their other end (if it exists).
-suji :: Kind -> [Kind] -> [Kind]
-suji called [a, b]
-  | num b == num a + 1, num called < num a, num b + 1 <= 9 = [b { num = num b + 1 }]
-  | num b == num a + 1, num called > num b, num a - 1 >= 1 = [a { num = num a - 1 }]
-suji _ _ = []
-
-head' :: [a] -> a
-head' (x : _) = x
-head' [] = error "empty meld"
+    suji [a, b]
+      | num b == num a + 1, num called < num a, num b + 1 <= 9 = [offset 1 b]
+      | num b == num a + 1, num called > num b, num a - 1 >= 1 = [offset (-1) a]
+    suji _ = []

@@ -160,3 +160,149 @@ had to pick an interpretation the corpus may not test:
 
 Nothing failing, skipped or hacked. Malformed input gets `error=<reason>` lines
 (`bad_hand`, `missing_win`, `unknown_op`, ...); their wording is my own.
+
+## Finalization
+
+Brief: docs/briefs/p2-finalize.md. Reviews read: the Swift sections of
+docs/reviews/p2/codex.md and docs/reviews/p2/agy.md (agy-mercury.md has no Swift
+opus findings).
+
+### Bugs fixed
+
+Before the fix, the full corpus run (one process, all files) was 12373/12439: the two
+`legal_review.txt` requests failed and, because the poisoned memo lives for the whole
+process, 62 later `waits` and 2 `shanten` answers went wrong too. Per-op processes
+(`--time`) showed only 1 failure.
+
+- **Memo key aliasing.** `ShantenCalculator.states` keyed its memo by the suit's counts
+  in base 5. `structuralWaits` asked for shanten of the hand plus every kind,
+  including a fifth copy of a kind already held four times; a count of 5 carried into
+  the previous kind and collided with a different hand. So riichi-ankan waits were
+  wrong (`3456666999m789p` + 9m lost `ankan:9m`; the fifth-6m wait was missed), and a
+  later `shanten` of the colliding hand could read a stale entry (`std=-1` for a
+  13-tile hand). Fixed at both ends: the key packs 3 bits per count, and nothing asks
+  shanten about five-copy hands any more.
+- **Structural waits now come from completion.** `completingKinds(counts, meldCount:)`
+  lists the kinds whose addition gives a complete hand (`isComplete`: a standard
+  decomposition, or chiitoi/kokushi with no melds). The riichi-ankan check compares
+  that set before the draw and after the kan. `structuralWaits` is gone.
+- **Riichi tenpai** (reviewer cleanup): `riichi:<t>` asks whether some kind with a copy
+  outside hand and melds completes the hand after discarding `t`, instead of running
+  the full `waits` op. One check per kind rather than per tile, so a red and a plain
+  five share it. `legal` went from about 21k to about 33k req/s.
+- **Input boundaries** (out-of-corpus probes from codex.md): `honba=9223372036854775807`
+  trapped on overflow; now `honba` must be 0...999 (`error=bad_honba`), and every
+  integer key has a range (`riichi`/`furiten`/`first` 0...1, `kans` 0...4, `wall`
+  0...136). A `legal` request with two triggers (`called=` and `draw=`) used whichever
+  was checked first; now `error=bad_situation`. A malformed `called` fell through to
+  `no_situation`; now `bad_called`, and a `took` not in the meld is `bad_took` (it
+  used to remove index 0 by `?? 0`). Hands with five of a kind or two red fives of a
+  suit (hand, melds and win/draw/discard together) are `error=impossible_tiles`; the
+  memo then never sees a count above 4 from input.
+
+### Simplify pass
+
+Ran the `simplify` skill (four review angles: reuse, simplification, efficiency,
+altitude) over the whole entry. Applied:
+
+- `Decomposition { pair, sets }` with `Group` reduced to run/triplet. The pair is a
+  field, not `groups[0]`, so the `guard case .pair` and `fatalError` in `readings` are
+  gone. `Decomposition.text` does the agari ordering.
+- Run membership is stated once (`Kind.run`); `Group.kinds`, `HandSet.kinds` and chi
+  validation use it. `MeldKind.shape` is an exhaustive switch (meld to set shape),
+  replacing a nested ternary and `Meld.isKan`/`isChi` (`isKan` tested `tiles.count`).
+  `HandSet` has `init(_ meld:)` and `init(_ group:, concealed:)`.
+- The wait-shape rule moved out of the placement loop into
+  `wait(completing:with:)`.
+- `Reading` stores `melds` and derives `menzen` and `waiting`; the three `if case`
+  accessors go through one private `standard` tuple; `isStandard`, `noMelds` and
+  `hasTriplet` are gone. `[Meld].isClosed` and `[Meld].tiles` replace repeated
+  `allSatisfy { !$0.isOpen }` / `flatMap(\.tiles)`.
+- `Shape: Equatable`, so yaku say `$0.shape == .chiitoi` / `.kokushi` (deleted
+  `isKokushiShape` and an `if case ... return true else false`).
+- Nine gates: the pattern is one constant; `nineGatesSuit` finds the suit once;
+  `c.total == 13` (always true) is gone.
+- The ryanpeikou-removes-iipeikou filter was dead (`identicalRunPairs == 1` vs `== 2`
+  already exclude each other); deleted, and the comment on `ordinaryYaku` says where
+  each exclusion lives. DESIGN.md said double_riichi had a filter too; it never did.
+- Score: `ScoreError` is `String`-backed (raw values are the spec's error words);
+  `Scored.init` sorts the yaku list once; best-of is `max(by:)` in one helper used by
+  both the tenhou loop and the readings loop; labelled `(name:, value:)` tuples instead
+  of `.0`/`.1`; `doraCount` uses `Counts`; fu loops `where s.isTriplet`; the tenhou
+  loop uses `removingOne`.
+- `LegalEngine` (a stateless struct) became `extension LegalRequest`; `wins` builds
+  its own context. Redundant `!k.isHonor` (chi) and `pair[0] != pair[1]` (kuikae)
+  guards removed.
+- main.swift: one generic `value(_:default:_ parse:)` replaces six copies of
+  "look up, parse, throw `bad_<key>`"; `parseFlags` sits beside `Flag` like
+  `parseMelds`; everything is `throws(BadInput)`, so the `catch let e as BadInput` /
+  `error=internal` branches are gone.
+- `count(where:)` instead of `filter{}.count`; dead `Suit: Comparable` and
+  `Flag: CaseIterable` removed; `ShantenResult.min` uses `compactMap` instead of `99`
+  sentinels.
+
+Left alone, and why:
+
+- `isComplete` enumerates all decompositions to test non-emptiness. An early-exit
+  twin of the recursion would state the decomposition rule twice; `legal` is already
+  1.6x faster than before and the riichi check stops at the first live wait.
+- Memo key as a hashed `[Int]` struct (altitude review): the 3-bit packing is one
+  line with its bound stated, and input can no longer exceed 4 per kind.
+- A `Hand { concealed, melds }` type with hand-size checks (13-3k / 14-3k), and
+  moving `ankan_rob` out of `Flag` into the `Situation` type: both reasonable, but
+  they reshape every op's signature or the input-flag model; out of scope for a
+  finalization pass. `ankan_rob` stays an input flag because the format sends it as one.
+- Folding the tenhou winning-tile choice into `readings`: smaller payoff now that both
+  loops share `best`.
+- Pon variants by counting plain/red copies (vs chi's enumeration): explicit and
+  short; a shared helper would not be clearer.
+- `ShapeStates.shifted` vs `combined(with:)` of a singleton: `shifted` reads better
+  at the call site.
+- Storing `runs`/`triplets`/`suits` in `Reading`: score is already ~90k req/s and the
+  computed views keep `Reading` small.
+
+### Size and time
+
+Non-blank, non-comment lines (`grep -vE '^\s*(//|#|$)'`):
+
+| file | before | after |
+|---|---|---|
+| Sources/mj/Tile.swift | 163 | 172 |
+| Sources/mj/Score.swift | 159 | 146 |
+| Sources/mj/Legal.swift | 149 | 136 |
+| Sources/mj/Reading.swift | 137 | 136 |
+| Sources/mj/Yaku.swift | 121 | 107 |
+| Sources/mj/main.swift | 112 | 115 |
+| Sources/mj/Shanten.swift | 112 | 108 |
+| Sources/mj/Decompose.swift | 67 | 71 |
+| **Swift sources** | **1020** | **991** |
+| with Package.swift + build.sh | 1034 | 1005 |
+
+(The earlier table's "1030" total was a sum slip; the files added to 1034.) main.swift
+grew with the new validation (tile limits, trigger count, `took`); Tile.swift gained
+`[Meld]`/`[Tile]` helpers moved from Legal.swift.
+
+`--time`, same machine, before (original code) and after (final, clean build):
+
+| op | before req/s | after req/s |
+|---|---|---|
+| agari | 170,487 | 159,261 |
+| shanten | 166,735 | 172,501 |
+| waits | 39,646 | 43,685 |
+| score | 80,799 | 87,599 |
+| legal | 20,974 | 32,691 |
+| start-up | 6.3 ms | 6.2 ms |
+
+Differences other than `legal` are within run-to-run noise. Corpus after a clean
+`./build.sh`: 12439/12439.
+
+### What got in the way
+
+- Nothing serious. Typed throws made the generic `value` parser and the removal of
+  the catch-all branch clean; a `do` around `score` inside a `throws(BadInput)`
+  function correctly infers `ScoreError` for its `catch`.
+- `Optional` has no `filter`, so the range check reads
+  `Int($0).flatMap { range.contains($0) ? $0 : nil }`.
+- The memo bug is the kind of thing a fixed-size `InlineArray` key or a dedicated
+  `Hashable` struct would rule out; the type checker had no way to see that a packed
+  `Int` assumed counts below 5.

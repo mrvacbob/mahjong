@@ -49,13 +49,19 @@
     --->    ordinary(han :: int, fu :: int)
     ;       yakuman(multiple :: int).
 
+:- type payment
+    --->    ron_pay(int)                    % the discarder pays
+    ;       dealer_tsumo(int)               % each other seat pays
+    ;       child_tsumo(child :: int, dealer :: int).
+
 :- type result
     --->    result(
                 yaku        :: list(pair(string, int)),
                 value       :: value,
-                pay         :: string,
-                total       :: int
+                pay         :: payment
             ).
+
+:- func total(result) = int.
 
 :- type outcome
     --->    not_agari
@@ -123,7 +129,8 @@ parse_flag("ankan_rob", ankan_rob).
                 win_kind    :: kind,
                 closed      :: bool,
                 meld_mentsu :: list(mentsu),
-                kinds       :: list(kind)       % every tile, melds included
+                tiles       :: list(tile),      % every tile, melds included
+                kinds       :: list(kind)       % their kinds
             ).
 
 :- pred interpretation(ctx::in, interp::out) is nondet.
@@ -167,14 +174,16 @@ concealed_mentsu(run(K)) = mentsu(run, K, concealed).
 concealed_mentsu(triplet(K)) = mentsu(triplet, K, concealed).
 
 :- func mentsu_of_meld(meld) = mentsu.
-mentsu_of_meld(meld(MK, Tiles)) = mentsu(Shape, K, Conc) :-
-    K = list.det_head(list.sort(kinds_of(Tiles))),
-    ( MK = chi, Shape = run, Conc = open
-    ; MK = pon, Shape = triplet, Conc = open
-    ; MK = daiminkan, Shape = kan, Conc = open
-    ; MK = shouminkan, Shape = kan, Conc = open
-    ; MK = ankan, Shape = kan, Conc = concealed
-    ).
+mentsu_of_meld(M) = mentsu(meld_shape(M ^ mkind), K, Conc) :-
+    K = list.det_head(meld_kinds(M)),      % meld tiles are sorted
+    Conc = ( if is_open_meld(M) then open else concealed ).
+
+:- func meld_shape(meld_kind) = shape.
+meld_shape(chi) = run.
+meld_shape(pon) = triplet.
+meld_shape(daiminkan) = kan.
+meld_shape(shouminkan) = kan.
+meld_shape(ankan) = kan.
 
 %---------------------------------------------------------------------------%
 % Queries used by the yaku clauses
@@ -191,18 +200,24 @@ closed_open(C, Closed, Open) = ( if C ^ closed = yes then Closed else Open ).
 all_kinds_are(C, P) :-
     list.all_true(P, C ^ kinds).
 
+:- pred has_honor(ctx::in) is semidet.
+has_honor(C) :-
+    list.any_true(is_honor, C ^ kinds).
+
 :- func mentsu_of(interp) = list(mentsu).
 mentsu_of(I) = ( if I = standard(_, Ms, _) then Ms else [] ).
 
 :- pred is_triplet_like(mentsu::in) is semidet.
 is_triplet_like(mentsu(S, _, _)) :- ( S = triplet ; S = kan ).
 
-    % Triplets or kans of this kind.
+    % The kinds of the triplets and kans.
+:- func triplet_kinds(interp) = list(kind).
+triplet_kinds(I) = list.filter_map(
+    (func(M) = M ^ mkind is semidet :- is_triplet_like(M)), mentsu_of(I)).
+
 :- pred has_triplet(interp::in, kind::in) is semidet.
 has_triplet(I, K) :-
-    list.member(M, mentsu_of(I)),
-    is_triplet_like(M),
-    M ^ mkind = K.
+    list.member(K, triplet_kinds(I)).
 
 :- func count_mentsu(interp, pred(mentsu)) = int.
 :- mode count_mentsu(in, in(pred(in) is semidet)) = out is det.
@@ -217,8 +232,7 @@ kans(I) = count_mentsu(I, (pred(M::in) is semidet :- M ^ shape = kan)).
 
 :- func triplets_where(interp, pred(kind)) = int.
 :- mode triplets_where(in, in(pred(in) is semidet)) = out is det.
-triplets_where(I, P) = count_mentsu(I,
-    (pred(M::in) is semidet :- is_triplet_like(M), P(M ^ mkind))).
+triplets_where(I, P) = list.length(list.filter(P, triplet_kinds(I))).
 
 :- func runs(interp) = list(kind).
 runs(I) = list.filter_map(
@@ -255,18 +269,11 @@ one_number_suit(C, S) :-
     Numbers = [kind(S, _) | _],
     list.all_true((pred(kind(S1, _)::in) is semidet :- S1 = S), Numbers).
 
-:- pred is_yakuhai_pair(ctx::in, kind::in) is semidet.
-is_yakuhai_pair(C, K) :-
-    ( is_dragon(K)
-    ; K = C ^ req ^ sit ^ seat
-    ; K = C ^ req ^ sit ^ round
-    ).
-
 :- pred pinfu(ctx::in, interp::in) is semidet.
 pinfu(C, standard(P, Ms, ryanmen)) :-
     C ^ closed = yes,
     list.all_true((pred(M::in) is semidet :- M ^ shape = run), Ms),
-    not is_yakuhai_pair(C, P).
+    pair_fu(C, P) = 0.         % the pair is not a value tile
 
 :- pred is_green(kind::in) is semidet.
 is_green(kind(sou, N)) :- ( N = 2 ; N = 3 ; N = 4 ; N = 6 ; N = 8 ).
@@ -313,9 +320,7 @@ yaku(C, _, "double_riichi", 2) :-
 yaku(C, I, "sanshoku", closed_open(C, 2, 1)) :-
     same_number_in_three_suits(runs(I)).
 yaku(_, I, "sanshoku_doukou", 2) :-
-    same_number_in_three_suits(list.filter_map(
-        (func(M) = M ^ mkind is semidet :- is_triplet_like(M)),
-        mentsu_of(I))).
+    same_number_in_three_suits(triplet_kinds(I)).
 yaku(_, I, "sanankou", 2) :-
     concealed_triplets(I) = 3.
 yaku(C, I, "ittsu", closed_open(C, 2, 1)) :-
@@ -330,7 +335,7 @@ yaku(_, I, "toitoi", 2) :-
 yaku(C, I, "chanta", closed_open(C, 2, 1)) :-
     all_groups_outside(I),
     runs(I) \= [],
-    list.member(K, C ^ kinds), is_honor(K).
+    has_honor(C).
 yaku(_, I, "sankantsu", 2) :-
     kans(I) = 3.
 yaku(C, _, "honroutou", 2) :-
@@ -340,17 +345,17 @@ yaku(_, I, "shousangen", 2) :-
     is_dragon(I ^ pair).
 yaku(C, _, "honitsu", closed_open(C, 3, 2)) :-
     one_number_suit(C, _),
-    list.member(K, C ^ kinds), is_honor(K).
+    has_honor(C).
 yaku(C, I, "junchan", closed_open(C, 3, 2)) :-
     all_groups_outside(I),
     runs(I) \= [],
-    not (list.member(K, C ^ kinds), is_honor(K)).
+    not has_honor(C).
 yaku(C, I, "ryanpeikou", 3) :-
     C ^ closed = yes,
     peikou(I) = 2.
 yaku(C, _, "chinitsu", closed_open(C, 6, 5)) :-
     one_number_suit(C, _),
-    not (list.member(K, C ^ kinds), is_honor(K)).
+    not has_honor(C).
 
 %---------------------------------------------------------------------------%
 % Yakuman, with the multiple each contributes (spec/rules.md section 2.2).
@@ -389,11 +394,10 @@ yakuman(C, _, "ryuuiisou", 1) :-
 yakuman(C, _, Name, Mult) :-
     C ^ req ^ melds = [],
     one_number_suit(C, S),
-    not (list.member(K, C ^ kinds), is_honor(K)),
+    not has_honor(C),
     Counts = suit_counts(C ^ concealed, S),
-    list.all_true(
-        (pred({Have, Need}::in) is semidet :- Have >= Need),
-        list.map_corresponding((func(A, B) = {A, B}), Counts, chuuren)),
+    list.all_true_corresponding((pred(Have::in, Need::in) is semidet :-
+        Have >= Need), Counts, chuuren),
     Without = bag.det_remove(C ^ concealed, C ^ win_kind),
     ( if
         suit_counts(Without, S) = chuuren
@@ -421,12 +425,12 @@ fu(C, I) = Fu :-
         Fu = 30         % never printed: kokushi is a yakuman
     ;
         I = standard(P, Ms, Wait),
-        Tsumo = ( if C ^ req ^ by = tsumo then yes else no ),
-        ( if pinfu(C, I), Tsumo = yes then
+        By = C ^ req ^ by,
+        ( if pinfu(C, I), By = tsumo then
             Fu = 20
         else
-            MenzenRon = ( if C ^ closed = yes, Tsumo = no then 10 else 0 ),
-            TsumoFu = ( if Tsumo = yes then 2 else 0 ),
+            MenzenRon = ( if C ^ closed = yes, By = ron then 10 else 0 ),
+            TsumoFu = ( if By = tsumo then 2 else 0 ),
             Raw = 20 + MenzenRon + TsumoFu
                 + list.foldl((func(M, A) = A + mentsu_fu(M)), Ms, 0)
                 + pair_fu(C, P) + wait_fu(Wait),
@@ -472,7 +476,7 @@ score_interp(C, I) = Outcome :-
     Yakuman = solutions(
         (pred(N - M::out) is nondet :- yakuman(C, I, N, M))),
     ( if Yakuman = [_ | _] then
-        Mult = list.foldl((func(_ - M, A) = A + M), Yakuman, 0),
+        Mult = sum_values(Yakuman),
         Outcome = scored(paid(C, Yakuman, yakuman(Mult), 8000 * Mult))
     else
         Yaku = solutions((pred(N - H::out) is nondet :- yaku(C, I, N, H))),
@@ -481,35 +485,34 @@ score_interp(C, I) = Outcome :-
             Outcome = no_yaku
         ;
             Yaku = [_ | _],
-            Dora = dora_yaku(C),
-            All = list.sort(Yaku ++ Dora),
-            Han = list.foldl((func(_ - H, A) = A + H), All, 0),
+            All = list.sort(Yaku ++ dora_yaku(C)),
+            Han = sum_values(All),
             Fu = fu(C, I),
             Outcome = scored(paid(C, All, ordinary(Han, Fu),
                 basic_points(Han, Fu)))
         )
     ).
 
+:- func sum_values(list(pair(string, int))) = int.
+sum_values(Ps) = list.foldl((func(_ - N, A) = A + N), Ps, 0).
+
 :- func dora_yaku(ctx) = list(pair(string, int)).
 dora_yaku(C) = list.filter((pred(_ - N::in) is semidet :- N > 0),
         ["dora" - Dora, "aka" - Aka, "ura" - Ura]) :-
     Sit = C ^ req ^ sit,
-    Dora = count_dora(C, Sit ^ dora),
+    Kinds = bag.from_list(C ^ kinds),
+    Dora = count_dora(Kinds, Sit ^ dora),
     ( if ( has_flag(C, riichi) ; has_flag(C, double_riichi) ) then
-        Ura = count_dora(C, Sit ^ ura)
+        Ura = count_dora(Kinds, Sit ^ ura)
     else
         Ura = 0
     ),
-    Req = C ^ req,
-    AllTiles = [Req ^ win | Req ^ hand] ++
-        list.condense(list.map((func(M) = M ^ mtiles), Req ^ melds)),
     Aka = list.length(list.filter((pred(T::in) is semidet :-
-        T ^ colour = red), AllTiles)).
+        T ^ colour = red), C ^ tiles)).
 
-:- func count_dora(ctx, list(tile)) = int.
-count_dora(C, Indicators) = list.foldl(
-    (func(Ind, Acc) = Acc + list.length(list.filter(unify(D), C ^ kinds)) :-
-        D = dora_of(kind_of(Ind))),
+:- func count_dora(bag(kind), list(tile)) = int.
+count_dora(Kinds, Indicators) = list.foldl(
+    (func(Ind, Acc) = Acc + bag.count_value(Kinds, dora_of(kind_of(Ind)))),
     Indicators, 0).
 
 :- func basic_points(int, int) = int.
@@ -523,31 +526,37 @@ basic_points(Han, Fu) =
     ).
 
 :- func paid(ctx, list(pair(string, int)), value, int) = result.
-paid(C, Yaku, Value, Basic) = result(Yaku, Value, Pay, Total) :-
+paid(C, Yaku, Value, Basic) = result(Yaku, Value, Pay) :-
     Req = C ^ req,
     Honba = Req ^ sit ^ honba,
     Dealer = ( if Req ^ sit ^ seat = east then yes else no ),
     (
         Req ^ by = ron,
-        Total = ceil100(Basic * ( if Dealer = yes then 6 else 4 ))
-            + 300 * Honba,
-        Pay = "ron:" ++ int_to_string(Total)
+        Pay = ron_pay(ceil100(Basic * ( if Dealer = yes then 6 else 4 ))
+            + 300 * Honba)
     ;
         Req ^ by = tsumo,
         (
             Dealer = yes,
-            Each = ceil100(2 * Basic) + 100 * Honba,
-            Total = 3 * Each,
-            Pay = "all:" ++ int_to_string(Each)
+            Pay = dealer_tsumo(ceil100(2 * Basic) + 100 * Honba)
         ;
             Dealer = no,
-            Child = ceil100(Basic) + 100 * Honba,
-            Parent = ceil100(2 * Basic) + 100 * Honba,
-            Total = 2 * Child + Parent,
-            Pay = "tsumo:" ++ int_to_string(Child) ++ "/" ++
-                int_to_string(Parent)
+            Pay = child_tsumo(ceil100(Basic) + 100 * Honba,
+                ceil100(2 * Basic) + 100 * Honba)
         )
     ).
+
+total(R) = Total :-
+    ( R ^ pay = ron_pay(Total)
+    ; R ^ pay = dealer_tsumo(Each), Total = 3 * Each
+    ; R ^ pay = child_tsumo(Child, Dealer), Total = 2 * Child + Dealer
+    ).
+
+:- func payment_to_string(payment) = string.
+payment_to_string(ron_pay(N)) = "ron:" ++ int_to_string(N).
+payment_to_string(dealer_tsumo(N)) = "all:" ++ int_to_string(N).
+payment_to_string(child_tsumo(Child, Dealer)) =
+    "tsumo:" ++ int_to_string(Child) ++ "/" ++ int_to_string(Dealer).
 
 :- func ceil100(int) = int.
 ceil100(N) = (N + 99) // 100 * 100.
@@ -556,38 +565,34 @@ ceil100(N) = (N + 99) // 100 * 100.
 % Choosing the best interpretation
 
 evaluate(Req) = Outcome :-
-    Concealed = kind_bag([Req ^ win | Req ^ hand]),
+    Hand = [Req ^ win | Req ^ hand],
+    Concealed = kind_bag(Hand),
     Melds = Req ^ melds,
-    Closed = ( if list.any_true(is_open_meld, Melds) then no else yes ),
-    Kinds = kinds_of([Req ^ win | Req ^ hand]) ++
-        list.condense(list.map(meld_kinds, Melds)),
+    Closed = ( if all_closed(Melds) then yes else no ),
+    MeldMentsu = list.map(mentsu_of_meld, Melds),
+    Tiles = Hand ++ meld_tiles(Melds),
     ( if list.member(tenhou, Req ^ sit ^ flags) then
         WinKinds = bag.to_list_without_duplicates(Concealed)
     else
         WinKinds = [kind_of(Req ^ win)]
     ),
-    Ctxs = list.map(
-        (func(W) = ctx(Req, Concealed, W, Closed,
-            list.map(mentsu_of_meld, Melds), Kinds)),
-        WinKinds),
-    Outcomes = solutions(
-        (pred(O::out) is nondet :-
-            list.member(C, Ctxs),
-            interpretation(C, I),
-            O = score_interp(C, I))),
-    Scored = list.filter_map((func(scored(R)) = R is semidet), Outcomes),
-    (
-        Outcomes = [],
+    % Identical groups give the same reading more than once: collect the
+    % distinct readings before scoring them.
+    Readings = solutions(
+        (pred({C, I}::out) is nondet :-
+            list.member(W, WinKinds),
+            C = ctx(Req, Concealed, W, Closed, MeldMentsu, Tiles,
+                kinds_of(Tiles)),
+            interpretation(C, I))),
+    Scored = list.filter_map(
+        (func({C, I}) = R is semidet :- score_interp(C, I) = scored(R)),
+        Readings),
+    ( if Readings = [] then
         Outcome = not_agari
-    ;
-        Outcomes = [_ | _],
-        (
-            Scored = [],
-            Outcome = no_yaku
-        ;
-            Scored = [First | Rest],
-            Outcome = scored(list.foldl(better, Rest, First))
-        )
+    else if Scored = [First | Rest] then
+        Outcome = scored(list.foldl(better, Rest, First))
+    else
+        Outcome = no_yaku
     ).
 
 :- func better(result, result) = result.
@@ -606,7 +611,7 @@ worse(A, B) :-
     ).
 
 :- func rank(result) = {int, int, int, int}.
-rank(R) = {R ^ total, Real, Han, Fu} :-
+rank(R) = {total(R), Real, Han, Fu} :-
     (
         R ^ value = yakuman(_),
         Real = 1, Han = 0, Fu = 0
@@ -631,7 +636,8 @@ outcome_to_string(scored(R)) = string.join_list(" ", Fields) :-
         Middle = ["yakuman=" ++ int_to_string(M)]
     ),
     Fields = [Yaku | Middle] ++
-        ["pay=" ++ R ^ pay, "total=" ++ int_to_string(R ^ total)].
+        ["pay=" ++ payment_to_string(R ^ pay),
+            "total=" ++ int_to_string(total(R))].
 
 %---------------------------------------------------------------------------%
 :- end_module score.

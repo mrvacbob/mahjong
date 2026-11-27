@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 from functools import cache
 
-from tiles import NUM_KINDS, YAOCHU, Counts, Kind, Tile, format_tiles, is_honor
+from tiles import NUM_KINDS, YAOCHU, Counts, Kind, format_kinds, starts_sequence, suit_counts
 
 
 class Shape(IntEnum):
@@ -39,7 +39,7 @@ class Group:
         return self.shape in (Shape.TRIPLET, Shape.KAN)
 
     def __str__(self) -> str:
-        return format_tiles(Tile(k) for k in self.kinds)
+        return format_kinds(self.kinds)
 
 
 type Form = tuple[Group, ...]
@@ -57,36 +57,31 @@ def standard_forms(counts: Counts) -> list[Form]:
     groups: list[Group] = []
 
     def go(start: int, have_pair: bool) -> None:
-        i = start
-        while i < NUM_KINDS and c[i] == 0:
-            i += 1
-        if i == NUM_KINDS:
+        """Place the lowest remaining tile in each group it can start, then recurse."""
+        i = next((k for k in range(start, NUM_KINDS) if c[k]), None)
+        if i is None:
             if have_pair:
                 found.add(tuple(sorted(groups)))
             return
+        starts = [Group(i, Shape.TRIPLET)] if c[i] >= 3 else []
         if not have_pair and c[i] >= 2:
-            c[i] -= 2
-            groups.append(Group(i, Shape.PAIR))
-            go(i, True)
-            groups.pop()
-            c[i] += 2
-        if c[i] >= 3:
-            c[i] -= 3
-            groups.append(Group(i, Shape.TRIPLET))
-            go(i, have_pair)
-            groups.pop()
-            c[i] += 3
-        if not is_honor(i) and i % 9 <= 6 and c[i + 1] and c[i + 2]:
-            for k in (i, i + 1, i + 2):
+            starts.append(Group(i, Shape.PAIR))
+        if starts_sequence(i) and c[i + 1] and c[i + 2]:
+            starts.append(Group(i, Shape.SEQ))
+        for g in starts:
+            for k in g.kinds:
                 c[k] -= 1
-            groups.append(Group(i, Shape.SEQ))
-            go(i, have_pair)
+            groups.append(g)
+            go(i, have_pair or g.shape is Shape.PAIR)
             groups.pop()
-            for k in (i, i + 1, i + 2):
+            for k in g.kinds:
                 c[k] += 1
 
     go(0, False)
     return sorted(found)
+
+
+# Chiitoi and kokushi are 14 concealed tiles, so the tile count alone rules them out with melds.
 
 
 def is_chiitoi(counts: Counts) -> bool:
@@ -98,10 +93,8 @@ def is_kokushi(counts: Counts) -> bool:
     return sum(counts) == 14 and all(counts[k] >= 1 for k in YAOCHU) and sum(counts[k] for k in YAOCHU) == 14
 
 
-def is_complete(counts: Counts, n_melds: int) -> bool:
-    if n_melds == 0 and (is_chiitoi(counts) or is_kokushi(counts)):
-        return True
-    return bool(standard_forms(counts))
+def is_complete(counts: Counts) -> bool:
+    return is_chiitoi(counts) or is_kokushi(counts) or bool(standard_forms(counts))
 
 
 # ---------------------------------------------------------------- shanten
@@ -150,7 +143,7 @@ def _suit_options(c: tuple[int, ...], honors: bool) -> Options:
 def standard_shanten(counts: Counts, n_melds: int) -> int:
     combined: Options = {(n_melds, 0): 0}
     for s in range(4):
-        part = _suit_options(tuple(counts[9 * s : 9 * s + 9]), s == 3)
+        part = _suit_options(tuple(suit_counts(counts, s)), s == 3)
         nxt: Options = {}
         for (s1, p1), t1 in combined.items():
             for (s2, p2), t2 in part.items():
@@ -189,6 +182,18 @@ def shanten(counts: Counts, n_melds: int) -> Shanten:
     return Shanten(standard_shanten(counts, 0), chiitoi_shanten(counts), kokushi_shanten(counts))
 
 
+def _plus(counts: Counts, k: Kind) -> Counts:
+    """`counts` with one more `k` (a new list; the caller's is untouched)."""
+    c = list(counts)
+    c[k] += 1
+    return c
+
+
+def winning_kinds(counts: Counts) -> list[Kind]:
+    """Kinds whose addition completes the hand, ignoring how many copies exist (even a fifth)."""
+    return [k for k in range(NUM_KINDS) if is_complete(_plus(counts, k))]
+
+
 @dataclass(frozen=True, slots=True)
 class Waits:
     shanten: int
@@ -199,23 +204,6 @@ class Waits:
 def waits(counts: Counts, n_melds: int, visible: Counts) -> Waits:
     """Kinds with a live copy (4 - visible) whose draw lowers min shanten."""
     base = shanten(counts, n_melds).min
-    kinds: list[Kind] = []
-    for k in range(NUM_KINDS):
-        if visible[k] >= 4:
-            continue
-        counts[k] += 1
-        if shanten(counts, n_melds).min < base:
-            kinds.append(k)
-        counts[k] -= 1
+    kinds = [k for k in range(NUM_KINDS)
+             if visible[k] < 4 and shanten(_plus(counts, k), n_melds).min < base]
     return Waits(base, kinds, sum(4 - visible[k] for k in kinds))
-
-
-def structural_waits(counts: Counts, n_melds: int) -> set[Kind]:
-    """Kinds that complete the hand, ignoring how many copies exist."""
-    out: set[Kind] = set()
-    for k in range(NUM_KINDS):
-        counts[k] += 1
-        if is_complete(counts, n_melds):
-            out.add(k)
-        counts[k] -= 1
-    return out

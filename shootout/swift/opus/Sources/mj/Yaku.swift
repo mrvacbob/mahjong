@@ -47,11 +47,11 @@ let yakuList: [Yaku] = [
     Yaku(.pinfu, closed: 1, open: nil) { $0.isPinfuShape },
     Yaku(.tanyao, closed: 1, open: 1) { $0.allKinds.allSatisfy(\.isSimple) },
     Yaku(.iipeikou, closed: 1, open: nil) { $0.identicalRunPairs == 1 },
-    Yaku(.yakuhai_haku, closed: 1, open: 1) { $0.hasTriplet(.haku) },
-    Yaku(.yakuhai_hatsu, closed: 1, open: 1) { $0.hasTriplet(.hatsu) },
-    Yaku(.yakuhai_chun, closed: 1, open: 1) { $0.hasTriplet(.chun) },
-    Yaku(.yakuhai_seat, closed: 1, open: 1) { $0.hasTriplet($0.context.seat.kind) },
-    Yaku(.yakuhai_round, closed: 1, open: 1) { $0.hasTriplet($0.context.round.kind) },
+    Yaku(.yakuhai_haku, closed: 1, open: 1) { $0.triplets.contains(.haku) },
+    Yaku(.yakuhai_hatsu, closed: 1, open: 1) { $0.triplets.contains(.hatsu) },
+    Yaku(.yakuhai_chun, closed: 1, open: 1) { $0.triplets.contains(.chun) },
+    Yaku(.yakuhai_seat, closed: 1, open: 1) { $0.triplets.contains($0.context.seat.kind) },
+    Yaku(.yakuhai_round, closed: 1, open: 1) { $0.triplets.contains($0.context.round.kind) },
     Yaku(.rinshan, closed: 1, open: 1) { $0.context.flags.contains(.rinshan) },
     Yaku(.chankan, closed: 1, open: 1) { $0.context.flags.contains(.chankan) },
     Yaku(.haitei, closed: 1, open: 1) { $0.context.flags.contains(.haitei) },
@@ -60,17 +60,15 @@ let yakuList: [Yaku] = [
     Yaku(.sanshoku_doukou, closed: 2, open: 2) { $0.hasSanshokuTriplets },
     Yaku(.sanankou, closed: 2, open: 2) { $0.concealedTriplets == 3 },
     Yaku(.ittsu, closed: 2, open: 1) { $0.hasIttsu },
-    Yaku(.chiitoi, closed: 2, open: nil) {
-        if case .chiitoi = $0.shape { return true } else { return false }
-    },
-    Yaku(.toitoi, closed: 2, open: 2) { $0.isStandard && $0.triplets.count == 4 },
+    Yaku(.chiitoi, closed: 2, open: nil) { $0.shape == .chiitoi },
+    Yaku(.toitoi, closed: 2, open: 2) { $0.triplets.count == 4 },
     Yaku(.chanta, closed: 2, open: 1) { r in
         r.hasHonor && r.allGroupsContain(\.hasYaochu, pair: \.isYaochu)
     },
     Yaku(.sankantsu, closed: 2, open: 2) { $0.kans == 3 },
     Yaku(.honroutou, closed: 2, open: 2) { $0.allKinds.allSatisfy(\.isYaochu) },
     Yaku(.shousangen, closed: 2, open: 2) { r in
-        r.triplets.filter(\.isDragon).count == 2 && r.pair?.isDragon == true
+        r.triplets.count(where: \.isDragon) == 2 && r.pair?.isDragon == true
     },
     Yaku(.honitsu, closed: 3, open: 2) { $0.hasHonor && $0.suits.count == 2 },
     Yaku(.junchan, closed: 3, open: 2) { r in
@@ -80,23 +78,20 @@ let yakuList: [Yaku] = [
     Yaku(.chinitsu, closed: 6, open: 5) { !$0.hasHonor && $0.suits.count == 1 },
 ]
 
-/// The 13 tiles before the win are exactly 1112345678999 of one suit.
-private func isPureNineGates(_ c: Counts, suit: Suit) -> Bool {
-    let pattern = [3, 1, 1, 1, 1, 1, 1, 1, 3]
-    return c.total == 13 && (1...9).allSatisfy { c[Kind(suit, $0)] == pattern[$0 - 1] }
+/// Nine gates: 1112345678999 of one suit.
+private let nineGates = [3, 1, 1, 1, 1, 1, 1, 1, 3]
+
+/// The suit of a closed one-suit hand holding at least 1112345678999 (14 tiles, no kan).
+private func nineGatesSuit(_ r: Reading) -> Suit? {
+    guard r.melds.isEmpty, r.suits.count == 1, let suit = r.suits.first, suit != .honor,
+          (1...9).allSatisfy({ r.concealed[Kind(suit, $0)] >= nineGates[$0 - 1] })
+    else { return nil }
+    return suit
 }
 
-/// 1112345678999 plus one more of the same suit, all concealed, no kan.
-private func isNineGates(_ r: Reading) -> Bool {
-    guard r.noMelds, r.suits.count == 1, let suit = r.suits.first, suit != .honor else {
-        return false
-    }
-    let need = [3, 1, 1, 1, 1, 1, 1, 1, 3]
-    return (1...9).allSatisfy { r.concealed[Kind(suit, $0)] >= need[$0 - 1] }
-}
-
-private func isKokushiShape(_ r: Reading) -> Bool {
-    if case .kokushi = r.shape { return true } else { return false }
+/// Junsei: before the win the hand was exactly 1112345678999 (a nine-sided wait).
+private func isPureNineGates(_ r: Reading, _ suit: Suit) -> Bool {
+    (1...9).allSatisfy { r.waiting[Kind(suit, $0)] == nineGates[$0 - 1] }
 }
 
 /// Before the win, the hand held one of each of the 13 terminals and honors.
@@ -105,38 +100,31 @@ private func isThirteenWait(_ r: Reading) -> Bool {
 }
 
 let yakumanList: [Yakuman] = [
-    Yakuman(.kokushi, 1) { r in isKokushiShape(r) && !isThirteenWait(r) },
-    Yakuman(.kokushi_13, 2) { r in isKokushiShape(r) && isThirteenWait(r) },
+    Yakuman(.kokushi, 1) { $0.shape == .kokushi && !isThirteenWait($0) },
+    Yakuman(.kokushi_13, 2) { $0.shape == .kokushi && isThirteenWait($0) },
     Yakuman(.suuankou, 1) { $0.concealedTriplets == 4 && $0.wait != .tanki },
     Yakuman(.suuankou_tanki, 2) { $0.concealedTriplets == 4 && $0.wait == .tanki },
-    Yakuman(.daisangen, 1) { $0.triplets.filter(\.isDragon).count == 3 },
+    Yakuman(.daisangen, 1) { $0.triplets.count(where: \.isDragon) == 3 },
     Yakuman(.shousuushii, 1) { r in
-        r.triplets.filter(\.isWind).count == 3 && r.pair?.isWind == true
+        r.triplets.count(where: \.isWind) == 3 && r.pair?.isWind == true
     },
-    Yakuman(.daisuushii, 2) { $0.triplets.filter(\.isWind).count == 4 },
+    Yakuman(.daisuushii, 2) { $0.triplets.count(where: \.isWind) == 4 },
     Yakuman(.tsuuiisou, 1) { $0.allKinds.allSatisfy(\.isHonor) },
     Yakuman(.chinroutou, 1) { $0.allKinds.allSatisfy(\.isTerminal) },
     Yakuman(.ryuuiisou, 1) { $0.allKinds.allSatisfy(\.isGreen) },
-    Yakuman(.chuuren, 1) { r in
-        isNineGates(r) && !isPureNineGates(r.waiting, suit: r.winKind.suit)
-    },
-    Yakuman(.junsei_chuuren, 2) { r in
-        isNineGates(r) && isPureNineGates(r.waiting, suit: r.winKind.suit)
-    },
+    Yakuman(.chuuren, 1) { r in nineGatesSuit(r).map { !isPureNineGates(r, $0) } ?? false },
+    Yakuman(.junsei_chuuren, 2) { r in nineGatesSuit(r).map { isPureNineGates(r, $0) } ?? false },
     Yakuman(.suukantsu, 1) { $0.kans == 4 },
     Yakuman(.tenhou, 1) { $0.context.flags.contains(.tenhou) },
     Yakuman(.chiihou, 1) { $0.context.flags.contains(.chiihou) },
 ]
 
-/// The ordinary yaku of a reading, with the rules' "does not stack" exclusions.
-func ordinaryYaku(_ r: Reading) -> [(YakuName, Int)] {
-    var found = yakuList.compactMap { y in y.han(r).map { (y.name, $0) } }
-    if found.contains(where: { $0.0 == .ryanpeikou }) {
-        found.removeAll { $0.0 == .iipeikou }
-    }
-    return found
+/// The ordinary yaku of a reading. The rules' "does not stack" exclusions are in
+/// the predicates (iipeikou vs ryanpeikou, chanta vs junchan, honitsu vs chinitsu).
+func ordinaryYaku(_ r: Reading) -> [(name: String, value: Int)] {
+    yakuList.compactMap { y in y.han(r).map { (y.name.rawValue, $0) } }
 }
 
-func yakumanOf(_ r: Reading) -> [(YakuName, Int)] {
-    yakumanList.filter { $0.applies(r) }.map { ($0.name, $0.multiple) }
+func yakumanOf(_ r: Reading) -> [(name: String, value: Int)] {
+    yakumanList.filter { $0.applies(r) }.map { ($0.name.rawValue, $0.multiple) }
 }

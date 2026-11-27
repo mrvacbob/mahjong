@@ -1,2 +1,2 @@
 #!/bin/sh
-exec python3.14 -X frozen_modules=on "$(dirname "$0")/main.py"
+exec python3.14 "$(dirname "$0")/main.py"

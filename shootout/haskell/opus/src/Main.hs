@@ -7,6 +7,7 @@ import Hand
 import Score
 import Legal
 import Control.Exception (SomeException, evaluate, try)
+import Control.Monad (mfilter)
 import Data.List (intercalate, nub, sort)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
@@ -22,9 +23,9 @@ main = do
 respond :: String -> IO String
 respond line = case words line of
   rid : op : args -> do
-    r <- try (evaluate (forceString (answer op (M.fromList (map keyValue args)))))
+    r <- try @SomeException (evaluate (forceString (answer op (M.fromList (map keyValue args)))))
     pure $ rid ++ " " ++ case r of
-      Left e -> "error=internal" ++ const "" (e :: SomeException)
+      Left _ -> "error=internal"
       Right (Left why) -> "error=" ++ why
       Right (Right out) -> out
   rid : _ -> pure (rid ++ " error=bad_request")
@@ -39,12 +40,11 @@ type Args = M.Map String String
 
 answer :: String -> Args -> Either String String
 answer op a = case op of
-  "agari" -> agari <$> tilesArg "hand" a <*> meldsArg a
-  "shanten" -> shanten <$> tilesArg "hand" a <*> meldsArg a
-  "waits" -> waits <$> tilesArg "hand" a <*> meldsArg a
-  "score" | M.notMember "win" a -> Left "bad_win"
-          | otherwise -> showScore . score <$> situation a
-  "legal" -> unwords . pure . ("actions=" ++) . intercalate "," . legal <$> table a
+  "agari" -> showAgari <$> kindsArg "hand" a <* meldsArg a
+  "shanten" -> showShanten <$> kindsArg "hand" a <*> meldsArg a
+  "waits" -> showWaits <$> kindsArg "hand" a <*> meldsArg a
+  "score" -> showScore . score <$> (situation a =<< tileArg "win" a)
+  "legal" -> ("actions=" ++) . intercalate "," . legal <$> table a
   _ -> Left "unknown_op"
 
 ------------------------------------------------------------------------------
@@ -59,6 +59,9 @@ parsed k p def a = maybe (Left ("bad_" ++ k)) Right (p (arg k def a))
 tilesArg :: String -> Args -> Either String [Tile]
 tilesArg k = parsed k parseTiles "-"
 
+kindsArg :: String -> Args -> Either String [Kind]
+kindsArg k a = map kind <$> tilesArg k a
+
 tileArg :: String -> Args -> Either String Tile
 tileArg k = parsed k parseTile ""
 
@@ -68,24 +71,21 @@ meldsArg = parsed "melds" parseMelds "-"
 windArg :: String -> Args -> Either String Kind
 windArg k = parsed k (`lookup` [(w, Kind Honor n) | (w, n) <- zip ["E", "S", "W", "N"] [1 ..]]) "E"
 
-intArg :: String -> Int -> Args -> Either String Int
-intArg k def = parsed k readMaybe (show def)
+-- | A count: a non-negative integer.
+intArg :: (Read n, Show n, Ord n, Num n) => String -> n -> Args -> Either String n
+intArg k def = parsed k (mfilter (>= 0) . readMaybe) (show def)
 
 boolArg :: String -> Args -> Either String Bool
-boolArg k a = (/= 0) <$> intArg k 0 a
+boolArg k = parsed k (`lookup` [("0", False), ("1", True)]) "0"
 
 flagsArg :: Args -> Either String (S.Set Flag)
 flagsArg a = case arg "flags" "-" a of
   "-" -> Right S.empty
-  fs -> maybe (Left "bad_flags") (Right . S.fromList) (traverse parseFlag (splitComma fs))
-  where
-    splitComma s = case break (== ',') s of
-      (x, []) -> [x]
-      (x, _ : rest) -> x : splitComma rest
+  fs -> maybe (Left "bad_flags") (Right . S.fromList) (traverse parseFlag (splitOn ',' fs))
 
--- | Context keys shared by @score@ and @legal@.
-situation :: Args -> Either String Situation
-situation a = do
+-- | Context keys shared by @score@ and @legal@, around the tile being won on.
+situation :: Args -> Tile -> Either String Situation
+situation a w = do
   h <- tilesArg "hand" a
   ms <- meldsArg a
   seat <- windArg "seat" a
@@ -94,7 +94,6 @@ situation a = do
   ura <- tilesArg "ura" a
   hb <- intArg "honba" 0 a
   fl <- flagsArg a
-  w <- if M.member "win" a then tileArg "win" a else Right (winTile defaultSituation)
   by <- case arg "by" "ron" a of
     "ron" -> Right False
     "tsumo" -> Right True
@@ -105,12 +104,17 @@ situation a = do
 
 table :: Args -> Either String Table
 table a = do
-  s <- situation a
-  p <- case (M.lookup "draw" a, M.lookup "discard" a, M.lookup "called" a) of
-    (Just _, _, _) -> Draw <$> tileArg "draw" a
-    (_, Just _, _) -> Discard <$> tileArg "discard" a <*> parsed "from" (`lookup` froms) "" a
-    (_, _, Just c) -> Called <$> maybe (Left "bad_called") Right (parseMeld c) <*> tileArg "took" a
-    _ -> Left "no_prompt"
+  p <- case filter (`M.member` a) ["draw", "discard", "called"] of
+    ["draw"] -> Draw <$> tileArg "draw" a
+    ["discard"] -> Discard <$> tileArg "discard" a <*> parsed "from" (`lookup` froms) "" a
+    ["called"] -> Called <$> parsed "called" parseMeld "" a <*> tileArg "took" a
+    [] -> Left "no_prompt"
+    _ -> Left "bad_prompt"            -- exactly one trigger per request
+  -- Legal tries this tile (or each candidate) as the win itself.
+  s <- situation a $ case p of
+    Draw d -> d
+    Discard d _ -> d
+    Called _ took -> took
   r <- boolArg "riichi" a
   f <- boolArg "furiten" a
   w <- intArg "wall" 70 a
@@ -122,31 +126,27 @@ table a = do
 ------------------------------------------------------------------------------
 -- The shape ops
 
-agari :: [Tile] -> [Meld] -> String
-agari h ms
+-- | Melds are validated but play no part: forms list the concealed tiles only.
+showAgari :: [Kind] -> String
+showAgari ks
   | null forms = "win=0"
   | otherwise = "win=1 forms=" ++ intercalate ";" forms
   where
-    ks = map kind h
-    closed = null ms
     forms = nub . sort $
       [intercalate "," (map showGroup gs) | gs <- decompose ks]
-        ++ ["chiitoi" | closed, isChiitoi ks]
-        ++ ["kokushi" | closed, isKokushi ks]
+        ++ ["chiitoi" | isChiitoi ks]
+        ++ ["kokushi" | isKokushi ks]
 
-shanten :: [Tile] -> [Meld] -> String
-shanten h ms = unwords
-  [ "std=" ++ show st
-  , "chiitoi=" ++ special shantenChiitoi
-  , "kokushi=" ++ special shantenKokushi
-  , "min=" ++ show (shantenMin (length ms) ks) ]
+showShanten :: [Kind] -> [Meld] -> String
+showShanten ks ms = unwords
+  [ "std=" ++ show (stdShanten sh)
+  , "chiitoi=" ++ special (chiitoiShanten sh)
+  , "kokushi=" ++ special (kokushiShanten sh)
+  , "min=" ++ show (minShanten sh) ]
   where
-    ks = map kind h
-    st = shantenStd (length ms) ks
-    special f = if null ms then show (f ks) else "x"
+    sh = shanten (length ms) ks
+    special = maybe "x" show
 
-waits :: [Tile] -> [Meld] -> String
-waits h ms = unwords ["shanten=" ++ show sh, "tiles=" ++ showKinds live, "count=" ++ show n]
-  where
-    ks = map kind h
-    (sh, live, n) = liveWaits (length ms) ks (ks ++ concatMap (map kind . mtiles) ms)
+showWaits :: [Kind] -> [Meld] -> String
+showWaits ks ms = unwords ["shanten=" ++ show sh, "tiles=" ++ showKinds live, "count=" ++ show n]
+  where (sh, live, n) = liveWaits (length ms) ks (ks ++ meldKinds ms)

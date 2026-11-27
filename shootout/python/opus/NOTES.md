@@ -144,3 +144,181 @@ the reading the corpus is consistent with:
 Nothing failing or skipped. Malformed input answers `error=<Python exception
 name>` (e.g. `error=KeyError` for an unknown op, `error=ValueError` for `9z`),
 which the spec does not test.
+
+## Finalization
+
+Brief: docs/briefs/p2-finalize.md. Reviews read: the Python sections of
+docs/reviews/p2/codex.md and docs/reviews/p2/agy.md (agy-mercury.md has no Python
+entry section).
+
+### Bugs
+
+No failing request was known for this entry, and none turned up. All five cases in
+`corpus/legal_review.txt` passed before any change (12439/12439 from a clean build).
+I checked the reasoning they target:
+
+- **Fifth copy in the riichi-ankan wait set (r1, r4).** `_riichi_ankan_ok` already
+  compared completion sets, not shanten: for each kind it adds one copy with no
+  availability limit and asks `is_complete`. A fifth 6m (r1) or a fifth 1z (r4) is
+  therefore in the "before" set, and the comparison after the kan comes out right.
+  The function is now called `hand.winning_kinds`, and the docstring says it includes
+  a fifth copy.
+- **Cache keyed on counts (r2/r3/r5).** The shanten memo is keyed on one suit's
+  9-tuple, so a count of 5 is just a 5 in that tuple and can't carry into the next
+  kind.
+
+Reviewer items applied:
+
+- `waits` and the completion scan no longer change the caller's count list. `_plus`
+  returns a new list, which also removes the mutate-and-restore that agy flagged.
+- Riichi tenpai now tests completion directly, as agy asked: some kind in
+  `winning_kinds` still has a copy outside the hand and melds. A cheap gate goes in
+  front of the scan: a 14-tile hand above shanten 0 has no tenpai discard, so the
+  14 × 34 completion scan only runs on hands that can riichi. Adding a tile never
+  raises shanten under the spec's formula, so the gate never rejects a valid riichi.
+  This took `legal` from about 3,000 to about 9,400 requests/s.
+- `main.py`'s catch-all is narrower. `KeyError`, `ValueError` and `IndexError` are
+  malformed input and still answer `error=<name>`. Anything else is a bug: it answers
+  `error=internal` and prints the traceback to stderr, so it no longer looks like a
+  protocol error.
+
+Reviewer items declined:
+
+- **`Kind` as `NewType` (agy).** No type checker is allowed, so a `NewType` does
+  nothing at runtime. Under a checker, every `k + 1`, `9 * s + d` and `k % 9` would
+  come back as `int` and need `Kind(...)` wrapped around it. The result is noisier
+  code with no check behind it. With a checker allowed, I would do it.
+- **Completeness as `shanten(...).min == -1` (simplify/altitude agent).** That
+  states the rule once, but the brief and agy ask for completion to be checked
+  directly. `standard_forms` also gives up quickly on incomplete hands, and the
+  efficiency agent measured the shanten route as slower (209 vs 187 µs per scan).
+  `is_complete` stays, and the NOTES cross-check of `is_complete` against `shanten`
+  (20000 hands, 0 mismatches) still covers the two definitions.
+- **Codex's `Group` with an `open=False` default** serving both decomposition and
+  interpretation. Splitting it into two types is a design change the brief rules out.
+
+### Simplify pass
+
+I ran the skill with four review angles (reuse, simplification, efficiency,
+altitude) over the whole entry. Applied:
+
+- **tiles.py**
+  - `dora_of` is the one rule "next kind in its cycle" (9 per suit, 4 winds,
+    3 dragons) instead of three branches.
+  - `format_tiles` uses `itertools.groupby` by suit, and its unused `plain`
+    parameter is gone.
+  - New helpers `suit_counts`, `kinds_in`, `meld_tiles`, `is_closed` and
+    `starts_sequence` replace four, three, three, two and three copies of their
+    expressions respectively.
+  - `Meld.is_kan` is "not chi or pon", and the meld-size table is gone.
+- **hand.py**
+  - `standard_forms` builds the list of groups that can start at the lowest tile
+    and runs one take/recurse/restore body, instead of three pasted ones.
+  - The chiitoi/kokushi "no melds" guards are gone everywhere (hand, main,
+    scoring, legal). Both need 14 concealed tiles, which a hand with melds can't
+    have. One comment states this, and `is_complete`/`winning_kinds` lost their
+    `n_melds` parameter.
+  - `Group.__str__` uses `format_kinds`.
+- **yaku.py**
+  - `yaku`/`yakuman` share one `_register`, and the unread `YakuDef.yakuman` field
+    is gone.
+  - The nine flag-only yaku and yakuman (riichi, double_riichi, ippatsu, rinshan,
+    chankan, haitei, houtei, tenhou, chiihou) are registered from a table with
+    their han, and the three dragon yakuhai from a loop. Seat and round wind stay
+    as functions.
+  - `sanshoku`/`sanshoku_doukou` share `_in_all_three_suits` over raw kinds.
+  - `Win.suits` is a cached property used by honitsu, chinitsu and chuuren.
+    Chuuren calls `chinitsu` instead of restating it, and `_chuuren_counts`
+    returns the suit slice.
+  - `GREEN` is `parse_tiles("23468s6z")` instead of magic numbers.
+  - The redundant form check in chanta/junchan is gone, since both need a sequence.
+- **scoring.py**
+  - `best` returns `Result | NoWin` (a `StrEnum`) instead of raising `ScoreError`.
+  - The tie-break is one `min` over `Result.preference`, instead of a max over the
+    rank followed by a min over the yaku string.
+  - `count_dora` returns yaku entries directly, so the `Dora` class is gone.
+  - `basic_points` lost its yakuman argument.
+  - The walrus filter replaces build-then-filter for yaku lists.
+- **legal.py**
+  - `kuikae(called: Meld, took)` branches on the meld type instead of taking
+    `None` for pon.
+  - Pon and chi go through one `call()` that offers the call only if `after_call`
+    on the rest of the hand is non-empty. The dead-end-call rule is now stated
+    once, and `_has_allowed_discard` is gone.
+  - `on_draw` computes the distinct tiles once and passes its counts to the
+    ankan check.
+- **main.py, mj, build.sh**
+  - `op_agari` uses a small name/test table.
+  - The `noqa` lambda is now a function.
+  - `print(..., flush=True)` replaces the manual stdout handling.
+  - `mj` dropped `-X frozen_modules=on`, which is the default.
+  - Trailing whitespace is gone from build.sh.
+
+Left alone:
+
+- **`Shanten.min`.** The name shadows the builtin, but it matches the spec's `min=`
+  field.
+- **`case _:` in `_wait_of`.** Writing `case Shape.SEQ:` would leave an implicit
+  `None` return for KAN, which can't reach it.
+- **`Context` inside `Win`.** This would drop the copied seat/round/flags, but it
+  touches every predicate.
+- **The tenhou loop re-decomposing for each candidate tile.** It only runs with the
+  `tenhou` flag, and the loop reads as the rule.
+- **The closure cycle in `standard_forms`.**
+- **The `not s.riichi` before kakan.** It is the spec's wording, even though a
+  riichi hand can't have a pon.
+- **Adding the riichi flag once in `main`.** It stays in `legal`, which owns that
+  semantics.
+
+Checks:
+
+- 12439/12439 from a clean build after each step.
+- A differential run against the pre-finalization copy found 0 differences. It used
+  about 71k random requests over all ops: legal draw with and without riichi, chi
+  and pon on discards, and score.
+- A random check of the new riichi-tenpai test against the old
+  `waits(...).shanten == 0 and count > 0` found 0 mismatches in 20000 hands
+  (3692 tenpai).
+
+### Size
+
+Non-blank, non-comment lines. The second column also leaves out docstrings, as in
+"Size" above.
+
+| file | before | after | before (no docstrings) | after (no docstrings) |
+|---|---|---|---|---|
+| tiles.py | 124 | 131 | 118 | 121 |
+| hand.py | 169 | 152 | 162 | 143 |
+| yaku.py | 277 | 245 | 242 | 208 |
+| scoring.py | 181 | 167 | 175 | 160 |
+| legal.py | 116 | 102 | 113 | 96 |
+| main.py | 95 | 90 | 94 | 88 |
+| build.sh + mj | 6 | 6 | 6 | 6 |
+| total | 968 | 893 | 910 | 822 |
+
+### `--time` (same machine, req/s excluding start-up)
+
+| op | before | after |
+|---|---|---|
+| agari | 137275 | 94725 / 91276 |
+| shanten | 51766 | 56298 / 54857 |
+| waits | 4712 | 4332 / 4530 |
+| score | 26790 | 25643 / 25779 |
+| legal | 3780 | 19191 / 19552 |
+| start-up | 48.7 ms | 41.4 ms |
+
+Raw req/s for legal went from 3044 to 9386. The agari "excl. start-up" figure is
+dominated by the start-up subtraction: raw agari is 33877 before and 33932 after,
+and the other differences are noise.
+
+### What got in the way
+
+- **No type checker.** The new `Result | NoWin` return, the `Predicate` alias and
+  `Counts | None` from `_chuuren_counts` are documentation only. Nothing proves that
+  every caller of `best` handles `NoWin`. The corpus and the differential run do
+  that work.
+- **Closures in a registration loop bind late.** The dragon-yakuhai loop needs the
+  `lambda w, k=_kind:` default-argument trick, and the flag yaku need a `_flag(name)`
+  factory. Written naively, every predicate would test the last name.
+- **Module-level loop variables** (`_name`, `_closed`, ...) leak into the module
+  namespace. Python has no block scope, so the leading underscore is the only marker.

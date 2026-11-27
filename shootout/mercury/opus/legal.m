@@ -43,35 +43,35 @@
 :- import_module hand.
 :- import_module bag.
 :- import_module int.
-:- import_module set.
+:- import_module solutions.
 :- import_module string.
 
-actions(R) = set.to_sorted_list(set.from_list(As)) :-
-    (
-        R ^ trigger = draw(D),
-        As = draw_actions(R, D)
-    ;
-        R ^ trigger = discard(T, From),
-        As = ["pass" | discard_actions(R, T, From)]
-    ;
-        R ^ trigger = called(M, Took),
-        Forbidden = kuikae(M ^ mkind, kind_of(Took),
-            list.delete_all(meld_kinds(M), kind_of(Took))),
-        As = list.map(discard_action, allowed_discards(R ^ hand, Forbidden))
-    ).
+    % One clause group per trigger; solutions/2 sorts the action strings and
+    % drops duplicates (a red and a plain five give the same kan, say).
+actions(R) = solutions(action(R)).
 
-:- func discard_action(tile) = string.
-discard_action(T) = "discard:" ++ tile_to_string(T).
+:- pred action(legal_request::in, string::out) is nondet.
+action(R, A) :-
+    R ^ trigger = draw(D),
+    on_draw(R, D, [D | R ^ hand], A).
+action(R, A) :-
+    R ^ trigger = discard(T, From),
+    on_discard(R, T, From, A).
+action(R, discarding(T)) :-
+    R ^ trigger = called(M, Took),
+    TK = kind_of(Took),
+    allowed_discard(R ^ hand,
+        kuikae(M ^ mkind, TK, list.delete_all(meld_kinds(M), TK)), T).
 
-:- func distinct(list(tile)) = list(tile).
-distinct(Ts) = set.to_sorted_list(set.from_list(Ts)).
+:- func discarding(tile) = string.
+discarding(T) = "discard:" ++ tile_to_string(T).
 
 :- func num_melds(legal_request) = int.
 num_melds(R) = list.length(R ^ melds).
 
-:- pred closed_hand(legal_request::in) is semidet.
-closed_hand(R) :-
-    not list.any_true(is_open_meld, R ^ melds).
+:- pred has_flag(legal_request::in, flag::in) is semidet.
+has_flag(R, F) :-
+    list.member(F, R ^ sit ^ flags).
 
 :- pred kan_allowed(legal_request::in) is semidet.
 kan_allowed(R) :-
@@ -83,7 +83,10 @@ kan_allowed(R) :-
 :- pred wins(legal_request::in, tile::in, win_by::in) is semidet.
 wins(R, T, By) :-
     Sit0 = R ^ sit,
-    ( if R ^ in_riichi = yes, not list.member(double_riichi, Sit0 ^ flags)
+    ( if
+        R ^ in_riichi = yes,
+        not has_flag(R, riichi),
+        not has_flag(R, double_riichi)
     then
         Sit = Sit0 ^ flags := [riichi | Sit0 ^ flags]
     else
@@ -92,71 +95,42 @@ wins(R, T, By) :-
     evaluate(score_request(R ^ hand, R ^ melds, T, By, Sit)) = scored(_).
 
 %---------------------------------------------------------------------------%
-% Own draw
+% Own draw.  All is the hand with the drawn tile.
 
-:- func draw_actions(legal_request, tile) = list(string).
-draw_actions(R, D) = Discards ++ Tsumo ++ Riichi ++ Ankan ++ Kakan ++ Kyuushu
-        :-
-    Hand = R ^ hand,
-    All = [D | Hand],
+:- pred on_draw(legal_request::in, tile::in, list(tile)::in, string::out)
+    is nondet.
+on_draw(R, D, All, discarding(T)) :-
+    ( if R ^ in_riichi = yes then T = D else list.member(T, All) ).
+on_draw(R, D, _, "tsumo") :-
+    wins(R, D, tsumo).
+on_draw(R, _, All, A) :-
+    R ^ in_riichi = no,
+    all_closed(R ^ melds),
+    R ^ wall >= 4,
+    MeldBag = kind_bag(meld_tiles(R ^ melds)),
+    list.member(T, list.sort_and_remove_dups(All)),
+    list.delete_first(All, T, Rest),
+    RestBag = kind_bag(Rest),
+    live_tenpai(RestBag, bag.union(RestBag, MeldBag), num_melds(R)),
+    A = "riichi:" ++ tile_to_string(T).
+on_draw(R, D, All, A) :-
+    kan_allowed(R),
     AllBag = kind_bag(All),
-    InRiichi = R ^ in_riichi,
-    ( if InRiichi = yes then
-        Discards = [discard_action(D)]
-    else
-        Discards = list.map(discard_action, distinct(All))
-    ),
-    Tsumo = ( if wins(R, D, tsumo) then ["tsumo"] else [] ),
-    ( if InRiichi = no, closed_hand(R), R ^ wall >= 4 then
-        Riichi = list.filter_map(
-            (func(T) = "riichi:" ++ tile_to_string(T) is semidet :-
-                list.delete_first(All, T, Rest),
-                RestBag = kind_bag(Rest),
-                Waits = waits(RestBag,
-                    bag.union(RestBag, meld_bag(R)), num_melds(R)),
-                Waits ^ w_shanten = 0,
-                Waits ^ w_count > 0),
-            distinct(All))
-    else
-        Riichi = []
-    ),
-    Quads = list.filter((pred(K::in) is semidet :-
-        bag.count_value(AllBag, K) = 4), bag.to_list_without_duplicates(AllBag)),
-    ( if kan_allowed(R) then
-        Ankan = list.filter_map(
-            (func(K) = "ankan:" ++ kind_to_string(K) is semidet :-
-                InRiichi = yes =>
-                    riichi_kan_keeps_waits(R, AllBag, kind_of(D), K)),
-            Quads),
-        ( if InRiichi = no then
-            Kakan = list.filter_map(
-                (func(T) = "kakan:" ++ tile_to_string(T) is semidet :-
-                    has_pon_of(R ^ melds, kind_of(T))),
-                distinct(All))
-        else
-            Kakan = []
-        )
-    else
-        Ankan = [],
-        Kakan = []
-    ),
-    ( if
-        R ^ first = yes,
-        list.length(list.filter(is_yaochu,
-            bag.to_list_without_duplicates(AllBag))) >= 9
-    then
-        Kyuushu = ["kyuushu"]
-    else
-        Kyuushu = []
-    ).
-
-:- pred has_pon_of(list(meld)::in, kind::in) is semidet.
-has_pon_of(Melds, K) :-
-    list.member(meld(pon, [T | _]), Melds),
-    kind_of(T) = K.
-
-:- func meld_bag(legal_request) = bag(kind).
-meld_bag(R) = bag.from_list(list.condense(list.map(meld_kinds, R ^ melds))).
+    list.member(K, bag.to_list_without_duplicates(AllBag)),
+    bag.count_value(AllBag, K) = 4,
+    ( R ^ in_riichi = yes => riichi_kan_keeps_waits(R, AllBag, kind_of(D), K) ),
+    A = "ankan:" ++ kind_to_string(K).
+on_draw(R, _, All, A) :-
+    R ^ in_riichi = no,
+    kan_allowed(R),
+    list.member(T, All),
+    list.member(meld(pon, [P | _]), R ^ melds),
+    kind_of(P) = kind_of(T),
+    A = "kakan:" ++ tile_to_string(T).
+on_draw(R, _, All, "kyuushu") :-
+    R ^ first = yes,
+    list.length(list.filter(is_yaochu,
+        list.sort_and_remove_dups(kinds_of(All)))) >= 9.
 
     % In riichi: the kan must use the drawn tile, and the wait kinds after
     % the kan must equal those before the draw.
@@ -165,90 +139,56 @@ meld_bag(R) = bag.from_list(list.condense(list.map(meld_kinds, R ^ melds))).
 riichi_kan_keeps_waits(R, AllBag, Drawn, K) :-
     K = Drawn,
     N = num_melds(R),
-    Before = wait_kinds(kind_bag(R ^ hand), N),
     bag.remove_all(K, AllBag, After),
-    Before = wait_kinds(After, N + 1).
+    wait_kinds(kind_bag(R ^ hand), N) = wait_kinds(After, N + 1).
 
 %---------------------------------------------------------------------------%
 % Another seat's discard, or a kan being robbed
 
-:- func discard_actions(legal_request, tile, from) = list(string).
-discard_actions(R, T, From) = Actions :-
-    Flags = R ^ sit ^ flags,
-    Hand = R ^ hand,
-    TK = kind_of(T),
-    ( if list.member(ankan_rob, Flags) then
-        ( if
-            R ^ furiten = no,
-            is_kokushi(kind_bag([T | Hand]), _)
-        then
-            Actions = ["ron"]
-        else
-            Actions = []
-        )
+:- pred on_discard(legal_request::in, tile::in, from::in, string::out)
+    is multi.
+on_discard(_, _, _, "pass").
+on_discard(R, T, _, "ron") :-
+    R ^ furiten = no,
+    ( if has_flag(R, ankan_rob) then
+        is_kokushi(kind_bag([T | R ^ hand]), _)
     else
-        Ron = ( if R ^ furiten = no, wins(R, T, ron) then ["ron"] else [] ),
-        ( if
-            not list.member(chankan, Flags),
-            R ^ in_riichi = no,
-            R ^ wall >= 1
-        then
-            ( if From = kamicha then
-                Chi = chi_actions(Hand, TK)
-            else
-                Chi = []
-            ),
-            Same = list.filter((pred(X::in) is semidet :- kind_of(X) = TK),
-                Hand),
-            Pon = list.filter_map(
-                (func(Two) = "pon:" ++ tiles_to_string(Two) is semidet :-
-                    Two = [A, B],
-                    list.delete_first(Hand, A, H1),
-                    list.delete_first(H1, B, H2),
-                    allowed_discards(H2, [TK]) \= []),
-                two_of(Same)),
-            ( if list.length(Same) = 3, R ^ kans < 4 then
-                Kan = ["kan:" ++ kind_to_string(TK)]
-            else
-                Kan = []
-            ),
-            Actions = Ron ++ Chi ++ Pon ++ Kan
-        else
-            Actions = Ron
-        )
+        wins(R, T, ron)
     ).
+on_discard(R, T, From, A) :-
+    not has_flag(R, ankan_rob),
+    not has_flag(R, chankan),
+    R ^ in_riichi = no,
+    R ^ wall >= 1,
+    call_on(R ^ hand, kind_of(T), From, R, A).
 
-    % The distinct two-tile choices from a list, each sorted.
-:- func two_of(list(tile)) = list(list(tile)).
-two_of(Ts) = set.to_sorted_list(set.from_list(solutions_two(Ts))).
+    % Calls on a discard of kind TK.  Each leaves the hand at least one
+    % discard that is not kuikae.
+:- pred call_on(list(tile)::in, kind::in, from::in, legal_request::in,
+    string::out) is nondet.
+call_on(Hand, TK, kamicha, _, A) :-
+    list.member({DA, DB}, [{-2, -1}, {-1, 1}, {1, 2}]),
+    offset(TK, DA, KA),
+    offset(TK, DB, KB),
+    take(KA, Hand, TA, H1),
+    take(KB, H1, TB, H2),
+    leaves_discard(H2, kuikae(chi, TK, [KA, KB])),
+    A = "chi:" ++ tiles_to_string([TA, TB]).
+call_on(Hand, TK, _, _, A) :-
+    take(TK, Hand, TA, H1),
+    take(TK, H1, TB, H2),
+    leaves_discard(H2, kuikae(pon, TK, [TK, TK])),
+    A = "pon:" ++ tiles_to_string([TA, TB]).
+call_on(Hand, TK, _, R, "kan:" ++ kind_to_string(TK)) :-
+    kan_allowed(R),
+    list.length(list.filter((pred(T::in) is semidet :- kind_of(T) = TK),
+        Hand)) = 3.
 
-:- func solutions_two(list(tile)) = list(list(tile)).
-solutions_two([]) = [].
-solutions_two([T | Ts]) =
-    list.map((func(U) = list.sort([T, U])), Ts) ++ solutions_two(Ts).
-
-:- func chi_actions(list(tile), kind) = list(string).
-chi_actions(Hand, TK) = list.condense(list.map(
-    (func({A, B}) = Strs :-
-        ( if offset(TK, A, KA), offset(TK, B, KB) then
-            TAs = distinct(list.filter(is_kind(KA), Hand)),
-            TBs = distinct(list.filter(is_kind(KB), Hand)),
-            Strs = list.filter_map(
-                (func({TA, TB}) = "chi:" ++ tiles_to_string([TA, TB])
-                        is semidet :-
-                    list.delete_first(Hand, TA, H1),
-                    list.delete_first(H1, TB, H2),
-                    allowed_discards(H2, kuikae(chi, TK, [KA, KB])) \= []),
-                list.condense(list.map(
-                    (func(TA) = list.map((func(TB) = {TA, TB}), TBs)),
-                    TAs)))
-        else
-            Strs = []
-        )),
-    [{-2, -1}, {-1, 1}, {1, 2}])).
-
-:- pred is_kind(kind::in, tile::in) is semidet.
-is_kind(K, T) :- kind_of(T) = K.
+    % take(K, Hand, T, Rest): T is a tile of kind K from Hand.
+:- pred take(kind::in, list(tile)::in, tile::out, list(tile)::out) is nondet.
+take(K, Hand, T, Rest) :-
+    list.delete(Hand, T, Rest),
+    kind_of(T) = K.
 
 %---------------------------------------------------------------------------%
 % Kuikae
@@ -272,10 +212,14 @@ kuikae(MK, Took, Used) = [Took | Suji] :-
         Suji = []
     ).
 
-:- func allowed_discards(list(tile), list(kind)) = list(tile).
-allowed_discards(Hand, Forbidden) = distinct(list.filter(
-    (pred(T::in) is semidet :- not list.member(kind_of(T), Forbidden)),
-    Hand)).
+:- pred allowed_discard(list(tile)::in, list(kind)::in, tile::out) is nondet.
+allowed_discard(Hand, Forbidden, T) :-
+    list.member(T, Hand),
+    not list.member(kind_of(T), Forbidden).
+
+:- pred leaves_discard(list(tile)::in, list(kind)::in) is semidet.
+leaves_discard(Hand, Forbidden) :-
+    allowed_discard(Hand, Forbidden, _).
 
 %---------------------------------------------------------------------------%
 :- end_module legal.

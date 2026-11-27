@@ -1,8 +1,9 @@
 """Tiles, tile lists and melds in mpsz notation (spec/formats.md, "Tiles" and "Melds")."""
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
-from collections.abc import Iterable
+from itertools import groupby
 from typing import NamedTuple
 
 # A tile *kind* is an int 0..33: 9*suit + digit-1 for m/p/s, 27..33 for 1z..7z.
@@ -24,6 +25,11 @@ def suit(k: Kind) -> int:
 def digit(k: Kind) -> int:
     """1..9 for suited kinds, 1..7 for honors."""
     return k % 9 + 1
+
+
+def suit_counts(counts: Counts, s: int) -> Counts:
+    """The nine (or seven, for honors) counts of suit `s`."""
+    return counts[9 * s : 9 * s + 9]
 
 
 def is_honor(k: Kind) -> bool:
@@ -56,12 +62,14 @@ class Tile(NamedTuple):
 
 
 def dora_of(indicator: Kind) -> Kind:
-    """The dora indicated: next kind, wrapping 9->1, N->E, red->white."""
-    if indicator < 27:
-        return indicator - 8 if indicator % 9 == 8 else indicator + 1
-    if indicator <= NORTH:
-        return EAST if indicator == NORTH else indicator + 1
-    return HAKU if indicator == CHUN else indicator + 1
+    """The dora indicated: the next kind in its cycle (1-9 per suit, ESWN, white-green-red)."""
+    if indicator < EAST:
+        first, size = indicator - indicator % 9, 9
+    elif indicator <= NORTH:
+        first, size = EAST, 4
+    else:
+        first, size = HAKU, 3
+    return first + (indicator - first + 1) % size
 
 
 def parse_tiles(text: str) -> list[Tile]:
@@ -97,20 +105,12 @@ def _sort_key(t: Tile) -> tuple[int, bool]:
     return (t.kind, not t.red)
 
 
-def format_tiles(tiles: Iterable[Tile], *, plain: bool = False) -> str:
-    """Canonical tile list; `plain` writes reds as 5 (as in agari forms)."""
-    out: list[str] = []
-    last_suit = -1
-    for t in sorted(tiles, key=_sort_key):
-        s = suit(t.kind)
-        if out and s != last_suit:
-            out.append(SUITS[last_suit])
-        last_suit = s
-        out.append("0" if t.red and not plain else str(digit(t.kind)))
-    if not out:
-        return "-"
-    out.append(SUITS[last_suit])
-    return "".join(out)
+def format_tiles(tiles: Iterable[Tile]) -> str:
+    """Canonical tile list: sorted, one suit letter per run, reds as 0 just before 5."""
+    by_suit = groupby(sorted(tiles, key=_sort_key), key=lambda t: suit(t.kind))
+    text = "".join("".join("0" if t.red else str(digit(t.kind)) for t in run) + SUITS[s]
+                   for s, run in by_suit)
+    return text or "-"
 
 
 def format_kinds(kinds: Iterable[Kind]) -> str:
@@ -122,6 +122,11 @@ def counts_of(tiles: Iterable[Tile]) -> Counts:
     for t in tiles:
         c[t.kind] += 1
     return c
+
+
+def kinds_in(counts: Counts) -> list[Kind]:
+    """The distinct kinds present, in order."""
+    return [k for k in range(NUM_KINDS) if counts[k]]
 
 
 class MeldType(Enum):
@@ -147,28 +152,38 @@ class Meld:
 
     @property
     def is_kan(self) -> bool:
-        return self.type in (MeldType.DAIMINKAN, MeldType.SHOUMINKAN, MeldType.ANKAN)
+        return self.type not in (MeldType.CHI, MeldType.PON)
 
     def __str__(self) -> str:
         return self.type.value + format_tiles(self.tiles)
 
 
-_MELD_SIZE = {MeldType.CHI: 3, MeldType.PON: 3}
+def starts_sequence(k: Kind) -> bool:
+    """`k`, `k+1`, `k+2` is a sequence: numbered, digit 1..7."""
+    return not is_honor(k) and digit(k) <= 7
 
 
 def parse_meld(text: str) -> Meld:
-    mtype = MeldType(text[0])
-    tiles = tuple(parse_tiles(text[1:]))
-    kinds = sorted(t.kind for t in tiles)
-    if len(tiles) != _MELD_SIZE.get(mtype, 4):
+    m = Meld(MeldType(text[0]), tuple(parse_tiles(text[1:])))
+    kinds = sorted(t.kind for t in m.tiles)
+    if len(kinds) != (4 if m.is_kan else 3):
         raise ValueError(f"bad meld size: {text}")
-    if mtype is MeldType.CHI:
-        if is_honor(kinds[0]) or kinds != [kinds[0], kinds[0] + 1, kinds[0] + 2] or digit(kinds[0]) > 7:
+    if m.type is MeldType.CHI:
+        if not starts_sequence(kinds[0]) or kinds != [kinds[0], kinds[0] + 1, kinds[0] + 2]:
             raise ValueError(f"bad chi: {text}")
     elif len(set(kinds)) != 1:
         raise ValueError(f"bad meld: {text}")
-    return Meld(mtype, tiles)
+    return m
 
 
 def parse_melds(text: str) -> list[Meld]:
     return [] if text == "-" else [parse_meld(m) for m in text.split(",")]
+
+
+def meld_tiles(melds: Iterable[Meld]) -> list[Tile]:
+    return [t for m in melds for t in m.tiles]
+
+
+def is_closed(melds: Iterable[Meld]) -> bool:
+    """No open meld (an ankan keeps the hand closed)."""
+    return not any(m.is_open for m in melds)

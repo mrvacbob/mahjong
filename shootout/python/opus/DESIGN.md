@@ -76,17 +76,22 @@ distinct tile as the winning tile. Each `Win` is evaluated to a `Result` (yaku
 list, han, fu, payments, total); fu follows the §3.1 table line by line in
 `fu()`. The best result is `max` over a key implementing the tie-break:
 `(total, real yakuman, han, fu)` then the smallest yaku string. No yaku in any
-interpretation is `no_yaku`; no interpretation at all is `not_agari`.
+interpretation is `no_yaku`; no interpretation at all is `not_agari`. (Since
+finalization these come back as a `NoWin` `StrEnum` value, `best() -> Result | NoWin`,
+not as an exception.)
 
 ## legal
 
-`legal.py` composes the other modules: `tsumo`/`ron` = `scoring.best()` succeeds
-with the situational flags (plus `riichi` if `riichi=1`); `riichi:` = for each
-distinct discard, `hand.shanten(...) == 0` and `hand.waits(...).count > 0`;
-riichi-`ankan` compares `hand.structural_waits()` before and after; kuikae is a
-small function of the called meld and the taken tile, used both for the `called`
-case and for discarding dead-end chi. Calls are enumerated over physical tiles so
-red/plain variants come out as separate actions.
+`legal.py` composes the other modules: `tsumo`/`ron` = `scoring.best()` returns a
+`Result` with the situational flags (plus `riichi` if `riichi=1`); `riichi:` = for
+each distinct discard, some kind in `hand.winning_kinds()` (kinds whose addition
+completes the hand, a fifth copy included) still has a copy outside the hand and
+melds, scanned only when the 14-tile hand is at shanten <= 0; riichi-`ankan`
+compares `hand.winning_kinds()` before the draw and after the kan; kuikae is a
+function of the called `Meld` and the taken kind, and `after_call` (the `called`
+case) is also how a dead-end chi or pon is detected: a call is offered only if
+`after_call` on the remaining hand is non-empty. Calls are enumerated over physical
+tiles so red/plain variants come out as separate actions.
 
 ## What moved
 
@@ -95,3 +100,10 @@ sits next to the predicates) rather than in `scoring.py`, which avoids an import
 cycle. `Win` is the one dataclass without `slots=True`, because its derived views
 (`seqs`, `pons`, `pair`, ...) are `functools.cached_property`, which needs an
 instance `__dict__`. The dead-end-call test is applied to `pon` as well as `chi`.
+
+Finalization (see NOTES.md): riichi tenpai and riichi-ankan both test completion
+directly through `winning_kinds` instead of going through `waits`/shanten; the
+`not_agari`/`no_yaku` outcomes are a `NoWin` enum instead of an exception; the
+"chiitoi/kokushi only without melds" rule is carried by their 14-tile count alone;
+flag-only yaku and the three dragon yakuhai are registered from small tables rather
+than one function each.

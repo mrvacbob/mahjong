@@ -1,12 +1,13 @@
 """Line protocol of spec/formats.md: `<id> <op> key=value ...` -> `<id> key=value ...`."""
 
 import sys
+import traceback
 from collections.abc import Callable
 
 import hand as H
 import legal as L
 import scoring
-from tiles import WIND_LETTERS, counts_of, format_kinds, parse_melds, parse_tile, parse_tiles
+from tiles import WIND_LETTERS, counts_of, format_kinds, meld_tiles, parse_melds, parse_tile, parse_tiles
 
 type Args = dict[str, str]
 
@@ -24,41 +25,37 @@ def _context(a: Args) -> scoring.Context:
 
 
 def op_agari(a: Args) -> str:
+    """The concealed tiles' forms; melds only shorten the hand, so they need not be read."""
     counts = counts_of(parse_tiles(a["hand"]))
-    n_melds = len(parse_melds(a.get("melds", "-")))
     forms = [",".join(str(g) for g in f) for f in H.standard_forms(counts)]
-    if not n_melds:
-        if H.is_chiitoi(counts):
-            forms.append("chiitoi")
-        if H.is_kokushi(counts):
-            forms.append("kokushi")
+    forms += [name for name, test in (("chiitoi", H.is_chiitoi), ("kokushi", H.is_kokushi)) if test(counts)]
     if not forms:
         return "win=0"
-    return "win=1 forms=" + ";".join(sorted(set(forms)))
+    return "win=1 forms=" + ";".join(sorted(forms))
 
 
 def op_shanten(a: Args) -> str:
     counts = counts_of(parse_tiles(a["hand"]))
     s = H.shanten(counts, len(parse_melds(a.get("melds", "-"))))
-    show = lambda n: "x" if n is None else str(n)  # noqa: E731
-    return f"std={s.std} chiitoi={show(s.chiitoi)} kokushi={show(s.kokushi)} min={s.min}"
+    return f"std={s.std} chiitoi={_or_x(s.chiitoi)} kokushi={_or_x(s.kokushi)} min={s.min}"
+
+
+def _or_x(n: int | None) -> str:
+    return "x" if n is None else str(n)
 
 
 def op_waits(a: Args) -> str:
     tiles = parse_tiles(a["hand"])
     melds = parse_melds(a.get("melds", "-"))
-    visible = counts_of(tiles + [t for m in melds for t in m.tiles])
+    visible = counts_of(tiles + meld_tiles(melds))
     w = H.waits(counts_of(tiles), len(melds), visible)
     return f"shanten={w.shanten} tiles={format_kinds(w.kinds)} count={w.count}"
 
 
 def op_score(a: Args) -> str:
-    try:
-        r = scoring.best(parse_tiles(a["hand"]), parse_melds(a.get("melds", "-")),
-                         parse_tile(a["win"]), a["by"] == "tsumo", _context(a))
-    except scoring.ScoreError as e:
-        return f"error={e}"
-    return str(r)
+    r = scoring.best(parse_tiles(a["hand"]), parse_melds(a.get("melds", "-")),
+                     parse_tile(a["win"]), a["by"] == "tsumo", _context(a))
+    return f"error={r}" if isinstance(r, scoring.NoWin) else str(r)
 
 
 def op_legal(a: Args) -> str:
@@ -101,17 +98,17 @@ def answer(line: str) -> str:
         op = OPS[toks[1]]
         args = dict(t.split("=", 1) for t in toks[2:])
         return f"{rid} {op(args)}"
-    except Exception as e:  # a request we can't handle must not crash the run
+    except (KeyError, ValueError, IndexError) as e:  # malformed request: unknown op, key or tile
         return f"{rid} error={type(e).__name__}"
+    except Exception:  # a bug: answer, report it on stderr, keep serving
+        traceback.print_exc()
+        return f"{rid} error=internal"
 
 
 def main() -> None:
-    out = sys.stdout
     for line in sys.stdin:
-        resp = answer(line)
-        if resp:
-            out.write(resp + "\n")
-            out.flush()
+        if resp := answer(line):
+            print(resp, flush=True)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 // Tiles, kinds, melds and the mpsz notation.
 
-enum Suit: Int, CaseIterable, Comparable {
+enum Suit: Int, CaseIterable {
     case man, pin, sou, honor
 
     var letter: Character { ["m", "p", "s", "z"][rawValue] }
@@ -14,8 +14,6 @@ enum Suit: Int, CaseIterable, Comparable {
         default: return nil
         }
     }
-
-    static func < (a: Suit, b: Suit) -> Bool { a.rawValue < b.rawValue }
 }
 
 /// A tile kind, ignoring red. Index 0..<34: m 0-8, p 9-17, s 18-26, z 27-33.
@@ -50,6 +48,8 @@ struct Kind: Hashable, Comparable, CustomStringConvertible {
         guard !isHonor, (1...9).contains(number + offset) else { return nil }
         return Kind(index + offset)
     }
+    /// The run that starts at this kind (which must be 1-7 of a suit).
+    var run: [Kind] { [self, shifted(1)!, shifted(2)!] }
 
     /// The dora this kind indicates.
     var doraSuccessor: Kind {
@@ -140,6 +140,16 @@ func format(_ tiles: [Tile]) -> String {
 
 func format(kinds: [Kind]) -> String { format(kinds.map { Tile($0) }) }
 
+extension [Tile] {
+    /// This list without one copy of `t` (exact tile).
+    func removingOne(_ t: Tile) -> [Tile] {
+        var out = self
+        if let i = out.firstIndex(of: t) { out.remove(at: i) }
+        return out
+    }
+    var distinct: [Tile] { Array(Set(self)) }
+}
+
 /// A histogram of kinds, the working representation for shape searches.
 struct Counts: Hashable {
     var n: [Int]
@@ -171,8 +181,6 @@ struct Meld {
     let tiles: [Tile]
 
     var isOpen: Bool { kind != .ankan }
-    var isKan: Bool { tiles.count == 4 }
-    var isChi: Bool { kind == .chi }
     /// The lowest kind (first tile of a run, the kind of a triplet or kan).
     var base: Kind { tiles.map(\.kind).min()! }
 
@@ -182,8 +190,7 @@ struct Meld {
         let kinds = tiles.map(\.kind).sorted()
         switch k {
         case .chi:
-            guard tiles.count == 3, kinds[0].shifted(1) == kinds[1], kinds[0].shifted(2) == kinds[2]
-            else { return nil }
+            guard tiles.count == 3, kinds[0].shifted(2) != nil, kinds == kinds[0].run else { return nil }
         case .pon:
             guard tiles.count == 3, Set(kinds).count == 1 else { return nil }
         case .daiminkan, .shouminkan, .ankan:
@@ -202,4 +209,10 @@ func parseMelds(_ text: Substring) -> [Meld]? {
         out.append(m)
     }
     return out
+}
+
+extension [Meld] {
+    /// No open melds (an ankan keeps the hand closed).
+    var isClosed: Bool { allSatisfy { !$0.isOpen } }
+    var tiles: [Tile] { flatMap(\.tiles) }
 }

@@ -10,9 +10,8 @@ struct ScoreRequest {
     var honba = 0
 }
 
-enum ScoreError: Error {
-    case notAgari, noYaku
-    var text: String { self == .notAgari ? "not_agari" : "no_yaku" }
+enum ScoreError: String, Error {
+    case notAgari = "not_agari", noYaku = "no_yaku"
 }
 
 enum Payment {
@@ -41,6 +40,12 @@ struct Scored {
     let yaku: [(name: String, value: Int)]
     let value: Value
     let payment: Payment
+
+    init(yaku: [(name: String, value: Int)], value: Value, payment: Payment) {
+        self.yaku = yaku.sorted { $0.name < $1.name }
+        self.value = value
+        self.payment = payment
+    }
 
     var yakuText: String { yaku.map { "\($0.name):\($0.value)" }.joined(separator: ",") }
 
@@ -75,7 +80,7 @@ func fu(_ r: Reading) -> Int {
     var fu = 20
     if r.menzen && !r.context.tsumo { fu += 10 }
     if r.context.tsumo { fu += 2 }
-    for s in sets where s.shape != .run {
+    for s in sets where s.isTriplet {
         var f = s.shape == .kan ? 8 : 2
         if s.concealed { f *= 2 }
         if s.base.isYaochu { f *= 2 }
@@ -115,33 +120,27 @@ func payment(basic: Int, context: WinContext, honba: Int) -> Payment {
 // MARK: scoring a hand
 
 func doraCount(_ tiles: [Tile], indicators: [Tile]) -> Int {
-    let dora = indicators.map(\.kind.doraSuccessor)
-    return tiles.reduce(0) { n, t in n + dora.filter { $0 == t.kind }.count }
+    let held = Counts(tiles)
+    return indicators.reduce(0) { $0 + held[$1.kind.doraSuccessor] }
 }
 
+/// The best of several scorings, by the spec's preference.
+private func best(_ all: [Scored]) -> Scored? { all.max { $1.isBetter(than: $0) } }
+
 func score(_ req: ScoreRequest) throws(ScoreError) -> Scored {
-    if req.context.flags.contains(.tenhou) {
-        // Any of the dealer's 14 tiles may be the winning tile: score the best.
-        let all = req.hand + [req.win]
-        var best: Scored?
-        var lastError = ScoreError.notAgari
-        for t in Set(all) {
-            var alt = req
-            alt.win = t
-            var rest = all
-            rest.remove(at: rest.firstIndex(of: t)!)
-            alt.hand = rest
-            do {
-                let s = try scoreWithWinningTile(alt)
-                if best.map({ s.isBetter(than: $0) }) ?? true { best = s }
-            } catch {
-                lastError = error
-            }
-        }
-        if let best { return best }
-        throw lastError
+    guard req.context.flags.contains(.tenhou) else { return try scoreWithWinningTile(req) }
+    // Any of the dealer's 14 tiles may be the winning tile: score the best.
+    let all = req.hand + [req.win]
+    var scored: [Scored] = []
+    var lastError = ScoreError.notAgari
+    for t in Set(all) {
+        var alt = req
+        alt.win = t
+        alt.hand = all.removingOne(t)
+        do { scored.append(try scoreWithWinningTile(alt)) } catch { lastError = error }
     }
-    return try scoreWithWinningTile(req)
+    guard let top = best(scored) else { throw lastError }
+    return top
 }
 
 private func scoreWithWinningTile(_ req: ScoreRequest) throws(ScoreError) -> Scored {
@@ -150,37 +149,28 @@ private func scoreWithWinningTile(_ req: ScoreRequest) throws(ScoreError) -> Sco
                        context: req.context)
     if all.isEmpty { throw .notAgari }
 
-    let tiles = req.hand + [req.win] + req.melds.flatMap(\.tiles)
+    let tiles = req.hand + [req.win] + req.melds.tiles
     let flags = req.context.flags
     let dora = doraCount(tiles, indicators: req.dora)
-    let aka = tiles.filter(\.isRed).count
+    let aka = tiles.count(where: \.isRed)
     let ura = flags.contains(.riichi) || flags.contains(.double_riichi)
         ? doraCount(tiles, indicators: req.ura) : 0
+    func pay(_ basic: Int) -> Payment { payment(basic: basic, context: req.context, honba: req.honba) }
 
-    var best: Scored?
-    for r in all {
-        let s: Scored
+    let scored = all.compactMap { r -> Scored? in
         let yakuman = yakumanOf(r)
         if !yakuman.isEmpty {
-            let n = yakuman.map(\.1).reduce(0, +)
-            s = Scored(yaku: yakuman.map { ($0.0.rawValue, $0.1) }.sorted { $0.name < $1.name },
-                       value: .yakuman(n),
-                       payment: payment(basic: 8000 * n, context: req.context, honba: req.honba))
-        } else {
-            let yaku = ordinaryYaku(r)
-            if yaku.isEmpty { continue }
-            var listed = yaku.map { ($0.0.rawValue, $0.1) }
-            for (name, n) in [("dora", dora), ("aka", aka), ("ura", ura)] where n > 0 {
-                listed.append((name, n))
-            }
-            let han = listed.map(\.1).reduce(0, +)
-            let f = fu(r)
-            s = Scored(yaku: listed.sorted { $0.0 < $1.0 }, value: .ordinary(han: han, fu: f),
-                       payment: payment(basic: basicPoints(han: han, fu: f),
-                                        context: req.context, honba: req.honba))
+            let n = yakuman.map(\.value).reduce(0, +)
+            return Scored(yaku: yakuman, value: .yakuman(n), payment: pay(8000 * n))
         }
-        if best.map({ s.isBetter(than: $0) }) ?? true { best = s }
+        let yaku = ordinaryYaku(r)
+        if yaku.isEmpty { return nil }
+        let listed = yaku + [("dora", dora), ("aka", aka), ("ura", ura)].filter { $0.1 > 0 }
+        let han = listed.map(\.value).reduce(0, +)
+        let f = fu(r)
+        return Scored(yaku: listed, value: .ordinary(han: han, fu: f),
+                      payment: pay(basicPoints(han: han, fu: f)))
     }
-    guard let best else { throw .noYaku }
-    return best
+    guard let top = best(scored) else { throw .noYaku }
+    return top
 }

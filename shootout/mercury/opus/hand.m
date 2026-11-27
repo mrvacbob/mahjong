@@ -29,17 +29,23 @@
     % The nine counts of a number suit.
 :- func suit_counts(bag(kind), suit) = list(int).
 
+    % complete(Concealed, NumMelds): the tiles are a whole hand (14 - 3k of
+    % them) in standard form, or, with no melds, chiitoi or kokushi.
+:- pred complete(bag(kind)::in, int::in) is semidet.
+
     % The printed forms of a complete hand of concealed tiles, given the
     % number of melds, sorted, without duplicates.  [] if not complete.
 :- func agari_forms(bag(kind), int) = list(string).
 
+    % Chiitoi and kokushi exist only for a hand with no melds.
 :- type shanten
-    --->    shanten(std :: int, chiitoi :: int, kokushi :: int).
+    --->    with_melds(int)
+    ;       no_melds(int, int, int).    % std, chiitoi, kokushi
 
-    % shanten(Concealed, NumMelds).  chiitoi and kokushi are only
-    % meaningful when NumMelds = 0.
+    % shanten(Concealed, NumMelds).
 :- func shanten(bag(kind), int) = shanten.
-:- func min_shanten(bag(kind), int) = int.
+:- func std(shanten) = int.
+:- func min_of(shanten) = int.
 
 :- type waits
     --->    waits(w_shanten :: int, w_tiles :: list(kind), w_count :: int).
@@ -47,6 +53,12 @@
     % waits(Concealed, Visible, NumMelds): Visible is every tile of this
     % seat (hand and melds), for counting copies left.
 :- func waits(bag(kind), bag(kind), int) = waits.
+
+    % completes(Concealed, NumMelds, K): drawing K makes the hand complete.
+:- pred completes(bag(kind)::in, int::in, kind::in) is semidet.
+
+    % Tenpai on at least one kind with a copy this seat cannot see.
+:- pred live_tenpai(bag(kind)::in, bag(kind)::in, int::in) is semidet.
 
     % The kinds that would complete the hand, ignoring availability.
 :- func wait_kinds(bag(kind), int) = set(kind).
@@ -69,24 +81,20 @@ sets(B, []) :-
 sets(B0, [G | Gs]) :-
     bag.remove_smallest(K, B0, B1),
     (
-        bag.remove(K, B1, B2a),
-        bag.remove(K, B2a, B2),
+        bag.remove_list([K, K], B1, B2),
         G = triplet(K)
     ;
         offset(K, 1, K1),
         offset(K, 2, K2),
-        bag.remove(K1, B1, B2a),
-        bag.remove(K2, B2a, B2),
+        bag.remove_list([K1, K2], B1, B2),
         G = run(K)
     ),
     sets(B2, Gs).
 
 standard_form(B0, P, Sets) :-
-    bag.to_list_without_duplicates(B0, Kinds),
-    list.member(P, Kinds),
-    bag.remove(P, B0, B1),
-    bag.remove(P, B1, B2),
-    sets(B2, Sets).
+    list.member(P, bag.to_list_only_duplicates(B0)),
+    bag.remove_list([P, P], B0, B1),
+    sets(B1, Sets).
 
 is_chiitoi(B) :-
     bag.count(B) = 14,
@@ -103,42 +111,44 @@ is_kokushi(B, Pair) :-
         Pair - _).
 
 group_kinds(triplet(K)) = [K, K, K].
-group_kinds(run(K)) = [K, K1, K2] :-
-    ( if offset(K, 1, K1P), offset(K, 2, K2P) then
-        K1 = K1P, K2 = K2P
-    else
-        K1 = K, K2 = K      % cannot happen: runs are built by offset
+group_kinds(run(kind(S, N))) = [kind(S, N), kind(S, N + 1), kind(S, N + 2)].
+
+complete(B, NumMelds) :-
+    agari_form(B, NumMelds, _).
+
+agari_forms(B, NumMelds) = solutions(agari_form(B, NumMelds)).
+
+:- pred agari_form(bag(kind)::in, int::in, string::out) is nondet.
+agari_form(B, NumMelds, Form) :-
+    bag.count(B) = 14 - 3 * NumMelds,
+    (
+        standard_form(B, P, Sets),
+        Form = form_string(P, Sets)
+    ;
+        NumMelds = 0, is_chiitoi(B), Form = "chiitoi"
+    ;
+        NumMelds = 0, is_kokushi(B, _), Form = "kokushi"
     ).
 
-agari_forms(B, NumMelds) = Forms :-
-    Standard = solutions(
-        (pred(S::out) is nondet :-
-            standard_form(B, P, Sets),
-            S = form_string(P, Sets))),
-    ( if NumMelds = 0, is_chiitoi(B) then
-        Chiitoi = ["chiitoi"]
-    else
-        Chiitoi = []
-    ),
-    ( if NumMelds = 0, is_kokushi(B, _) then
-        Kokushi = ["kokushi"]
-    else
-        Kokushi = []
-    ),
-    Forms = list.sort_and_remove_dups(Standard ++ Chiitoi ++ Kokushi).
+    % Groups print sorted by first kind, then pair < run < triplet: the
+    % constructor order of `piece'.
+:- type piece
+    --->    pair(kind)
+    ;       group(group).
 
-    % Groups print sorted by first kind, then pair < run < triplet.
 :- func form_string(kind, list(group)) = string.
 form_string(Pair, Sets) = string.join_list(",",
-    list.map((func({_, _, Str}) = Str),
-        list.sort([{Pair, 0, kinds_to_string([Pair, Pair])} |
-            list.map(print_key, Sets)]))).
+    list.map(piece_string, list.sort(list.map(keyed,
+        [pair(Pair) | list.map((func(G) = group(G)), Sets)])))).
 
-:- func print_key(group) = {kind, int, string}.
-print_key(G) = {K, Rank, kinds_to_string(group_kinds(G))} :-
-    ( G = run(K), Rank = 1
-    ; G = triplet(K), Rank = 2
-    ).
+:- func keyed(piece) = {kind, piece}.
+keyed(P @ pair(K)) = {K, P}.
+keyed(P @ group(run(K))) = {K, P}.
+keyed(P @ group(triplet(K))) = {K, P}.
+
+:- func piece_string({kind, piece}) = string.
+piece_string({K, pair(_)}) = kinds_to_string([K, K]).
+piece_string({_, group(G)}) = kinds_to_string(group_kinds(G)).
 
 %---------------------------------------------------------------------------%
 % Shanten
@@ -205,14 +215,14 @@ suit_counts(B, S) = list.map((func(N) = bag.count_value(B, kind(S, N))),
     1 .. 9).
 
     % Honors form no runs or taatsu, so their readings are a closed form:
-    % every triplet is a set, every pair is a taatsu or the head.
+    % every three copies are a set, two left over are a taatsu or the head.
+    % (Five copies occur when a wait is a fifth copy: 11111z is 111z + 11z.)
 :- func honor_best(list(pair(kind, int))) = list(partial).
 honor_best(KCs) = Options :-
     Honors = list.filter((pred(K - _::in) is semidet :- is_honor(K)), KCs),
-    Sets = list.length(list.filter((pred(_ - C::in) is semidet :- C >= 3),
-        Honors)),
-    Pairs = list.length(list.filter((pred(_ - C::in) is semidet :- C = 2),
-        Honors)),
+    Sets = list.foldl((func(_ - C, A) = A + C // 3), Honors, 0),
+    Pairs = list.length(list.filter(
+        (pred(_ - C::in) is semidet :- C mod 3 = 2), Honors)),
     Options = [partial(Sets, Pairs, 0) |
         ( if Pairs >= 1 then [partial(Sets, Pairs - 1, 1)] else [] )].
 
@@ -229,43 +239,66 @@ best_std([Opts | Blocks], M, T, H) = list.foldl(
         )),
     Opts, 8).
 
-shanten(B, NumMelds) = shanten(Std, Chiitoi, Kokushi) :-
+shanten(B, NumMelds) = Shanten :-
     bag.to_assoc_list(B, KCs),
     Std = best_std([block_best(suit_counts(B, man)),
         block_best(suit_counts(B, pin)), block_best(suit_counts(B, sou)),
         honor_best(KCs)], NumMelds, 0, 0),
-    Pairs = list.length(list.filter((pred(_ - C::in) is semidet :- C >= 2),
-        KCs)),
-    Kinds = list.length(KCs),
-    Chiitoi = 6 - Pairs + int.max(0, 7 - Kinds),
-    Yaochu = list.filter((pred(K - _::in) is semidet :- is_yaochu(K)), KCs),
-    ( if list.member(_ - YC, Yaochu), YC >= 2 then
-        YPair = 1
-    else
-        YPair = 0
-    ),
-    Kokushi = 13 - list.length(Yaochu) - YPair.
-
-min_shanten(B, NumMelds) = Min :-
-    shanten(Std, Chiitoi, Kokushi) = shanten(B, NumMelds),
     ( if NumMelds = 0 then
-        Min = int.min(Std, int.min(Chiitoi, Kokushi))
+        Pairs = list.length(list.filter(
+            (pred(_ - C::in) is semidet :- C >= 2), KCs)),
+        Chiitoi = 6 - Pairs + int.max(0, 7 - list.length(KCs)),
+        Yaochu = list.filter((pred(K - _::in) is semidet :- is_yaochu(K)),
+            KCs),
+        YPair = ( if list.member(_ - YC, Yaochu), YC >= 2 then 1 else 0 ),
+        Kokushi = 13 - list.length(Yaochu) - YPair,
+        Shanten = no_melds(Std, Chiitoi, Kokushi)
     else
-        Min = Std
+        Shanten = with_melds(Std)
     ).
+
+std(with_melds(Std)) = Std.
+std(no_melds(Std, _, _)) = Std.
+
+min_of(with_melds(Std)) = Std.
+min_of(no_melds(Std, Chiitoi, Kokushi)) =
+    int.min(Std, int.min(Chiitoi, Kokushi)).
+
+:- func min_shanten(bag(kind), int) = int.
+min_shanten(B, NumMelds) = min_of(shanten(B, NumMelds)).
 
 waits(B, Visible, NumMelds) = waits(S, Tiles, Count) :-
     S = min_shanten(B, NumMelds),
-    Tiles = list.filter(
-        (pred(K::in) is semidet :-
-            bag.count_value(Visible, K) < 4,
-            min_shanten(bag.insert(B, K), NumMelds) < S),
+    Tiles = list.filter((pred(K::in) is semidet :-
+            copies_left(Visible, K) > 0,
+            lowers_shanten(B, NumMelds, S, K)),
         all_kinds),
-    Count = list.foldl(
-        (func(K, Acc) = Acc + 4 - bag.count_value(Visible, K)), Tiles, 0).
+    Count = list.foldl((func(K, Acc) = Acc + copies_left(Visible, K)),
+        Tiles, 0).
 
-wait_kinds(B, NumMelds) = set.from_list(list.filter(
-    (pred(K::in) is semidet :- min_shanten(bag.insert(B, K), NumMelds) = -1),
+    % Drawing K lowers the shanten S.  From tenpai that means completing
+    % the hand, which is tested directly: the same rule, and much cheaper
+    % than a shanten evaluation.
+:- pred lowers_shanten(bag(kind)::in, int::in, int::in, kind::in) is semidet.
+lowers_shanten(B, NumMelds, S, K) :-
+    ( if S = 0 then
+        completes(B, NumMelds, K)
+    else
+        min_shanten(bag.insert(B, K), NumMelds) < S
+    ).
+
+:- func copies_left(bag(kind), kind) = int.
+copies_left(Visible, K) = 4 - bag.count_value(Visible, K).
+
+completes(B, NumMelds, K) :-
+    complete(bag.insert(B, K), NumMelds).
+
+live_tenpai(B, Visible, NumMelds) :-
+    list.member(K, all_kinds),
+    copies_left(Visible, K) > 0,
+    completes(B, NumMelds, K).
+
+wait_kinds(B, NumMelds) = set.from_list(list.filter(completes(B, NumMelds),
     all_kinds)).
 
 %---------------------------------------------------------------------------%
