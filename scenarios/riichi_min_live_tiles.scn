@@ -1,0 +1,51 @@
+# Riichi requires at least 4 live tiles remaining (engine.md §4.2, rules.md §1).
+# After 65 auto_tsumogiri turns (live[0..64] discarded), Seat 1 draws live[65]:
+# live tiles left = 70 - 66 = 4 -> riichi IS legal for Seat 1 (Seat 1 passes on riichi).
+# Next turn, Seat 2 draws live[66]: live tiles left = 70 - 67 = 3 -> riichi is ILLEGAL for Seat 2!
+# Seat 2 discards 7s -> Seat 1 rons 7s.
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s
+#   Yaku: pinfu (1) + tanyao (1) = 2 han, 30 fu -> 2000 from Seat 2.
+
+[meta]
+name: riichi_min_live_tiles
+title: Riichi is legal with 4 live tiles left and illegal with 3 live tiles left
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 111p 999p 111s 888s 1m
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 123m 456m 789p 23s 99s
+hand 3: 3344m 7744p 3344s 6z
+dora: 1z
+draw_at 65: 3z 7s
+
+[steps]
+auto_tsumogiri 65
+# Seat 1 has drawn live[65]; 4 live tiles remain -> riichi is legal.
+assert_legal 1: riichi
+1 tsumogiri 3z
+# Seat 2 has drawn live[66]; 3 live tiles remain -> riichi is illegal.
+assert_illegal 2: riichi
+2 tsumogiri 7s
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 2000 -2000 0
+scores: 25000 27000 23000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: tsumo(1), dahai(1), tsumo(2), dahai(2), hora(1), end_kyoku

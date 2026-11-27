@@ -1,0 +1,70 @@
+# Game end: leftover sticks awarded to 1st, tie-break by starting seat, and oka/uma
+# adjusted scores — ruleset difference (engine.md §5 step 5, rules.md §1 uma/oka/tie_break_order).
+# South 4, dealer=3, sticks=2 (2000 on table), scores: 35000 24000 24000 15000.
+# Exhaustive draw with 0 tenpai -> dealer Seat 3 does not repeat; Seat 0 >= 30000 -> game ends!
+# Leftover 2 sticks (+2000) go to 1st place (Seat 0) -> final_scores: 37000 24000 24000 15000.
+# Seat 1 and Seat 2 tie at 24000 -> starting seat order (0 > 1 > 2 > 3) gives final_ranks: 0 1 2 3.
+# Adjusted scores (raw integer points = final_score - return + oka + uma*1000):
+# - Mahjong Soul (return=25000, oka=0, uma=[+15, +5, -5, -15]):
+#   * Seat 0 (1st): 37000 - 25000 + 0 + 15000 = +27000
+#   * Seat 1 (2nd): 24000 - 25000 + 0 +  5000 =  +4000
+#   * Seat 2 (3rd): 24000 - 25000 + 0 -  5000 =  -6000
+#   * Seat 3 (4th): 15000 - 25000 + 0 - 15000 = -25000
+# - Tenhou (return=30000, oka=+20000 to 1st, uma=[+20, +10, -10, -20]):
+#   * Seat 0 (1st): 37000 - 30000 + 20000 + 20000 = +47000
+#   * Seat 1 (2nd): 24000 - 30000 +     0 + 10000 =  +4000
+#   * Seat 2 (3rd): 24000 - 30000 +     0 - 10000 = -16000
+#   * Seat 3 (4th): 15000 - 30000 +     0 - 20000 = -35000
+
+[meta]
+name: endgame_oka_uma_tiebreak
+title: Game end awards leftover sticks to 1st, breaks ties by seat, and applies ruleset oka and uma
+rules: both
+source: engine.md §5 step 5, rules.md §1 (uma, oka, tie_break_order, endgame_riichi_sticks)
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 2
+dealer: 3
+scores: 35000 24000 24000 15000
+
+[wall]
+hand 0: 1144m 7799p 1155s 6z
+hand 1: 3388m 1144p 3399s 7z
+hand 2: 5599m 5566p 1122s 4z
+hand 3: 2266m 2288p 4477s 5z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect.mahjongsoul]
+outcome: exhaustive_draw
+tenpai: -
+deltas: 0 0 0 0
+scores: 35000 24000 24000 15000
+sticks: 2
+honba: 1
+dealer_repeats: false
+game_ended: true
+final_scores: 37000 24000 24000 15000
+final_ranks: 0 1 2 3
+adjusted_scores: 27000 4000 -6000 -25000
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku, end_game
+
+[expect.tenhou]
+outcome: exhaustive_draw
+tenpai: -
+deltas: 0 0 0 0
+scores: 35000 24000 24000 15000
+sticks: 2
+honba: 1
+dealer_repeats: false
+game_ended: true
+final_scores: 37000 24000 24000 15000
+final_ranks: 0 1 2 3
+adjusted_scores: 47000 4000 -16000 -35000
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku, end_game

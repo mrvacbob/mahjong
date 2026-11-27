@@ -1,0 +1,46 @@
+# Four riichi (Suucha Riichi): all 4 players declare riichi; the 4th riichi discard
+# passes without ron -> reach_accepted(3) IS emitted (all 4 sticks remain on the table)
+# and the round aborts (engine.md §4.1 rows 3 & 5, §4.2, rules.md §4.24).
+# Deltas: -1000 each; sticks: 4; honba +1; dealer repeats.
+
+[meta]
+name: abort_suucha_riichi
+title: Four riichi accepts the fourth stick and aborts the round
+rules: mahjongsoul
+source: engine.md §4.1 rows 3/5, §4.2, rules.md §4.24
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 123m 456m 789p 23s 99s
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 123p 456p 789m 23m 77s
+hand 3: 345p 678p 345s 67m 66s
+dora: 7z
+draws: 1z 2z 3z 4z
+
+[steps]
+0 riichi
+0 tsumogiri 1z
+1 riichi
+1 tsumogiri 2z
+2 riichi
+2 tsumogiri 3z
+3 riichi
+3 tsumogiri 4z
+
+[expect]
+outcome: abortive_draw
+abort_reason: suucha_riichi
+deltas: -1000 -1000 -1000 -1000
+scores: 24000 24000 24000 24000
+sticks: 4
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), reach(1), dahai(1), reach_accepted(1), tsumo(2), reach(2), dahai(2), reach_accepted(2), tsumo(3), reach(3), dahai(3), reach_accepted(3), ryukyoku(suucha_riichi), end_kyoku

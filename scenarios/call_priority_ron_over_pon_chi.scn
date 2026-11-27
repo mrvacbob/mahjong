@@ -1,0 +1,46 @@
+# Call priority: Ron beats Pon and Chi (rules.md §4.37, engine.md §4.1 rows 1, 6, 7).
+# Scoring for Seat 3 (non-dealer, West):
+#   Hand: 234m 678m 46m 234p 88s + ron 5m
+#   Yaku: tanyao (1 han). Dora indicator 1z -> dora 2z (0 dora).
+#   Fu: 20 base + 10 menzen ron + 2 kanchan (46m->5m) = 32 -> 40 fu.
+#   Non-dealer ron 1 han 40 fu = 1300 from Seat 0.
+
+[meta]
+name: call_priority_ron_over_pon_chi
+title: Ron beats Pon and Chi in the same discard window
+rules: mahjongsoul
+source: engine.md §4.1 rows 1/6/7, rules.md §4.37
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5m 111p 999p 111s 999s
+hand 1: 46m 123p 789p 234s 77z
+hand 2: 05m 123m 789m 567p 66z
+hand 3: 234m 46m 678m 234p 88s
+dora: 1z
+draws: 2z
+
+[steps]
+0 discard 5m
+assert_legal 1: chi:46m
+assert_legal 2: pon:05m
+assert_legal 3: ron
+window: 1=chi:46m, 2=pon:05m, 3=ron
+
+[expect]
+outcome: ron
+winners: 3
+win 3: han=1 fu=40 yaku=tanyao
+deltas: -1300 0 0 1300
+scores: 23700 25000 25000 26300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(3), end_kyoku

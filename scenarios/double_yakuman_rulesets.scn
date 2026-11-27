@@ -1,0 +1,53 @@
+# Double yakuman — ruleset difference (rules.md §1 natural_double_yakuman, §2.2, §4.3).
+# Seat 1 holds 4 completed concealed triplets + tanki 5s (111m 999m 111p 999p 5s).
+# Seat 0 discards 5s -> Seat 1 rons 5s for Suuankou Tanki!
+# - Mahjong Soul: natural double yakuman (2x) -> non-dealer ron = 64000 from Seat 0.
+# - Tenhou: single yakuman (1x) -> non-dealer ron = 32000 from Seat 0.
+
+[meta]
+name: double_yakuman_rulesets
+title: Suuankou Tanki ron pays 2x yakuman on Mahjong Soul and 1x yakuman on Tenhou
+rules: both
+source: engine.md §3, rules.md §1 (natural_double_yakuman), §2.2, §4.3
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 70000 25000 25000 25000
+
+[wall]
+hand 0: 5s 234m 678m 234p 678p
+hand 1: 111m 999m 111p 999p 5s
+hand 2: 2233s 4466s 7788s 4z
+hand 3: 4455m 5577p 1199s 6z
+dora: 1z
+draws: 2z
+
+[steps]
+0 discard 5s
+window: 1=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 1
+win 1: yakuman=2 yaku=suuankou_tanki
+deltas: -64000 64000 0 0
+scores: 6000 89000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=suuankou_tanki
+deltas: -32000 32000 0 0
+scores: 38000 57000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku

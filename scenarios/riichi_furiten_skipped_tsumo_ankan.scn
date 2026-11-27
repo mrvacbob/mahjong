@@ -1,0 +1,67 @@
+# Riichi furiten after skipping a self-drawn winning tile via closed kan (engine.md §4.1, rules.md §4.28).
+# Seat 0 declares riichi holding 23444s 678m 234p 88p (waits: 1s, 4s).
+# On turn 2, Seat 0 draws the 4th 4s: BOTH tsumo AND ankan:4s are legal (structural waits stay {1s, 4s}!).
+# Seat 0 chooses ankan 4s instead of tsumo -> skipped a winning tile in riichi -> permanently riichi-furiten!
+# Seat 0 draws rinshan 9z->7z, tsumogiris it.
+# Seat 1 discards 1s -> Seat 0 is permanently furiten and CANNOT ron 1s!
+# Seat 2 rons 1s instead.
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 23s 567m 456p 789p 99m + ron 1s (ryanmen wait 1s/4s)
+#   Yaku: pinfu (1 han). Dora indicators: 1z -> 2z, kan dora 2z -> 3z (0 dora).
+#   Fu: 20 base + 10 menzen ron = 30 fu.
+#   Non-dealer ron 1 han 30 fu = 1000 from Seat 1, plus Seat 0's 1000 riichi stick on the table!
+#   Seat 0: -1000 (riichi). Seat 1: -1000 (ron). Seat 2: +1000 (ron) + 1000 (stick) = +2000.
+
+[meta]
+name: riichi_furiten_skipped_tsumo_ankan
+title: Skipping a self-drawn winning tile via closed kan in riichi sets permanent riichi furiten
+rules: mahjongsoul
+source: engine.md §4.1, rules.md §4.14, §4.28
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 23444s 678m 234p 88p
+hand 1: 1s 1144p 5566p 1122m
+hand 2: 23s 567m 456p 789p 99m
+hand 3: 3344m 7799p 6677s 6z
+dora: 1z 2z
+ura: 5z 5z
+rinshan: 7z
+draws: 3z 3z 3z 3z 4s 4z
+
+[steps]
+0 riichi
+0 tsumogiri 3z
+1 tsumogiri 3z
+2 tsumogiri 3z
+3 tsumogiri 3z
+# Seat 0 draws 4th 4s: both tsumo and ankan:4s are legal!
+assert_legal 0: tsumo
+assert_legal 0: ankan:4s
+0 ankan 4s
+# Skipping tsumo in riichi sets permanent riichi furiten!
+assert_furiten 0: true
+0 tsumogiri 7z
+1 discard 1s
+assert_illegal 0: ron
+assert_not_asked 0
+assert_legal 2: ron
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=1 fu=30 yaku=pinfu
+deltas: -1000 -1000 2000 0
+scores: 24000 24000 27000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: reach_accepted(0), ankan(0), dora(2z), tsumo(0), dahai(0), dahai(1), hora(2), end_kyoku

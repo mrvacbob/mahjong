@@ -11,10 +11,11 @@ actions for one seat); the full game state machine is next.
 
 | Path | What |
 |---|---|
-| `Package.swift`, `Sources/mj/` | The Swift engine and its `mj` command-line tool |
+| `Package.swift`, `Sources/Riichi/`, `Sources/mj/`, `Tests/RiichiTests/` | The Swift engine (library `Riichi`), its `mj` command-line tool, and its unit tests (`swift test`) |
 | `crosscheck/mercury/` | Mercury implementation of the same operations, for differential testing |
 | `spec/rules.md` | Rules: Mahjong Soul ranked 4-player, with Tenhou differences |
 | `spec/formats.md` | Text protocol and the five operations each shootout entry implements |
+| `spec/wall.md` | Wall layout and the seeded shuffle, with test vectors |
 | `corpus/` | Test cases: request line, then `= ` expected response |
 | `tools/harness.py` | Runs an implementation against the corpus |
 | `tools/oracle_mj.py`, `tools/gen/` | Reference implementation and corpus generators built on the [mahjong](https://github.com/MahjongRepository/mahjong) Python library (MIT) |

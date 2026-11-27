@@ -1,0 +1,54 @@
+# Riichi discard called (pon): reach_accepted IS emitted BEFORE the pon, the 1,000 stick
+# IS paid, and the completed pon cancels Seat 0's ippatsu (engine.md §4.1 rows 3/6, §4.2, §6).
+# Seat 0 declares riichi and discards 7z -> Seat 2 pons 7z -> reach_accepted(0) then pon(2).
+# Seat 2 discards 9p, Seat 3 tsumogiris, Seat 0 draws 4s and wins by tsumo -> NO ippatsu!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 123m 456m 789p 23s 99s + tsumo 4s (wait 1s/4s ryanmen; 99s non-yakuhai)
+#   Yaku: double_riichi (2) + tsumo (1) + pinfu (1) = 4 han (NO ippatsu!).
+#   Dora indicator 1z -> dora 2z (0 dora). Ura indicator 5z -> ura 6z (0 ura).
+#   Fu: Pinfu + Tsumo = fixed 20 fu.
+#   Dealer tsumo 4 han 20 fu = 2600 all (+7800 from opponents).
+#   Seat 0 also paid 1000 stick and recovers it (+1000 from table) -> net +7800.
+#   Deltas: +7800 -2600 -2600 -2600, sticks: 0.
+
+[meta]
+name: riichi_discard_called
+title: Calling a riichi discard emits reach_accepted first and cancels ippatsu
+rules: mahjongsoul
+source: engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 123m 456m 789p 23s 99s
+hand 1: 112233p 5566s 223z
+hand 2: 77z 9p 234m 678m 23p 88s
+hand 3: 3344m 7788p 5667s 6z
+dora: 1z
+ura: 5z
+draws: 7z 3z 4s
+
+[steps]
+0 riichi
+0 tsumogiri 7z
+window: 2=pon:77z
+2 discard 9p
+3 tsumogiri
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: han=4 fu=20 yaku=double_riichi,pinfu,tsumo
+deltas: 7800 -2600 -2600 -2600
+scores: 32800 22400 22400 22400
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), pon(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku

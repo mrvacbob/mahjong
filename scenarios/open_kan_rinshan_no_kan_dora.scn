@@ -1,0 +1,49 @@
+# Open kan (daiminkan) -> immediate Rinshan Kaihou tsumo does NOT count the owed kan dora
+# (engine.md §4.2, rules.md §4.17).
+# Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z, draws rinshan 4m -> tsumo!
+# Dora indicators: 1z -> dora 2z (0 dora); 2nd indicator 4z (-> 5z, +4 dora!) is NOT flipped yet.
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 23m 678m 234p 567s 88p + daiminkan 5555z + rinshan tsumo 4m
+#   Yaku: yakuhai_haku (1) + rinshan (1) = 2 han (NO kan dora!).
+#   Fu: 20 base + 2 tsumo + 16 minkan(5z) = 38 -> 40 fu.
+#   Non-dealer tsumo 2 han 40 fu: 700 from non-dealers (Seats 2, 3), 1300 from dealer (Seat 0).
+#   Total to Seat 1: 700 + 700 + 1300 = 2700.
+
+[meta]
+name: open_kan_rinshan_no_kan_dora
+title: Rinshan tsumo immediately after an open kan does not see the owed kan dora
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.17
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 111p 999p 111s 999s
+hand 1: 555z 23m 678m 234p 88p
+hand 2: 1199m 5566p 223s 8s 7z
+hand 3: 3344m 77p 44p 3344s 6z
+dora: 1z 4z
+rinshan: 4m
+draws: 2z
+
+[steps]
+0 discard 5z
+window: 1=daiminkan
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: han=2 fu=40 yaku=rinshan,yakuhai_haku
+deltas: -1300 2700 -700 -700
+scores: 23700 27700 24300 24300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), hora(1), end_kyoku

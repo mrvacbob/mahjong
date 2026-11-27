@@ -1,0 +1,47 @@
+# Game end: Tobi (bankruptcy) when any player drops strictly below 0 (engine.md §5 step 1, rules.md §4.29).
+# East 1, sticks=1, scores: 1000 35000 32000 31000.
+# Seat 0 deals 7s into Seat 2 (pinfu + tanyao = 2 han 30 fu = 2000 + 1000 stick = +3000).
+# Seat 0 drops to -1000 (< 0) -> game ends immediately!
+# Final scores: -1000 35000 35000 31000.
+# Tie-break for 1st between Seat 1 (35000) and Seat 2 (35000): starting seat order -> Seat 1 is 1st, Seat 2 is 2nd.
+
+[meta]
+name: endgame_tobi_below_zero
+title: Dropping below zero ends the game immediately with seat-order tie-break
+rules: mahjongsoul
+source: engine.md §5 steps 1/5, rules.md §1 (tobi), §4.29
+
+[round]
+game_length: south
+wind: E
+round: 1
+honba: 0
+sticks: 1
+dealer: 0
+scores: 1000 35000 32000 31000
+
+[wall]
+hand 0: 7s 1199m 1199p 1199s
+hand 1: 3344m 7744p 3344s 6z
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 5566m 5566p 1122s 7z
+dora: 1z
+draws: 2z
+
+[steps]
+0 discard 7s
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2000 0 3000 0
+scores: -1000 35000 35000 31000
+sticks: 0
+honba: 0
+dealer_repeats: false
+game_ended: true
+final_scores: -1000 35000 35000 31000
+final_ranks: 1 2 3 0
+events: start_kyoku, tsumo(0), dahai(0), hora(2), end_kyoku, end_game

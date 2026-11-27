@@ -1,0 +1,58 @@
+# No-yaku wait causing temporary furiten without the seat being asked (engine.md §4.1, rules.md §4.28).
+# Seat 1 calls chi:78s on Seat 0's 6s, leaving open hand 23m 234p 567p 88p + chi 678s,
+# waiting on 1m (no yaku) and 4m (tanyao).
+# Seat 2 discards 1m -> Seat 1 has NO yaku on 1m so is NOT asked in the window,
+# yet becomes temporarily furiten!
+# Immediately, Seat 3 discards 4m -> Seat 1 CANNOT ron 4m because of temporary furiten!
+# Seat 0 tsumogiris; Seat 1 draws 4m (clearing temporary furiten) and wins by tsumo!
+# Scoring for Seat 1 (non-dealer, South):
+#   Open hand tanyao (1 han), 20 + 2 tsumo = 22 -> 30 fu -> 300/500 (+1100 total).
+
+[meta]
+name: furiten_no_yaku_wait_not_asked
+title: Passing a yaku-less wait sets temporary furiten even when the seat is not asked
+rules: mahjongsoul
+source: engine.md §4.1, rules.md §4.28
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 6s 111p 999p 111s 999s
+hand 1: 23m 234p 567p 78s 88p 9m
+hand 2: 1m 1199m 556p 2233s 7z
+hand 3: 4m 3355m 77p 9p 3344s 6z
+dora: 1z
+draws: 2z 2z 3z 3z 4m
+
+[steps]
+0 discard 6s
+window: 1=chi:78s
+1 discard 9m
+assert_furiten 1: false
+# Seat 2 discards 1m (yaku-less wait for Seat 1): Seat 1 is NOT asked, yet becomes furiten!
+2 discard 1m
+assert_furiten 1: true
+# Seat 3 discards 4m (tanyao wait for Seat 1): Seat 1 is furiten and CANNOT ron!
+3 discard 4m
+assert_illegal 1: ron
+assert_not_asked 1
+0 tsumogiri 3z
+# Seat 1 draws 4m and wins by tsumo.
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: han=1 fu=30 yaku=tanyao
+deltas: -500 1100 -300 -300
+scores: 24500 26100 24700 24700
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: chi(1), dahai(2), dahai(3), tsumo(1), hora(1), end_kyoku

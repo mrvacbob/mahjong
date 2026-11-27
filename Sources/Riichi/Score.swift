@@ -1,32 +1,35 @@
 // Fu, han, payments, and the choice between readings.
 
-struct ScoreRequest {
-    var hand: [Tile]          // concealed, excluding the winning tile
-    var melds: [Meld]
-    var win: Tile
-    var context: WinContext
-    var dora: [Tile] = []
-    var ura: [Tile] = []
-    var honba = 0
+public struct ScoreRequest: Sendable {
+    /// Concealed tiles, excluding the winning tile.
+    public var hand: [Tile]
+    public var melds: [Meld]
+    public var win: Tile
+    public var context: WinContext
+    /// Indicators, not dora.
+    public var dora: [Tile]
+    /// Counted only with riichi or double riichi.
+    public var ura: [Tile]
+    public var honba: Int
+
+    public init(hand: [Tile], melds: [Meld], win: Tile, context: WinContext,
+                dora: [Tile] = [], ura: [Tile] = [], honba: Int = 0) {
+        self.hand = hand; self.melds = melds; self.win = win; self.context = context
+        self.dora = dora; self.ura = ura; self.honba = honba
+    }
 }
 
-enum ScoreError: String, Error {
+public enum ScoreError: String, Error, Sendable {
     case notAgari = "not_agari", noYaku = "no_yaku"
 }
 
-enum Payment {
+/// What the winner is paid, honba included, riichi sticks not.
+public enum Payment: Sendable, Hashable {
     case ron(Int)
     case dealerTsumo(Int)                  // each
     case tsumo(nonDealer: Int, dealer: Int)
 
-    var text: String {
-        switch self {
-        case .ron(let n): "ron:\(n)"
-        case .dealerTsumo(let n): "all:\(n)"
-        case .tsumo(let nd, let d): "tsumo:\(nd)/\(d)"
-        }
-    }
-    var total: Int {
+    public var total: Int {
         switch self {
         case .ron(let n): n
         case .dealerTsumo(let n): 3 * n
@@ -35,11 +38,13 @@ enum Payment {
     }
 }
 
-struct Scored {
-    enum Value { case ordinary(han: Int, fu: Int), yakuman(Int) }
-    let yaku: [(name: String, value: Int)]
-    let value: Value
-    let payment: Payment
+public struct Scored: Sendable {
+    public enum Value: Sendable, Hashable { case ordinary(han: Int, fu: Int), yakuman(Int) }
+    /// Sorted by name. Han for ordinary yaku and `dora`/`aka`/`ura`; the multiple
+    /// for yakuman.
+    public let yaku: [(name: String, value: Int)]
+    public let value: Value
+    public let payment: Payment
 
     init(yaku: [(name: String, value: Int)], value: Value, payment: Payment) {
         self.yaku = yaku.sorted { $0.name < $1.name }
@@ -47,16 +52,8 @@ struct Scored {
         self.payment = payment
     }
 
-    var yakuText: String { yaku.map { "\($0.name):\($0.value)" }.joined(separator: ",") }
-
-    var text: String {
-        switch value {
-        case .ordinary(let han, let fu):
-            "yaku=\(yakuText) han=\(han) fu=\(fu) pay=\(payment.text) total=\(payment.total)"
-        case .yakuman(let n):
-            "yaku=\(yakuText) yakuman=\(n) pay=\(payment.text) total=\(payment.total)"
-        }
-    }
+    /// `name:value,...`, the `yaku=` text of `spec/formats.md` and the last tie-break.
+    public var yakuText: String { yaku.map { "\($0.name):\($0.value)" }.joined(separator: ",") }
 
     /// The spec's preference: total, real yakuman over kazoe, han, fu, then the
     /// yaku list that sorts first.
@@ -87,8 +84,12 @@ func fu(_ r: Reading) -> Int {
         fu += f
     }
     if pair.isDragon { fu += 2 }
-    if pair == r.context.seat.kind { fu += 2 }
-    if pair == r.context.round.kind { fu += 2 }
+    let (seat, round) = (r.context.seat.kind, r.context.round.kind)
+    if pair == seat && pair == round {
+        fu += r.rules.doubleWindPairFu
+    } else if pair == seat || pair == round {
+        fu += 2
+    }
     if [.kanchan, .penchan, .tanki].contains(wait) { fu += 2 }
     return max(30, (fu + 9) / 10 * 10)  // open no-fu ron counts 30
 }
@@ -119,7 +120,7 @@ func payment(basic: Int, context: WinContext, honba: Int) -> Payment {
 
 // MARK: scoring a hand
 
-func doraCount(_ tiles: [Tile], indicators: [Tile]) -> Int {
+public func doraCount(_ tiles: [Tile], indicators: [Tile]) -> Int {
     let held = Counts(tiles)
     return indicators.reduce(0) { $0 + held[$1.kind.doraSuccessor] }
 }
@@ -127,26 +128,30 @@ func doraCount(_ tiles: [Tile], indicators: [Tile]) -> Int {
 /// The best of several scorings, by the spec's preference.
 private func best(_ all: [Scored]) -> Scored? { all.max { $1.isBetter(than: $0) } }
 
-func score(_ req: ScoreRequest) throws(ScoreError) -> Scored {
-    guard req.context.flags.contains(.tenhou) else { return try scoreWithWinningTile(req) }
+/// Scores a winning hand under `rules`: the best interpretation by the order of
+/// `spec/formats.md` (`score`).
+public func score(_ req: ScoreRequest, rules: Rules) throws(ScoreError) -> Scored {
+    guard req.context.flags.contains(.tenhou) && rules.tenhouAnyWinningTile else {
+        return try scoreWithWinningTile(req, rules: rules)
+    }
     // Any of the dealer's 14 tiles may be the winning tile: score the best.
     let all = req.hand + [req.win]
     var scored: [Scored] = []
     var lastError = ScoreError.notAgari
-    for t in Set(all) {
+    for t in all.distinct {
         var alt = req
         alt.win = t
         alt.hand = all.removingOne(t)
-        do { scored.append(try scoreWithWinningTile(alt)) } catch { lastError = error }
+        do { scored.append(try scoreWithWinningTile(alt, rules: rules)) } catch { lastError = error }
     }
     guard let top = best(scored) else { throw lastError }
     return top
 }
 
-private func scoreWithWinningTile(_ req: ScoreRequest) throws(ScoreError) -> Scored {
+private func scoreWithWinningTile(_ req: ScoreRequest, rules: Rules) throws(ScoreError) -> Scored {
     let concealed = Counts(req.hand + [req.win])
     let all = readings(concealed: concealed, win: req.win.kind, melds: req.melds,
-                       context: req.context)
+                       context: req.context, rules: rules)
     if all.isEmpty { throw .notAgari }
 
     let tiles = req.hand + [req.win] + req.melds.tiles

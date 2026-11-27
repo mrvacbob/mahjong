@@ -1,0 +1,44 @@
+# Game end: All Last (South 4) Tenpai-Yame with leftover stick awarded to 1st (engine.md §5 steps 4-5).
+# South 4, dealer=3, sticks=1, scores: 25000 24000 20000 30000.
+# Exhaustive draw: ONLY Seat 3 (dealer) is tenpai -> deltas -1000 -1000 -1000 +3000.
+# Post-hand scores (before leftover sticks): 24000 23000 19000 33000.
+# Dealer is strictly 1st with >= 30000 -> tenpai-yame ends the game!
+# Leftover 1000 stick goes to 1st place (Seat 3) -> final_scores: 24000 23000 19000 34000.
+
+[meta]
+name: endgame_all_last_tenpai_yame
+title: All Last dealer tenpai in strict 1st with >= 30000 ends the game (tenpai-yame)
+rules: mahjongsoul
+source: engine.md §5 steps 4/5, rules.md §1 (tenpai_yame)
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 1
+dealer: 3
+scores: 25000 24000 20000 30000
+
+[wall]
+hand 0: 1144m 7799p 1155s 6z
+hand 1: 3388m 1144p 3399s 7z
+hand 2: 5599m 5566p 1122s 4z
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 3
+deltas: -1000 -1000 -1000 3000
+scores: 24000 23000 19000 33000
+sticks: 1
+honba: 1
+dealer_repeats: true
+game_ended: true
+final_scores: 24000 23000 19000 34000
+final_ranks: 3 0 1 2
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku, end_game

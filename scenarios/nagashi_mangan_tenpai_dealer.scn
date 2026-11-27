@@ -1,0 +1,69 @@
+# Nagashi Mangan with a tenpai dealer (engine.md §4.2, rules.md §1, §4.30).
+# Round starts with honba=1, sticks=1, dealer=0.
+# Seat 0 (dealer) holds a tenpai hand (234m 678m 234p 56s 88p) and discards simples.
+# Seat 1 (non-dealer) draws and tsumogiris ONLY terminals/honors on all 18 of its turns
+# (live draw indices 1, 5, 9, ..., 69), and none are called away -> Nagashi Mangan!
+# Outcome at exhaustive draw:
+# - Nagashi Mangan replaces tenpai/noten payments.
+# - Non-dealer Nagashi Mangan pays Mangan tsumo: 2000 from non-dealers (Seats 2, 3),
+#   4000 from dealer (Seat 0) -> Seat 1 gets +8000.
+# - Riichi sticks stay on the table (sticks=1), honba is NOT paid and increments +1 (honba=2).
+# - Dealer repeats (dealer_repeats=true) because dealer is tenpai!
+
+[meta]
+name: nagashi_mangan_tenpai_dealer
+title: Nagashi Mangan replaces tenpai payments without breaking dealer tenpai renchan
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.30
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 1
+dealer: 0
+scores: 25000 25000 25000 24000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 2233m 4455p 2233s 4s
+hand 2: 4455m 6677p 4455s 6s
+hand 3: 6677m 2233p 6677s 8s
+dora: 5m
+# Ensure Seats 0, 2, 3 each discard at least one simple on turn 1:
+draw_at 0: 5p
+draw_at 2: 0s
+draw_at 3: 8m
+# All 18 draws for Seat 1 (indices 1, 5, 9, ..., 69) are terminals/honors:
+draw_at 1: 1m
+draw_at 5: 1m
+draw_at 9: 9m
+draw_at 13: 9m
+draw_at 17: 1p
+draw_at 21: 1p
+draw_at 25: 9p
+draw_at 29: 9p
+draw_at 33: 1s
+draw_at 37: 1s
+draw_at 41: 9s
+draw_at 45: 9s
+draw_at 49: 1z
+draw_at 53: 2z
+draw_at 57: 3z
+draw_at 61: 4z
+draw_at 65: 5z
+draw_at 69: 6z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 0
+nagashi: 1
+deltas: -4000 8000 -2000 -2000
+scores: 21000 33000 23000 22000
+sticks: 1
+honba: 2
+dealer_repeats: true
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

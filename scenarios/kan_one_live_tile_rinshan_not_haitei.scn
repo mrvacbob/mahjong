@@ -1,0 +1,53 @@
+# Kan with 1 live tile left, then tsumo on the replacement draw:
+# scores Rinshan Kaihou, NOT Haitei Raoyue (even though 0 live tiles remain after the kan).
+# After 68 auto_tsumogiri turns, Seat 0 draws live[68] (4th 1z), with 1 live tile left.
+# Seat 0 declares ankan 1z (legal with 1 live tile left) -> live tiles left becomes 0.
+# Seat 0 draws rinshan[0] (4m), completing the hand!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 23m 678m 234p 678s 88p + ankan 1111z + rinshan tsumo 4m
+#   Yaku: tsumo (1) + yakuhai_seat (1) + yakuhai_round (1) + rinshan (1) = 4 han.
+#   (NOT haitei! Dora indicators: 9s -> 1s, kan dora 9p -> 1p: 0 dora in hand.)
+#   Fu: 20 base + 2 tsumo + 32 ankan(1z) = 54 -> 60 fu.
+#   4 han 60 fu = Mangan (basic 2000).
+#   Dealer tsumo Mangan = 4000 all (+12000 to Seat 0, -4000 each from Seats 1, 2, 3).
+
+[meta]
+name: kan_one_live_tile_rinshan_not_haitei
+title: Kan with 1 live tile left then replacement tsumo scores Rinshan, not Haitei
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.18
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 111z 23m 678m 234p 88p
+hand 1: 1199m 5566p 1122s 7z
+hand 2: 3344m 77p 44p 3344s 6z
+hand 3: 5577m 1188s 2233z 5z
+dora: 9s 9p
+rinshan: 4m
+draw_at 68: 1z
+
+[steps]
+auto_tsumogiri 68
+assert_legal 0: ankan:1z
+0 ankan 1z
+assert_legal 0: tsumo
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: han=4 fu=60 yaku=rinshan,tsumo,yakuhai_round,yakuhai_seat
+deltas: 12000 -4000 -4000 -4000
+scores: 37000 21000 21000 21000
+sticks: 0
+honba: 0
+dealer_repeats: true
+events_order: ankan(0), dora(9p), tsumo(0), hora(0), end_kyoku

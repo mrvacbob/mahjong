@@ -1,0 +1,51 @@
+# Game end: All Last dealer wins and TIES for 1st with Seat 0 -> NOT first by seat-order tie-break!
+# (engine.md §5 step 4).
+# South 4, dealer=3, sticks=0, scores: 32900 17100 20000 30000.
+# Seat 3 (dealer) wins by ron on Seat 1's 7s (pinfu + tanyao = 2 han 30 fu = 2900).
+# Post-round scores: 32900 14200 20000 32900.
+# Seat 0 and Seat 3 are level at 32900; starting seat order (0 > 1 > 2 > 3) puts Seat 0 in 1st,
+# so Seat 3 is 2nd (NOT first) -> agari-yame does NOT trigger, dealer repeats South 4 honba 1!
+
+[meta]
+name: endgame_all_last_tie_not_first
+title: All Last dealer tied for top score is not first by seat order and repeats instead of ending
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1 (agari_yame, tie_break_order)
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 32900 17100 20000 30000
+
+[wall]
+hand 0: 1199m 1199p 1199s 5z
+hand 1: 7s 3344m 7744p 3344s
+hand 2: 5566m 5566p 1122s 7z
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+draws: 2z 3z 4z
+
+[steps]
+3 tsumogiri 2z
+0 tsumogiri 3z
+1 discard 7s
+window: 3=ron
+
+[expect]
+outcome: ron
+winners: 3
+win 3: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 -2900 0 2900
+scores: 32900 14200 20000 32900
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: S
+next_round: 4
+next_dealer: 3
+events: start_kyoku, tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), dahai(1), hora(3), end_kyoku

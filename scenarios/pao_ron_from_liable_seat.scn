@@ -1,0 +1,53 @@
+# Pao on Daisangen won by Ron from the LIABLE SEAT itself (engine.md §4.2, rules.md §1, §4.31).
+# Round starts with honba=1 (300 on ron).
+# Seat 2 feeds the 3rd dragon (7z) to Seat 1 (Pao against Seat 2),
+# and then Seat 2 itself discards 4m -> Seat 1 rons 4m.
+# Seat 2 pays 100% + honba = -32300; Seat 1 receives +32300.
+
+[meta]
+name: pao_ron_from_liable_seat
+title: Pao on Daisangen won by ron from the liable seat pays 100% plus honba
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.31
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 6z 111p 999p 111s 99s
+hand 1: 55z 66z 77z 23m 88p 1m 9m 1s
+hand 2: 7z 4m 1199m 5566p 223s
+hand 3: 3355m 7744p 3344s 4z
+dora: 1z
+draws: 2z 2z 2z 3z 3z 3z
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 1m
+2 tsumogiri 2z
+3 tsumogiri 2z
+0 discard 6z
+window: 1=pon:66z
+1 discard 9m
+2 discard 7z
+window: 1=pon:77z
+1 discard 1s
+2 discard 4m
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=daisangen
+deltas: 0 32300 -32300 0
+scores: 25000 57300 -7300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), dahai(2), hora(1), end_kyoku

@@ -1,0 +1,56 @@
+# First go-around specials (Kyuushu Kyuuhai, Chiihou, Double Riichi) are all cancelled
+# by an earlier closed kan (ankan), which sets anyCallMade (engine.md §4.2, rules.md §4.25).
+# Seat 0 declares ankan 9m on turn 0, draws rinshan 3z, discards 3z.
+# Seat 1 draws 5z -> holds 10 distinct terminals/honors, yet kyuushu is ILLEGAL!
+# Seat 1 discards 3z.
+# Seat 2 draws 7s -> completes hand on 1st draw, yet scores regular Tsumo (NO Chiihou!).
+# Scoring for Seat 2 (non-dealer, South):
+#   Hand: 234m 678m 234p 56s 88p + tsumo 7s
+#   Yaku: tsumo (1) + pinfu (1) + tanyao (1) = 3 han (NO chiihou!).
+#   Dora indicators: 2z -> 3z, kan dora 3z -> 4z (0 dora).
+#   Fu: Pinfu + Tsumo = fixed 20 fu.
+#   Non-dealer tsumo 3 han 20 fu: 700 from non-dealers (Seats 1, 3), 1300 from dealer (Seat 0).
+#   Total to Seat 2: 700 + 700 + 1300 = 2700.
+
+[meta]
+name: first_go_around_cancelled_by_ankan
+title: Dealer closed kan cancels Kyuushu Kyuuhai and Chiihou on the first go-around
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.25
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 9999m 111p 999p 111s
+hand 1: 1m 19p 19s 12467z 234s
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 3344m 5577p 6677s 6z
+dora: 2z 3z
+rinshan: 3z
+draws: 4z 5z 7s
+
+[steps]
+0 ankan 9m
+0 tsumogiri 3z
+# Seat 1 has 10 distinct terminals/honors on its 1st draw, but ankan set anyCallMade.
+assert_illegal 1: kyuushu
+1 discard 1m
+assert_legal 2: tsumo
+2 tsumo
+
+[expect]
+outcome: tsumo
+winners: 2
+win 2: han=3 fu=20 yaku=pinfu,tanyao,tsumo
+deltas: -1300 -700 2700 -700
+scores: 23700 24300 27700 24300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), ankan(0), dora(3z), tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), hora(2), end_kyoku

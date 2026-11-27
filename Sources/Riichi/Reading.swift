@@ -1,13 +1,13 @@
 // A Reading is one interpretation of a winning hand: its shape, where the winning
 // tile went, and the context. Yaku and fu are functions of a Reading.
 
-enum Flag: String {
+public enum Flag: String, Sendable {
     case riichi, double_riichi, ippatsu, haitei, houtei, rinshan, chankan, tenhou, chiihou
     case ankan_rob  // legal only: a closed kan is being robbed
 }
 
 /// Parses "riichi,ippatsu" (or "-").
-func parseFlags(_ text: Substring) -> Set<Flag>? {
+public func parseFlags(_ text: Substring) -> Set<Flag>? {
     if text == "-" { return [] }
     var out: Set<Flag> = []
     for f in text.split(separator: ",") {
@@ -17,12 +17,18 @@ func parseFlags(_ text: Substring) -> Set<Flag>? {
     return out
 }
 
-struct WinContext {
-    var seat: Wind = .east
-    var round: Wind = .east
-    var tsumo: Bool
-    var flags: Set<Flag> = []
-    var isDealer: Bool { seat == .east }
+/// The situation of a win, apart from the tiles.
+public struct WinContext: Sendable {
+    public var seat: Wind
+    public var round: Wind
+    public var tsumo: Bool
+    /// Situational yaku come only from here.
+    public var flags: Set<Flag>
+
+    public init(seat: Wind = .east, round: Wind = .east, tsumo: Bool, flags: Set<Flag> = []) {
+        self.seat = seat; self.round = round; self.tsumo = tsumo; self.flags = flags
+    }
+    public var isDealer: Bool { seat == .east }
 }
 
 enum SetShape { case run, triplet, kan }
@@ -72,6 +78,7 @@ enum Shape: Equatable {
 struct Reading {
     let shape: Shape
     let context: WinContext
+    let rules: Rules
     let melds: [Meld]
     /// Every tile of the hand as kinds: concealed tiles, the winning tile, meld tiles.
     let allKinds: [Kind]
@@ -104,7 +111,10 @@ struct Reading {
     }
 
     /// Number of pairs of identical runs (2 for ryanpeikou).
-    var identicalRunPairs: Int { Counts(runs).n.reduce(0) { $0 + $1 / 2 } }
+    var identicalRunPairs: Int {
+        let c = Counts(runs)
+        return c.kinds.reduce(0) { $0 + c[$1] / 2 }
+    }
 
     /// Four runs, a non-value pair, a two-sided wait, closed.
     var isPinfuShape: Bool {
@@ -146,11 +156,12 @@ private func wait(completing group: Group, with win: Kind) -> Wait? {
 }
 
 /// Every reading of a complete hand. `concealed` includes the winning tile.
-func readings(concealed: Counts, win: Kind, melds: [Meld], context: WinContext) -> [Reading] {
+func readings(concealed: Counts, win: Kind, melds: [Meld], context: WinContext,
+              rules: Rules) -> [Reading] {
     let allKinds = concealed.kinds.flatMap { Array(repeating: $0, count: concealed[$0]) }
         + melds.tiles.map(\.kind)
     func reading(_ shape: Shape) -> Reading {
-        Reading(shape: shape, context: context, melds: melds,
+        Reading(shape: shape, context: context, rules: rules, melds: melds,
                 allKinds: allKinds, concealed: concealed, winKind: win)
     }
     let meldSets = melds.map(HandSet.init)

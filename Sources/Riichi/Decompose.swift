@@ -1,14 +1,14 @@
 // Hand decomposition: standard (sets + pair), chiitoi, kokushi.
 
 /// One concealed set of a standard decomposition.
-enum Group: Hashable {
+public enum Group: Hashable, Sendable {
     case run(Kind)      // first tile of the sequence
     case triplet(Kind)
 
-    var base: Kind {
+    public var base: Kind {
         switch self { case .run(let k), .triplet(let k): k }
     }
-    var kinds: [Kind] {
+    public var kinds: [Kind] {
         switch self {
         case .run(let k): k.run
         case .triplet(let k): [k, k, k]
@@ -17,12 +17,12 @@ enum Group: Hashable {
 }
 
 /// Four sets (with melds) and a pair.
-struct Decomposition {
-    let pair: Kind
-    let sets: [Group]
+public struct Decomposition: Sendable {
+    public let pair: Kind
+    public let sets: [Group]
 
     /// The agari form: groups by suit, number, then pair < run < triplet.
-    var text: String {
+    public var text: String {
         let pair = (key: (pair, 0), kinds: [pair, pair])
         let sets = sets.map { g in
             switch g {
@@ -31,12 +31,12 @@ struct Decomposition {
             }
         }
         return ([pair] + sets).sorted { $0.key < $1.key }
-            .map { format(kinds: $0.kinds) }.joined(separator: ",")
+            .map { mpsz(kinds: $0.kinds) }.joined(separator: ",")
     }
 }
 
 /// Every way to split `counts` into exactly one pair plus runs and triplets.
-func standardDecompositions(_ counts: Counts) -> [Decomposition] {
+public func standardDecompositions(_ counts: Counts) -> [Decomposition] {
     guard counts.total % 3 == 2 else { return [] }
     return Kind.all.filter { counts[$0] >= 2 }.flatMap { pair in
         var rest = counts
@@ -47,7 +47,7 @@ func standardDecompositions(_ counts: Counts) -> [Decomposition] {
 
 /// Splits `counts` (no pair) into runs and triplets, peeling the lowest kind first.
 private func setDecompositions(_ counts: Counts, from start: Int) -> [[Group]] {
-    guard let i = (start..<Kind.count).first(where: { counts.n[$0] > 0 }) else { return [[]] }
+    guard let i = (start..<Kind.count).first(where: { counts[Kind($0)] > 0 }) else { return [[]] }
     let k = Kind(i)
     var results: [[Group]] = []
     func peel(_ g: Group) {
@@ -61,29 +61,29 @@ private func setDecompositions(_ counts: Counts, from start: Int) -> [[Group]] {
 }
 
 /// Seven distinct pairs.
-func isChiitoi(_ counts: Counts) -> Bool {
-    counts.total == 14 && counts.n.allSatisfy { $0 == 0 || $0 == 2 }
+public func isChiitoi(_ counts: Counts) -> Bool {
+    counts.total == 14 && counts.count { $0 == 2 } == 7
 }
 
 /// One of each terminal and honor plus one duplicate.
-func isKokushi(_ counts: Counts) -> Bool {
+public func isKokushi(_ counts: Counts) -> Bool {
     counts.total == 14 && Kind.yaochu.allSatisfy { counts[$0] >= 1 }
         && Kind.all.allSatisfy { $0.isYaochu || counts[$0] == 0 }
 }
 
 /// A winning shape: four sets and a pair, or (with no melds) chiitoi or kokushi.
-func isComplete(_ counts: Counts, meldCount: Int) -> Bool {
+public func isComplete(_ counts: Counts, meldCount: Int) -> Bool {
     !standardDecompositions(counts).isEmpty
         || meldCount == 0 && (isChiitoi(counts) || isKokushi(counts))
 }
 
 /// Kinds that complete a tenpai hand. Structural: a fifth copy counts.
-func completingKinds(_ counts: Counts, meldCount: Int) -> [Kind] {
+public func completingKinds(_ counts: Counts, meldCount: Int) -> [Kind] {
     Kind.all.filter { isComplete(counts.adding($0), meldCount: meldCount) }
 }
 
 /// The `agari` answer for the concealed tiles of a hand with `meldCount` melds.
-func agariForms(_ counts: Counts, meldCount: Int) -> [String] {
+public func agariForms(_ counts: Counts, meldCount: Int) -> [String] {
     var forms = Set(standardDecompositions(counts).map(\.text))
     if meldCount == 0 {
         if isChiitoi(counts) { forms.insert("chiitoi") }

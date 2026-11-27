@@ -1,0 +1,49 @@
+# Fourth kan by a second seat, then pon attempted on its discard:
+# Suukaikan aborts at row 4 AHEAD of any call at row 6 (engine.md §4.1 row 4, §4.2, rules.md §4.22).
+# Seat 0 makes 3 closed kans (1m, 9m, 1p), discards 2z.
+# Seat 1 makes the 4th kan (ankan 9p), draws rinshan 5z (no win), discards 5z.
+# Seat 2 answers pon:55z -> pon is NOT made; round aborts as suukaikan!
+# Deltas: 0 0 0 0; sticks: 0; honba: 1; dealer repeats.
+
+[meta]
+name: abort_suukaikan_second_seat_pon
+title: Fourth kan by a second seat aborts ahead of a pon on the post-kan discard
+rules: mahjongsoul
+source: engine.md §4.1 row 4, §4.2, rules.md §4.22
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111m 9999m 1111p 2z
+hand 1: 9999p 234m 678m 234p
+hand 2: 55z 345p 678p 234s 88s
+hand 3: 456m 567s 1122s 666z
+dora: 1z 2z 3z 4z 7z
+rinshan: 3z 4z 4z 5z
+draws: 2z 3z
+
+[steps]
+0 ankan 1m
+0 ankan 9m
+0 ankan 1p
+0 discard 2z
+1 ankan 9p
+1 tsumogiri 5z
+assert_legal 2: pon:55z
+window: 2=pon:55z
+
+[expect]
+outcome: abortive_draw
+abort_reason: suukaikan
+deltas: 0 0 0 0
+scores: 25000 25000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: ankan(0), ankan(0), ankan(0), dahai(0), ankan(1), dora(7z), tsumo(1), dahai(1), ryukyoku(suukaikan), end_kyoku

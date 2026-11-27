@@ -1,0 +1,56 @@
+# Riichi point requirement (>= 1000) and double riichi on first unbroken draw.
+# Seat 0 has 900 points and a closed tenpai hand -> riichi is ILLEGAL.
+# Seat 1 has exactly 1000 points and a closed tenpai hand -> riichi is LEGAL (drops to 0, no tobi),
+# and because anyCallMade is false and Seat 1 has no discards yet, it is Double Riichi!
+# Seat 2 discards 7s -> Seat 1 rons with double_riichi + ippatsu + pinfu + tanyao.
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s
+#   Yaku: double_riichi (2) + ippatsu (1) + pinfu (1) + tanyao (1) = 5 han (Mangan).
+#   Dora indicator 1z -> dora 2z (0 dora). Ura indicator 5z -> ura 6z (0 ura).
+#   Non-dealer ron Mangan = 8000 from Seat 2.
+#   Seat 1 paid 1000 stick (to 0) and recovers it -> net +8000 (scores: 900 9000 41100 49000).
+
+[meta]
+name: riichi_requirements
+title: Riichi requires >= 1000 points (900 illegal, 1000 legal) and grants double riichi on 1st turn
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.29
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 900 1000 49100 49000
+
+[wall]
+hand 0: 123m 456m 789p 23s 99s
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 7s 1144p 5566p 1122s
+hand 3: 3344m 7799p 3344s 6z
+dora: 1z
+ura: 5z
+draws: 3z 4z 2z
+
+[steps]
+# Seat 0 has only 900 points -> riichi illegal despite being tenpai.
+assert_illegal 0: riichi
+0 tsumogiri 3z
+# Seat 1 has exactly 1000 points -> riichi legal on 1st unbroken draw (Double Riichi).
+assert_legal 1: riichi
+1 riichi
+1 tsumogiri 4z
+2 discard 7s
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=5 fu=30 yaku=double_riichi,ippatsu,pinfu,tanyao
+deltas: 0 8000 -8000 0
+scores: 900 9000 41100 49000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), reach(1), dahai(1), reach_accepted(1), tsumo(2), dahai(2), hora(1), end_kyoku

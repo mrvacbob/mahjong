@@ -1,0 +1,47 @@
+# Game end: All Last (South 4) Agari-Yame (engine.md §5 step 4, rules.md §1 agari_yame).
+# South 4, dealer=3, sticks=1, scores: 25000 24000 20000 30000.
+# Seat 3 (dealer) wins by ron on Seat 0's 7s: pinfu + tanyao = 2 han 30 fu = 2900 + 1000 stick = +3900.
+# Post-round scores: 22100 24000 20000 33900.
+# Dealer (Seat 3) repeats by winning AND is strictly 1st with >= 30000 -> game ends (agari-yame)!
+
+[meta]
+name: endgame_all_last_agari_yame
+title: All Last dealer win in strict 1st with >= 30000 ends the game (agari-yame)
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1 (agari_yame)
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 1
+dealer: 3
+scores: 25000 24000 20000 30000
+
+[wall]
+hand 0: 7s 1199m 1199p 1199s
+hand 1: 3344m 7744p 3344s 6z
+hand 2: 5566m 5566p 1122s 7z
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+draws: 2z 3z
+
+[steps]
+3 tsumogiri 2z
+0 discard 7s
+window: 3=ron
+
+[expect]
+outcome: ron
+winners: 3
+win 3: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2900 0 0 3900
+scores: 22100 24000 20000 33900
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: true
+final_scores: 22100 24000 20000 33900
+final_ranks: 3 1 0 2
+events: start_kyoku, tsumo(3), dahai(3), tsumo(0), dahai(0), hora(3), end_kyoku, end_game

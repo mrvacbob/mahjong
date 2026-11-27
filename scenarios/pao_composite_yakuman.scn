@@ -1,0 +1,79 @@
+# Pao on a composite yakuman (Daisangen + Tsuuiisou, 2x Yakuman) — ruleset difference
+# (engine.md §4.2, rules.md §1 pao_composite_yakuman, §4.31).
+# Round starts with honba=1 (300 total on tsumo), dealer=0.
+# Seat 1 pons 5z (from Seat 0), 6z (from Seat 0), 1z (from Seat 3), then Seat 2 feeds 7z
+# -> Seat 1 pons 7z (Pao on Daisangen against Seat 2).
+# Seat 1 holds tanki 2z and draws 2z -> Tsumo: Daisangen (1x) + Tsuuiisou (1x) = 2x Yakuman!
+# - Mahjong Soul (liable_yakuman_only):
+#   * Daisangen (32000) + honba (300) = 32300 paid 100% by Seat 2.
+#   * Tsuuiisou (32000) split normally: Seat 0 (dealer) -16000, Seat 2 -8000, Seat 3 -8000.
+#   * Deltas: -16000, +64300, -40300, -8000.
+# - Tenhou (whole_hand):
+#   * Whole composite hand (64000) + honba (300) = 64300 paid 100% by Seat 2.
+#   * Deltas: 0, +64300, -64300, 0.
+
+[meta]
+name: pao_composite_yakuman
+title: Composite yakuman pao splits non-liable yakuman on Majsoul and charges whole hand on Tenhou
+rules: both
+source: engine.md §4.2, rules.md §1 (pao_composite_yakuman), §4.31
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 0
+dealer: 0
+scores: 50000 25000 70000 25000
+
+[wall]
+hand 0: 5z 6z 111p 999p 111s 99s
+hand 1: 55z 66z 77z 11z 2z 1m 9m 1s 9s
+hand 2: 7z 2233m 4455p 2233s
+hand 3: 1z 6677m 7788p 4455s
+dora: 3z
+draws: 4z 4z 4z 3z 3z 3z 4z 8s 8m 8p 2z
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 1m
+2 tsumogiri 4z
+3 tsumogiri 4z
+0 discard 6z
+window: 1=pon:66z
+1 discard 9m
+2 tsumogiri 3z
+3 discard 1z
+window: 1=pon:11z
+1 discard 1s
+2 discard 7z
+# Seat 2 feeds the 3rd dragon -> Pao on Daisangen against Seat 2!
+window: 1=pon:77z
+1 discard 9s
+2 tsumogiri 8s
+3 tsumogiri 8m
+0 tsumogiri 8p
+1 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 1
+win 1: yakuman=2 yaku=daisangen,tsuuiisou
+deltas: -16000 64300 -40300 -8000
+scores: 34000 89300 29700 17000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), pon(1), tsumo(1), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 1
+win 1: yakuman=2 yaku=daisangen,tsuuiisou
+deltas: 0 64300 -64300 0
+scores: 50000 89300 5700 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), pon(1), tsumo(1), hora(1), end_kyoku

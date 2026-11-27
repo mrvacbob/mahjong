@@ -52,7 +52,7 @@ Tests/RiichiTests/     swift-testing unit and scenario tests
   as their default, and the corpus runs against `mj` on every change. The `legal`
   operation becomes a thin wrapper over the code `legalActions` uses.
 - `ShantenCalculator` is currently a class with a mutable cache. It becomes safe to
-  use from several threads (one per arena worker, or an immutable table).
+  use from several threads: an immutable table built once (done in package A).
 
 ## 3. Core types
 
@@ -96,8 +96,10 @@ one tile each (so the dealer's 13 are indices 0–3, 16–19, 32–35, 48). 52�
 indicators. Live tiles left = `70 − live draws − completed kans`.
 
 **Shuffle.** Fisher–Yates from the end, with unbiased bounded sampling by rejection,
-driven by xoshiro256\*\* whose state is four SplitMix64 outputs from
-`seed &+ UInt64(hand) &* 0x9E3779B97F4A7C15`. The spec will include three known
+driven by xoshiro256\*\* whose state is four SplitMix64 outputs from the key
+`mix(seed) ^ mix(~UInt64(hand))`, where `mix` is one SplitMix64 output step, so that
+different (seed, hand) pairs do not collide by simple arithmetic. `spec/wall.md` is
+the authority. The spec will include three known
 walls as test vectors. Keying on the count of hands dealt, not the round number,
 means a repeated dealership gets a new wall. The seed never appears in anything a
 seat is shown. Seeds cross into JavaScript as decimal strings.
@@ -240,8 +242,8 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
   `TableMeld`.
 - **Pao** [31, 32]: set when the pon or open kan that completes the third dragon set
   or fourth wind set is made, against the seat that fed it. Mahjong Soul: the liable
-  seat pays for the liable yakuman only; Tenhou: for the whole composite hand, and
-  the liable seat pays the honba. Tests cover tsumo, ron from a third party, ron from
+  seat pays for the liable yakuman only; Tenhou: for the whole composite hand. In
+  both, the liable seat pays the honba. Tests cover tsumo, ron from a third party, ron from
   the liable seat itself, and pao inside a double ron. The `score` operation still
   answers the ordinary payment; the round redistributes.
 - **Exhaustive draw.** Tenpai for payment: Mahjong Soul as in `formats.md` (a wait
@@ -308,7 +310,8 @@ After each round, in this order:
      priority); Mahjong Soul is unverified and defaults to the same.
 5. At the end: leftover sticks go to first place; ranks break ties by starting seat;
    then return points, oka and uma from `Rules` give the final result (`GameResult`:
-   ranks, raw scores, adjusted scores).
+   ranks, raw scores, adjusted scores). Adjusted scores are integer points, so
+   +27.0 is written 27000.
 
 A nagashi mangan that pushes a tenpai last dealer out of first is handled by the
 ordering above (scores are tested after payments); unverified for both clients.

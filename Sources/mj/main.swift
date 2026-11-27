@@ -1,5 +1,7 @@
 // Line protocol: "<id> <op> key=value ..." in, "<id> key=value ..." out.
 
+import Riichi
+
 struct BadInput: Error { let reason: String }
 
 struct Request {
@@ -38,6 +40,16 @@ struct Request {
     }
     func bool(_ key: Substring) throws(BadInput) -> Bool { try int(key, default: 0, in: 0...1) == 1 }
     func flags() throws(BadInput) -> Set<Flag> { try value("flags", default: "-", parseFlags) }
+    /// `rules=mahjongsoul|tenhou`, default Mahjong Soul.
+    func rules() throws(BadInput) -> Rules {
+        try value("rules", default: "mahjongsoul") { text -> Rules? in
+            switch text {
+            case "mahjongsoul": .mahjongSoul
+            case "tenhou": .tenhou
+            default: nil
+            }
+        }
+    }
 }
 
 extension Request {
@@ -47,7 +59,7 @@ extension Request {
         let hand = try tiles("hand"), melds = try value("melds", default: "-", parseMelds)
         let all = hand + (extra.map { [$0] } ?? []) + melds.tiles
         let reds = all.filter(\.isRed).map(\.kind)
-        guard Counts(all).n.allSatisfy({ $0 <= 4 }), Set(reds).count == reds.count else {
+        guard Counts(all).count(where: { $0 > 4 }) == 0, Set(reds).count == reds.count else {
             throw BadInput(reason: "impossible_tiles")
         }
         return (hand, melds)
@@ -69,7 +81,28 @@ extension Request {
     }
 }
 
-func answer(_ q: Request, shantenCalc: ShantenCalculator) throws(BadInput) -> String {
+extension Payment {
+    var text: String {
+        switch self {
+        case .ron(let n): "ron:\(n)"
+        case .dealerTsumo(let n): "all:\(n)"
+        case .tsumo(let nd, let d): "tsumo:\(nd)/\(d)"
+        }
+    }
+}
+
+extension Scored {
+    var text: String {
+        switch value {
+        case .ordinary(let han, let fu):
+            "yaku=\(yakuText) han=\(han) fu=\(fu) pay=\(payment.text) total=\(payment.total)"
+        case .yakuman(let n):
+            "yaku=\(yakuText) yakuman=\(n) pay=\(payment.text) total=\(payment.total)"
+        }
+    }
+}
+
+func answer(_ q: Request) throws(BadInput) -> String {
     switch q.op {
     case "agari":
         let (hand, melds) = try q.hand()
@@ -78,14 +111,14 @@ func answer(_ q: Request, shantenCalc: ShantenCalculator) throws(BadInput) -> St
 
     case "shanten":
         let (hand, melds) = try q.hand()
-        let s = shantenCalc.shanten(Counts(hand), meldCount: melds.count)
+        let s = shanten(Counts(hand), meldCount: melds.count)
         let x = { (n: Int?) in n.map(String.init) ?? "x" }
         return "std=\(s.standard) chiitoi=\(x(s.chiitoi)) kokushi=\(x(s.kokushi)) min=\(s.min)"
 
     case "waits":
         let (hand, melds) = try q.hand()
-        let w = shantenCalc.waits(Counts(hand), melds: melds)
-        return "shanten=\(w.shanten) tiles=\(format(kinds: w.tiles)) count=\(w.count)"
+        let w = waits(Counts(hand), melds: melds)
+        return "shanten=\(w.shanten) tiles=\(mpsz(kinds: w.tiles)) count=\(w.count)"
 
     case "score":
         let win = try q.tile("win")
@@ -97,7 +130,8 @@ func answer(_ q: Request, shantenCalc: ShantenCalculator) throws(BadInput) -> St
             dora: try q.tiles("dora", default: "-"), ura: try q.tiles("ura", default: "-"),
             // Bounded so that payments cannot overflow.
             honba: try q.int("honba", default: 0, in: 0...999))
-        do { return try score(req).text } catch { return "error=\(error.rawValue)" }
+        let rules = try q.rules()
+        do { return try score(req, rules: rules).text } catch { return "error=\(error.rawValue)" }
 
     case "legal":
         let situation = try q.situation()
@@ -111,15 +145,13 @@ func answer(_ q: Request, shantenCalc: ShantenCalculator) throws(BadInput) -> St
             seat: try q.wind("seat"), round: try q.wind("round"), flags: try q.flags(),
             inRiichi: try q.bool("riichi"), furiten: try q.bool("furiten"),
             wall: try q.int("wall", default: 70, in: 0...136), firstTurn: try q.bool("first"),
-            kans: try q.int("kans", default: 0, in: 0...4))
+            kans: try q.int("kans", default: 0, in: 0...4), rules: try q.rules())
         return "actions=\(req.actions.joined(separator: ","))"
 
     default:
         throw BadInput(reason: "unknown_op")
     }
 }
-
-let shantenCalc = ShantenCalculator()
 
 while let line = readLine() {
     if line.isEmpty { continue }
@@ -128,7 +160,7 @@ while let line = readLine() {
         continue
     }
     do {
-        print("\(q.id) \(try answer(q, shantenCalc: shantenCalc))")
+        print("\(q.id) \(try answer(q))")
     } catch {
         print("\(q.id) error=\(error.reason)")
     }

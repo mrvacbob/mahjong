@@ -1,0 +1,55 @@
+# Kuikae after Chi (suji swap forbidden) and after Pon (same kind incl. red/normal forbidden),
+# plus no tsumogiri after a call (engine.md §4, §4.2, rules.md §4.12, §4.13).
+# Scoring for Seat 3 (non-dealer, West):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s
+#   Yaku: pinfu (1) + tanyao (1) = 2 han, 30 fu -> 2000 from Seat 2.
+
+[meta]
+name: kuikae_chi_and_pon
+title: Kuikae forbids suji swap after Chi and same-kind discard after Pon
+rules: mahjongsoul
+source: engine.md §4, §4.2, rules.md §4.12, §4.13
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 4m 112233p 112233s
+hand 1: 4567m 5p 234s 678s 99s
+hand 2: 055p 234m 678m 34s 77s
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+draws: 2z
+
+[steps]
+0 discard 4m
+window: 1=chi:56m
+# After chi 4m with 56m: 4m and 7m are forbidden by kuikae; no tsumogiri after a call.
+assert_illegal 1: discard:4m
+assert_illegal 1: discard:7m
+assert_illegal 1: tsumogiri
+assert_legal 1: discard:5p
+1 discard 5p
+window: 2=pon:05p
+# After pon 5p using 05p: remaining 5p is forbidden by kuikae.
+assert_illegal 2: discard:5p
+assert_illegal 2: tsumogiri
+assert_legal 2: discard:7s
+2 discard 7s
+window: 3=ron
+
+[expect]
+outcome: ron
+winners: 3
+win 3: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 0 -2000 2000
+scores: 25000 25000 23000 27000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), chi(1), dahai(1), pon(2), dahai(2), hora(3), end_kyoku

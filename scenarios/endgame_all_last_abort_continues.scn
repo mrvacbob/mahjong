@@ -1,0 +1,44 @@
+# Game end: All Last abortive draw does NOT trigger agari/tenpai-yame (engine.md §5 step 4).
+# South 4, dealer=3 is strictly 1st with 35000 (>= 30000).
+# Dealer declares kyuushu kyuuhai (abortive draw) -> dealer repeats South 4 honba 1, game continues!
+
+[meta]
+name: endgame_all_last_abort_continues
+title: All Last abortive draw repeats dealer even when dealer is 1st with >= 30000
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1 (renchan_on_abortive_draw)
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 25000 20000 20000 35000
+
+[wall]
+hand 0: 234p 678p 234s 678s 5m
+hand 1: 2233m 4455p 2233s 4z
+hand 2: 6677m 7788p 4455s 6z
+hand 3: 19m 19p 19s 12z 234m 56p
+dora: 7z
+draws: 3z
+
+[steps]
+assert_legal 3: kyuushu
+3 kyuushu
+
+[expect]
+outcome: abortive_draw
+abort_reason: kyuushu
+deltas: 0 0 0 0
+scores: 25000 20000 20000 35000
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: S
+next_round: 4
+next_dealer: 3
+events: start_kyoku, tsumo(3), ryukyoku(kyuushu), end_kyoku

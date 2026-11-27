@@ -1,0 +1,67 @@
+# Robbing a closed kan (ankan) — ruleset difference (engine.md §4.2, rules.md §1, §4.16):
+# Seat 0 declares ankan 1m.
+# Seat 1 holds single-wait Kokushi Musou waiting on 1m (9m 19p 19s 1234567z + 9m).
+# Seat 2 holds a normal hand waiting on 1m (23m 678m 234p 567s 88p).
+# - Mahjong Soul: Seat 1 CAN rob the ankan for Kokushi (1x Yakuman = 32000 from Seat 0);
+#   Seat 2 CANNOT rob (not Kokushi).
+# - Tenhou: NOBODY can rob a closed kan. Seat 0 completes ankan 1m, flips kan dora,
+#   draws rinshan 7s, discards 7s -> Seat 3 rons 7s (pinfu + tanyao = 2 han 30 fu = 2000).
+
+[meta]
+name: closed_kan_robbed_kokushi
+title: Robbing a closed kan is Kokushi-only on Mahjong Soul and forbidden on Tenhou
+rules: both
+source: engine.md §4.2, rules.md §1, §4.16
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111m 456p 789p 234s
+hand 1: 99m 19p 19s 1234567z
+hand 2: 23m 678m 234p 567s 88p
+hand 3: 234m 678m 234p 56s 88s
+dora: 3z 5z
+rinshan: 7s
+draws: 4z
+
+[steps]
+0 ankan 1m
+
+[steps.mahjongsoul]
+assert_legal 1: ron
+assert_illegal 2: ron
+assert_not_asked 2
+window: 1=ron
+
+[steps.tenhou]
+# Under Tenhou no robbing window opens; Seat 0 draws rinshan 7s and discards it.
+0 tsumogiri 7s
+window: 3=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=kokushi
+deltas: -32000 32000 0 0
+scores: -7000 57000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), ankan(0), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 3
+win 3: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2000 0 0 2000
+scores: 23000 25000 25000 27000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), ankan(0), dora(5z), tsumo(0), dahai(0), hora(3), end_kyoku

@@ -1,0 +1,53 @@
+# Four kans by ONE seat: play continues (no suukaikan abort), and NO fifth kan is legal
+# for anyone (engine.md §4.2, rules.md §4.23).
+# Seat 0 makes 4 closed kans (1m, 9m, 1p, 9p) and discards 2z -> round does NOT abort!
+# Seat 1 holds 777z and draws 4th 7z -> ankan:7z is ILLEGAL (no 5th kan allowed!).
+# Seat 1 discards 7s -> Seat 2 rons 7s.
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s
+#   Yaku: pinfu (1) + tanyao (1) = 2 han, 30 fu -> 2000 from Seat 1.
+
+[meta]
+name: four_kans_one_seat_no_fifth
+title: Four kans by one seat continues play and forbids any fifth kan
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.23
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111m 9999m 1111p 9p
+hand 1: 777z 7s 345p 678p 234s
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 456m 567s 1122s 666z
+dora: 1z 2z 3z 4z 6z
+rinshan: 9p 9p 9p 2z
+draws: 2z 7z
+
+[steps]
+0 ankan 1m
+0 ankan 9m
+0 ankan 1p
+0 ankan 9p
+0 tsumogiri 2z
+# Play continues (4 kans belong to 1 seat only); Seat 1 draws 4th 7z, cannot make a 5th kan!
+assert_illegal 1: ankan:7z
+1 discard 7s
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 -2000 2000 0
+scores: 25000 23000 27000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: ankan(0), ankan(0), ankan(0), ankan(0), dahai(0), tsumo(1), dahai(1), hora(2), end_kyoku

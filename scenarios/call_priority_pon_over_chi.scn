@@ -1,0 +1,50 @@
+# Call priority: Pon beats Chi; red-five pon variants (05m vs 55m) are distinct legal actions.
+# After Seat 2 pons 5m using 05m, Seat 2 discards 7s and Seat 3 rons.
+# Scoring for Seat 3 (non-dealer, West):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s (ryanmen wait 4s/7s, non-yakuhai pair 88p)
+#   Yaku: pinfu (1) + tanyao (1) = 2 han. Dora indicator 1z -> dora 2z (0 dora).
+#   Fu: 20 base + 10 menzen ron = 30 fu.
+#   Non-dealer ron 2 han 30 fu = 2000 from Seat 2.
+
+[meta]
+name: call_priority_pon_over_chi
+title: Pon beats Chi in the same window and distinguishes red-five pon variants
+rules: mahjongsoul
+source: engine.md §4, §4.1 rows 6/7, rules.md §4.37
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5m 111p 999p 111s 999s
+hand 1: 46m 123p 789p 234s 77z
+hand 2: 055m 123m 789m 567p 7s
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+draws: 2z
+
+[steps]
+0 discard 5m
+assert_legal 1: chi:46m
+assert_legal 2: pon:05m
+assert_legal 2: pon:55m
+assert_legal 2: daiminkan
+window: 1=chi:46m, 2=pon:05m
+2 discard 7s
+window: 3=ron
+
+[expect]
+outcome: ron
+winners: 3
+win 3: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 0 -2000 2000
+scores: 25000 25000 23000 27000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(2), dahai(2), hora(3), end_kyoku

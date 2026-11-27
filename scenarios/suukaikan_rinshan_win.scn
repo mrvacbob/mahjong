@@ -1,0 +1,54 @@
+# Fourth kan by a second seat does NOT abort before the replacement draw:
+# Seat 1 wins by Rinshan Kaihou on the 4th kan's replacement tile (rules.md §4.22, engine.md §4.2).
+# Seat 0 makes 3 closed kans (1m, 9m, 1p), discards 2z.
+# Seat 1 draws 4th 9p, declares ankan 9p (4th kan total, by 2nd seat), draws rinshan 7s -> tsumo!
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234m 678m 56s 88p + ankan 9999p + rinshan tsumo 7s
+#   Yaku: tsumo (1) + rinshan (1) = 2 han.
+#   Dora indicators: 1z->2z, 2z->3z, 3z->4z, 4z->1z, 7z->5z (0 dora in hand).
+#   Fu: 20 base + 2 tsumo + 32 ankan(9p) = 54 -> 60 fu.
+#   Non-dealer tsumo 2 han 60 fu: 1000 from non-dealers (Seats 2, 3), 2000 from dealer (Seat 0).
+#   Total to Seat 1: 1000 + 1000 + 2000 = 4000.
+
+[meta]
+name: suukaikan_rinshan_win
+title: Fourth kan by a second seat allows Rinshan Kaihou win instead of aborting
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.22
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111m 9999m 1111p 2z
+hand 1: 999p 234m 678m 56s 88p
+hand 2: 55z 345p 678p 234s 77s
+hand 3: 456m 567s 1122s 666z
+dora: 1z 2z 3z 4z 7z
+rinshan: 3z 4z 4z 7s
+draws: 2z 9p
+
+[steps]
+0 ankan 1m
+0 ankan 9m
+0 ankan 1p
+0 discard 2z
+1 ankan 9p
+assert_legal 1: tsumo
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: han=2 fu=60 yaku=rinshan,tsumo
+deltas: -2000 4000 -1000 -1000
+scores: 23000 29000 24000 24000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: ankan(0), ankan(0), ankan(0), dahai(0), ankan(1), dora(7z), tsumo(1), hora(1), end_kyoku

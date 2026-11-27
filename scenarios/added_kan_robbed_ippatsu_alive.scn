@@ -1,0 +1,62 @@
+# Added kan (kakan) robbed with ippatsu alive (engine.md §4.2, rules.md §4.15, §4.26):
+# - Pon stays intact, no kan counted, no replacement draw, NO kan dora revealed,
+#   and ippatsu SURVIVES -> Riichi + Ippatsu + Chankan combine!
+# Setup: Seat 2 discards 4m on turn 1 -> Seat 1 pons 4m (using 44m), discards 9s.
+# Seat 2, 3 tsumogiri. Seat 0 declares riichi on turn 2 (reach_accepted, ippatsu alive!).
+# Seat 1 draws 4th 4m and declares kakan 4m -> Seat 0 robs it!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 23m 678m 234p 567s 88p + ron 4m (chankan)
+#   Yaku: riichi (1) + ippatsu (1) + chankan (1) + pinfu (1) + tanyao (1) = 5 han (Mangan).
+#   Dora indicators: 7z -> 5z (0 dora); 2nd indicator 3m (-> 4m) is NOT revealed!
+#   Ura indicators: 5z -> 6z (0 ura).
+#   Dealer ron Mangan = 12000 from Seat 1.
+#   Seat 0 paid 1000 stick and recovers it -> net +12000, Seat 1 -12000.
+
+[meta]
+name: added_kan_robbed_ippatsu_alive
+title: Robbing an added kan preserves ippatsu and reveals no kan dora
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.15, §4.26, §5.5
+unverified: rules.md §5 item 5 (resolved by published rules, not checked in a client)
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 23m 678m 234p 567s 88p
+hand 1: 44m 9s 111p 777p 111s 9m
+hand 2: 4m 1199m 5566p 1228s
+hand 3: 3355m 23p 99p 3344s 6z
+dora: 7z 3m
+ura: 5z 5z
+draws: 1z 2z 2z 2z 3z 3z 4m
+
+[steps]
+0 tsumogiri 1z
+1 tsumogiri 2z
+2 discard 4m
+window: 1=pon:44m
+1 discard 9s
+2 tsumogiri 2z
+3 tsumogiri 3z
+0 riichi
+0 tsumogiri 3z
+1 kakan 4m
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=5 fu=30 yaku=chankan,ippatsu,pinfu,riichi,tanyao
+deltas: 12000 -12000 0 0
+scores: 37000 13000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: pon(1), reach(0), dahai(0), reach_accepted(0), tsumo(1), kakan(1), hora(0), end_kyoku

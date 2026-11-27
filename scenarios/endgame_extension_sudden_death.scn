@@ -1,0 +1,49 @@
+# Game end: Sudden death in extension round (West 1) when non-dealer reaches >= 30,000
+# and dealer does not repeat (engine.md §5 step 4, rules.md §1 sudden_death_target).
+# West 1, dealer=0, scores: 24000 28500 24000 23500.
+# Seat 2 discards 7s -> Seat 1 rons (pinfu + tanyao = 2 han 30 fu = 2000).
+# Post-round scores: 24000 30500 22000 23500.
+# Seat 1 >= 30000 and dealer does not repeat -> game ends immediately!
+
+[meta]
+name: endgame_extension_sudden_death
+title: Reaching >= 30000 in West extension ends the game immediately on non-dealer win
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1 (sudden_death_target)
+
+[round]
+game_length: south
+wind: W
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 24000 28500 24000 23500
+
+[wall]
+hand 0: 1199m 1199p 1199s 5z
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 7s 3344m 7744p 3344s
+hand 3: 5566m 5566p 1122s 7z
+dora: 1z
+draws: 2z 3z 4z
+
+[steps]
+0 tsumogiri 2z
+1 tsumogiri 3z
+2 discard 7s
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 2000 -2000 0
+scores: 24000 30500 22000 23500
+sticks: 0
+honba: 0
+dealer_repeats: false
+game_ended: true
+final_scores: 24000 30500 22000 23500
+final_ranks: 1 0 3 2
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), hora(1), end_kyoku, end_game

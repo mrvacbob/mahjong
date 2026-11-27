@@ -1,0 +1,41 @@
+# Nine terminals and honors (Kyuushu Kyuuhai) on the first unbroken draw
+# (engine.md §4.2, rules.md §4.25).
+# Seat 0 starts with 8 distinct terminals/honors (1m, 9m, 1p, 9p, 1s, 9s, 1z, 2z)
+# and draws 3z (9th distinct terminal/honor) on turn 0 -> kyuushu is legal and ends round immediately.
+# Abortive draw: deltas 0 0 0 0, sticks unchanged, honba +1, dealer repeats.
+
+[meta]
+name: abort_kyuushu_kyuuhai
+title: Nine distinct terminals and honors on first unbroken draw aborts the round
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.25
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 19m 19p 19s 12z 234m 56p
+hand 1: 234p 678p 234s 678s 5m
+hand 2: 2233m 4455p 2233s 4z
+hand 3: 6677m 7788p 4455s 6z
+dora: 7z
+draws: 3z
+
+[steps]
+assert_legal 0: kyuushu
+0 kyuushu
+
+[expect]
+outcome: abortive_draw
+abort_reason: kyuushu
+deltas: 0 0 0 0
+scores: 25000 25000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ryukyoku(kyuushu), end_kyoku

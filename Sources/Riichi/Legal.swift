@@ -1,40 +1,71 @@
 // The `legal` op, built from score and hand completion.
 
-enum Situation {
+public enum Situation: Sendable {
+    /// Own turn, having just drawn this tile (not in `hand`).
     case draw(Tile)
+    /// Another seat discarded this tile (or is adding it to a kan, with the
+    /// `chankan` or `ankan_rob` flag).
     case discard(Tile, fromKamicha: Bool)
+    /// This seat just made this chi or pon (already in `melds`) by taking `took`.
     case called(Meld, took: Tile)
 }
 
-struct LegalRequest {
-    var hand: [Tile]
-    var melds: [Meld]
-    var situation: Situation
-    var seat: Wind = .east
-    var round: Wind = .east
-    var flags: Set<Flag> = []
-    var inRiichi = false
-    var furiten = false
-    var wall = 70
-    var firstTurn = false
-    var kans = 0
+/// One `legal` question (`spec/formats.md`).
+public struct LegalRequest: Sendable {
+    public var hand: [Tile]
+    public var melds: [Meld]
+    public var situation: Situation
+    public var seat: Wind
+    public var round: Wind
+    public var flags: Set<Flag>
+    public var inRiichi: Bool
+    public var furiten: Bool
+    /// Live wall tiles left.
+    public var wall: Int
+    public var firstTurn: Bool
+    /// Kans at the table so far.
+    public var kans: Int
+    public var rules: Rules
+
+    public init(hand: [Tile], melds: [Meld], situation: Situation, seat: Wind = .east,
+                round: Wind = .east, flags: Set<Flag> = [], inRiichi: Bool = false,
+                furiten: Bool = false, wall: Int = 70, firstTurn: Bool = false, kans: Int = 0,
+                rules: Rules) {
+        self.hand = hand; self.melds = melds; self.situation = situation
+        self.seat = seat; self.round = round; self.flags = flags
+        self.inRiichi = inRiichi; self.furiten = furiten; self.wall = wall
+        self.firstTurn = firstTurn; self.kans = kans; self.rules = rules
+    }
 }
 
-/// Kinds that may not be discarded right after taking `took` with `fromHand`.
-func kuikaeForbidden(took: Kind, fromHand: [Kind]) -> Set<Kind> {
-    var out: Set<Kind> = [took]
-    let pair = fromHand.sorted()
-    if pair.count == 2, pair[0].shifted(1) == pair[1] {
-        // Took one end of a run whose other two tiles are adjacent: the far end too.
-        if took < pair[0], let far = pair[1].shifted(1) { out.insert(far) }
-        if took > pair[1], let far = pair[0].shifted(-1) { out.insert(far) }
+/// Whether discarding down to `rest` leaves a hand that may declare riichi: tenpai,
+/// on a wait with a copy outside the hand and melds unless `rules` allows a
+/// fifth-copy wait.
+func isRiichiTenpai(_ rest: Counts, melds: [Meld], rules: Rules) -> Bool {
+    let meldKinds = Counts(melds.tiles)
+    return Kind.all.contains { w in
+        (rules.riichiOnFifthCopyWait || rest[w] + meldKinds[w] < 4)
+            && isComplete(rest.adding(w), meldCount: melds.count)
     }
-    return out
+}
+
+/// Tenpai for payments at an exhaustive draw. `concealed` is the 13 − 3k concealed
+/// tiles. A wait that exists only as a fifth copy counts only under
+/// `Rules.fifthCopyTenpaiAtDraw`, and then only if the four copies are not all
+/// concealed (rules.md §5 item 7).
+public func isTenpaiAtDraw(_ concealed: Counts, melds: [Meld], rules: Rules) -> Bool {
+    let meldKinds = Counts(melds.tiles)
+    return Kind.all.contains { w in
+        let available = rules.fifthCopyTenpaiAtDraw
+            ? concealed[w] < 4
+            : concealed[w] + meldKinds[w] < 4
+        return available && isComplete(concealed.adding(w), meldCount: melds.count)
+    }
 }
 
 extension LegalRequest {
     /// The `legal` answer: distinct actions, sorted as strings.
-    var actions: [String] {
+    public var actions: [String] {
         let out = switch situation {
         case .draw(let t): afterDraw(drawn: t)
         case .discard(let t, let kamicha): onDiscard(tile: t, fromKamicha: kamicha)
@@ -49,7 +80,8 @@ extension LegalRequest {
         var flags = flags.intersection(allowed)
         if inRiichi { flags.insert(.riichi) }
         let context = WinContext(seat: seat, round: round, tsumo: tsumo, flags: flags)
-        return (try? score(ScoreRequest(hand: hand, melds: melds, win: tile, context: context))) != nil
+        return (try? score(ScoreRequest(hand: hand, melds: melds, win: tile, context: context),
+                           rules: rules)) != nil
     }
 
     // MARK: own draw
@@ -67,14 +99,8 @@ extension LegalRequest {
         }
 
         if !inRiichi && melds.isClosed && wall >= 4 {
-            // Tenpai after the discard, on a wait with a copy outside hand and melds.
-            let meldKinds = Counts(melds.tiles)
-            for k in counts.kinds {
-                let rest = counts.removing(k)
-                let tenpai = Kind.all.contains { w in
-                    rest[w] + meldKinds[w] < 4 && isComplete(rest.adding(w), meldCount: melds.count)
-                }
-                if tenpai { out += tiles.distinct.filter { $0.kind == k }.map { "riichi:\($0)" } }
+            for k in counts.kinds where isRiichiTenpai(counts.removing(k), melds: melds, rules: rules) {
+                out += tiles.distinct.filter { $0.kind == k }.map { "riichi:\($0)" }
             }
         }
 
@@ -113,7 +139,7 @@ extension LegalRequest {
         if !furiten {
             let canRon: Bool
             if flags.contains(.ankan_rob) {
-                canRon = melds.isEmpty && isKokushi(Counts(hand + [tile]))
+                canRon = rules.kokushiRobsClosedKan && melds.isEmpty && isKokushi(Counts(hand + [tile]))
             } else {
                 canRon = wins(tile, tsumo: false, allowed: [.houtei, .chankan])
             }
@@ -134,9 +160,9 @@ extension LegalRequest {
                 guard let ka = k.shifted(a), let kb = k.shifted(b) else { continue }
                 for ta in hand.distinct where ta.kind == ka {
                     for tb in hand.distinct where tb.kind == kb {
-                        let forbidden = kuikaeForbidden(took: k, fromHand: [ka, kb])
-                        if leavesDiscard([ta, tb], forbidden: forbidden) {
-                            out.append("chi:\(format([ta, tb]))")
+                        let chi = Meld(kind: .chi, tiles: [ta, tb, tile])!
+                        if leavesDiscard([ta, tb], forbidden: chi.kuikaeForbidden(took: k)) {
+                            out.append("chi:\(mpsz([ta, tb]))")
                         }
                     }
                 }
@@ -150,7 +176,7 @@ extension LegalRequest {
         if plain >= 2 { pons.append([Tile(k), Tile(k)]) }
         if red >= 1 && plain >= 1 { pons.append([Tile(k, red: true), Tile(k)]) }
         for p in pons where leavesDiscard(p, forbidden: [k]) {
-            out.append("pon:\(format(p))")
+            out.append("pon:\(mpsz(p))")
         }
         if same.count == 3 && kans < 4 { out.append("kan:\(Tile(k))") }
         return out
@@ -159,10 +185,7 @@ extension LegalRequest {
     // MARK: after this seat's own chi or pon
 
     private func afterCall(meld: Meld, took: Tile) -> [String] {
-        let k = took.kind
-        let forbidden = meld.kind == .chi
-            ? kuikaeForbidden(took: k, fromHand: meld.tiles.map(\.kind).filter { $0 != k })
-            : [k]
+        let forbidden = meld.kuikaeForbidden(took: took.kind)
         return hand.distinct.filter { !forbidden.contains($0.kind) }.map { "discard:\($0)" }
     }
 }

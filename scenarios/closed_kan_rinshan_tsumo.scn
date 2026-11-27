@@ -1,0 +1,57 @@
+# Closed kan (ankan) reveals its kan dora IMMEDIATELY before the replacement draw,
+# so a Rinshan Kaihou tsumo counts the new kan dora (engine.md §4.2, rules.md §4.17).
+# Also confirms own ankan cancels ippatsu (rules.md §4.26).
+# Seat 0 declares Double Riichi on turn 1 (holding 234m 678p 56s 999m 88p),
+# draws 4th 9m on turn 2, declares ankan 9m -> kan dora 8m (-> dora 9m, +4 dora!) flips immediately,
+# draws rinshan 7s and wins by tsumo!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 234m 678p 56s 88p + ankan 9999m + rinshan tsumo 7s
+#   Yaku: double_riichi (2) + tsumo (1) + rinshan (1) + dora:4 (9m x4 from kan dora 8m) = 8 han (Baiman).
+#   (NO ippatsu: own ankan cancelled it. Dora indicators: 1z -> 2z, 8m -> 9m. Ura: 5z -> 6z, 5z -> 6z.)
+#   Fu: 20 base + 2 tsumo + 32 ankan(9m) = 54 -> 60 fu.
+#   Dealer tsumo Baiman = 8000 all (+24000 from opponents; recovers own 1000 stick -> net +24000).
+#   Deltas: +24000 -8000 -8000 -8000.
+
+[meta]
+name: closed_kan_rinshan_tsumo
+title: Closed kan reveals kan dora immediately for Rinshan tsumo and cancels own ippatsu
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.17, §4.26
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 999m 234m 678p 56s 88p
+hand 1: 112233p 112233s 4z
+hand 2: 1155m 4455p 2233s 7z
+hand 3: 6677m 7799p 4488s 6z
+dora: 1z 8m
+ura: 5z 5z
+rinshan: 7s
+draws: 3z 3z 3z 3z 9m
+
+[steps]
+0 riichi
+0 tsumogiri 3z
+1 tsumogiri 3z
+2 tsumogiri 3z
+3 tsumogiri 3z
+0 ankan 9m
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: han=8 fu=60 yaku=dora:4,double_riichi,rinshan,tsumo
+deltas: 24000 -8000 -8000 -8000
+scores: 49000 17000 17000 17000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), ankan(0), dora(8m), tsumo(0), hora(0), end_kyoku

@@ -1,0 +1,46 @@
+# Game end: All Last extension trigger excludes leftover sticks from the 30,000 test
+# (engine.md §5 step 4, rules.md §1 extension_round_enabled, §5 item 8).
+# South 4, dealer=3, sticks=2 (2000 on table), scores: 26000 24000 25000 23000.
+# Exhaustive draw: ONLY Seat 0 is tenpai (dealer Seat 3 is noten -> does not repeat).
+# Deltas: +3000 -1000 -1000 -1000 -> post-hand scores: 29000 23000 24000 22000.
+# Even though Seat 0 + 2 sticks would be 31000, the 30,000 check runs BEFORE awarding
+# leftover sticks -> nobody has >= 30000 -> game continues into West 1 (dealer=0, honba=1, sticks=2)!
+
+[meta]
+name: endgame_all_last_extension_start
+title: All Last enters West extension when top score is < 30000 excluding leftover sticks
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1 (extension_round_enabled), §5.8
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 2
+dealer: 3
+scores: 26000 24000 25000 23000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 1144m 7799p 1155s 6z
+hand 2: 3388m 1144p 3399s 7z
+hand 3: 5599m 5566p 1122s 4z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 0
+deltas: 3000 -1000 -1000 -1000
+scores: 29000 23000 24000 22000
+sticks: 2
+honba: 1
+dealer_repeats: false
+game_ended: false
+next_wind: W
+next_round: 1
+next_dealer: 0
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

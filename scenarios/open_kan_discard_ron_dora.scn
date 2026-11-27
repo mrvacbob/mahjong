@@ -1,0 +1,62 @@
+# Ron on the discard after an open kan (daiminkan) — ruleset difference
+# (engine.md §4.2, rules.md §1 kan_dora_daiminkan_timing, §5 item 4).
+# Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z (owes kan dora 7p -> dora 8p),
+# draws rinshan 7s, discards 7s -> Seat 2 rons 7s (holding 88p!).
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s
+#   - Mahjong Soul (default, unverified): owed kan dora flips only AFTER window passes ->
+#     pinfu (1) + tanyao (1) = 2 han 30 fu -> 2000 from Seat 1.
+#   - Tenhou: owed kan dora flips AT discard (before window) ->
+#     pinfu (1) + tanyao (1) + dora:2 (88p) = 4 han 30 fu (no kiriage!) -> 7700 from Seat 1.
+
+[meta]
+name: open_kan_discard_ron_dora
+title: Kan dora on a ron of the post-open-kan discard (Tenhou counts it, Majsoul default does not)
+rules: both
+source: engine.md §4.2, rules.md §1, §4.17, §5.4
+unverified: rules.md §5 item 4 (Mahjong Soul kan dora timing on post-kan ron)
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 111p 999p 111s 999s
+hand 1: 555z 1199m 5566p 22s
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 3344m 77p 44p 3344s 6z
+dora: 1z 7p
+rinshan: 7s
+draws: 2z
+
+[steps]
+0 discard 5z
+window: 1=daiminkan
+1 tsumogiri 7s
+window: 2=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 -2000 2000 0
+scores: 25000 23000 27000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), hora(2), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 2
+win 2: han=4 fu=30 yaku=dora:2,pinfu,tanyao
+deltas: 0 -7700 7700 0
+scores: 25000 17300 32700 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7p), hora(2), end_kyoku

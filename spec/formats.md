@@ -79,6 +79,7 @@ when it includes a drawn or winning tile (each op says which).
 | `ura` | tile list of ura dora indicators | `-` |
 | `honba` | integer | `0` |
 | `flags` | comma list, see `score` | `-` |
+| `rules` | `mahjongsoul` or `tenhou`; `score` and `legal` only, see below | `mahjongsoul` |
 
 ## Ops
 
@@ -178,7 +179,16 @@ Yakuman names: `kokushi` `kokushi_13` `suuankou` `suuankou_tanki` `daisangen`
 `junsei_chuuren` `suukantsu` `tenhou` `chiihou`.
 
 Which of these are double, whether kazoe yakuman exists, kiriage mangan, and so on
-come from `spec/rules.md`. The shootout uses one fixed ruleset (the default).
+come from `spec/rules.md`. The corpus uses the default ruleset, Mahjong Soul.
+
+`rules=tenhou` (added in Phase 3; `score` and `legal` only) answers under Tenhou
+ranked rules instead. For `score` that changes two things: no yakuman is double, so
+`kokushi_13`, `suuankou_tanki`, `junsei_chuuren` and `daisuushii` print `:1`; and
+with `tenhou` the supplied `win` tile is the winning tile, with no free choice
+among the 14 (so `kokushi`, not `kokushi_13`, when `win` is not the duplicate). For
+`legal`, `flags=ankan_rob` never offers `ron` (Tenhou does not let kokushi rob a
+closed kan). Any other value answers `error=bad_rules`. The Mercury cross-check
+ignores this key and always answers Mahjong Soul.
 
 ### `legal` — what may this seat do right now
 

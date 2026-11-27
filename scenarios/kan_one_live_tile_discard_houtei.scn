@@ -1,0 +1,54 @@
+# Kan with 1 live tile left -> replacement draw (non-winning) -> discard with 0 live tiles left
+# -> ronned for Houtei Raoyui (engine.md §4.2, rules.md §4.18, §4.19).
+# After 68 auto_tsumogiri turns, Seat 0 draws live[68] (4th 1z), declares ankan 1z (0 live left),
+# draws rinshan[0] (7s), tsumogiris 7s. Seat 1 rons 7s for Houtei!
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s (houtei)
+#   Yaku: pinfu (1) + tanyao (1) + houtei (1) = 3 han.
+#   Dora indicators: 9s -> 1s, kan dora 9p -> 1p (0 dora).
+#   Fu: 20 base + 10 menzen ron = 30 fu.
+#   Non-dealer ron 3 han 30 fu = 3900 from Seat 0.
+
+[meta]
+name: kan_one_live_tile_discard_houtei
+title: Discard after kan with 1 live tile left can be ronned for Houtei
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.18, §4.19
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 111z 1199m 5566p 11s
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 77s 3344m 7799p 344s
+hand 3: 5577m 1188s 2233z 5z
+dora: 9s 9p
+rinshan: 7s
+draw_at 68: 1z
+
+[steps]
+auto_tsumogiri 68
+0 ankan 1z
+0 tsumogiri 7s
+# 0 live tiles left: Seat 2 cannot pon 7s; Seat 1 can ron for Houtei!
+assert_illegal 2: pon
+assert_not_asked 2
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=3 fu=30 yaku=houtei,pinfu,tanyao
+deltas: -3900 3900 0 0
+scores: 21100 28900 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: ankan(0), dora(9p), tsumo(0), dahai(0), hora(1), end_kyoku

@@ -1,0 +1,46 @@
+# Game end: dropping to exactly 0 points does NOT bust (engine.md §5 step 1, rules.md §4.29).
+# East 1, scores: 2000 35000 32000 31000.
+# Seat 0 deals 7s into Seat 2 (pinfu + tanyao = 2 han 30 fu = 2000) -> Seat 0 drops to 0.
+# Game continues into East 2 with Seat 1 as dealer!
+
+[meta]
+name: endgame_zero_continues
+title: Dropping to exactly zero points does not trigger tobi
+rules: mahjongsoul
+source: engine.md §5 step 1, rules.md §1 (tobi_threshold), §4.29
+
+[round]
+game_length: south
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 2000 35000 32000 31000
+
+[wall]
+hand 0: 7s 1199m 1199p 1199s
+hand 1: 3344m 7744p 3344s 6z
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 5566m 5566p 1122s 7z
+dora: 1z
+draws: 2z
+
+[steps]
+0 discard 7s
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2000 0 2000 0
+scores: 0 35000 34000 31000
+sticks: 0
+honba: 0
+dealer_repeats: false
+game_ended: false
+next_wind: E
+next_round: 2
+next_dealer: 1
+events: start_kyoku, tsumo(0), dahai(0), hora(2), end_kyoku

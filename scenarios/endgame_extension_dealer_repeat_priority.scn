@@ -1,0 +1,49 @@
+# Game end: In extension (West 1), non-dealer passes 30,000 while dealer ALSO repeats
+# without being first -> dealer repeat takes priority and game continues!
+# (engine.md §5 step 4, rules.md §5 item 8).
+# Verified for Tenhou; unverified for Mahjong Soul (defaults to the same).
+# West 1, dealer=0, scores: 24000 29000 24000 23000.
+# Exhaustive draw: Seat 0 (dealer) and Seat 1 (non-dealer) are tenpai ->
+# deltas: +1500 +1500 -1500 -1500 -> scores: 25500 30500 22500 21500.
+# Even though Seat 1 reached 30500 (>= 30000), Seat 0 (dealer) repeats and is NOT 1st,
+# so play continues in West 1 honba 1!
+
+[meta]
+name: endgame_extension_dealer_repeat_priority
+title: Dealer repeat takes priority over non-dealer passing 30000 in West extension
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §5.8
+unverified: rules.md §5 item 8 (Mahjong Soul dealer repeat vs 30000 sudden death in extension)
+
+[round]
+game_length: south
+wind: W
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 24000 29000 24000 23000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 123m 456m 789p 23s 99s
+hand 2: 1144m 7799p 1155s 6z
+hand 3: 3388m 1144p 3399s 7z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 0, 1
+deltas: 1500 1500 -1500 -1500
+scores: 25500 30500 22500 21500
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: W
+next_round: 1
+next_dealer: 0
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

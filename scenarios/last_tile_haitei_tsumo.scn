@@ -1,0 +1,48 @@
+# Last live tile: Haitei Raoyue tsumo on the 70th live draw (0 live tiles remaining).
+# Also verifies that ankan is illegal with 0 live tiles remaining (rules.md §4.18).
+# After 69 auto_tsumogiri turns (live draws 0..68 discarded), Seat 1 draws live[69] (7s).
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234m 678m 234p 56s 88p + tsumo 7s (last live tile)
+#   Yaku: tsumo (1) + pinfu (1) + tanyao (1) + haitei (1) = 4 han.
+#   Dora indicator 1z -> dora 2z (0 dora).
+#   Fu: Pinfu + Tsumo = fixed 20 fu.
+#   Non-dealer tsumo 4 han 20 fu: 1300 from non-dealers (Seats 2, 3), 2600 from dealer (Seat 0).
+#   Total to Seat 1: 1300 + 1300 + 2600 = 5200.
+
+[meta]
+name: last_tile_haitei_tsumo
+title: Haitei Raoyue tsumo on the last live tile
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.18, §4.7
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 111p 999p 111s 999s 1m
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 1199m 5566p 122s 8s 7z
+hand 3: 3344m 77p 44p 3344s 6z
+dora: 1z
+draw_at 69: 7s
+
+[steps]
+auto_tsumogiri 69
+assert_legal 1: tsumo
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: han=4 fu=20 yaku=haitei,pinfu,tanyao,tsumo
+deltas: -2600 5200 -1300 -1300
+scores: 22400 30200 23700 23700
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: tsumo(1), hora(1), end_kyoku
