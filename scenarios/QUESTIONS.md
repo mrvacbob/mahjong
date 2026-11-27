@@ -4,20 +4,12 @@ Disagreements between `docs/design/engine.md` (draft 2) and `spec/rules.md`, or
 places where either document looks incomplete or ambiguous. Per the brief,
 scenarios follow `spec/rules.md` where the two disagree and list the item here.
 
-## 1. Temporary furiten clearing on a call (Mahjong Soul)
+## 1. Temporary furiten clearing on a call (resolved for scenarios)
 
-- **`spec/rules.md` (§1 `furiten_temporary`, §4 item 28):** Says Mahjong Soul
-  temporary furiten lasts *"until own next draw/call"*, whereas the Tenhou
-  column explicitly states *"until the next own draw (「次の自分のツモ番まで」);
-  a call in between does not clear it (「逆巡副露では解消しない」)"*.
-- **`docs/design/engine.md` (§4.1):** States unconditionally that *"Temporary
-  furiten ends when the seat next draws from the wall. A call does not end
-  it. ... Mahjong Soul's published rules also name the next own draw."*
-- **Action taken:** `scenarios/furiten_surviving_call.scn` is written with
-  `rules: both` and tagged `unverified`: `tenhou` keeps temporary furiten across
-  the call (both docs agree), while `mahjongsoul` follows `spec/rules.md`'s
-  literal wording (*"draw/call"*) until `spec/rules.md` is updated or verified
-  against a Mahjong Soul client replay.
+The Phase 3 ruling keeps temporary furiten until the next own draw for both
+rulesets. A call leaves it in place. `furiten_surviving_call.scn` uses one
+play sequence and the same outcome for both rulesets. The Mahjong Soul
+client behavior of an intervening call remains untested in a replay.
 
 ## 2. Pao on Ron honba in Mahjong Soul vs `engine.md` §4.2
 
@@ -40,7 +32,7 @@ scenarios follow `spec/rules.md` where the two disagree and list the item here.
   Kokushi yakuman's score, only the mjai event log). `rules.md` §5 item 10
   already marks Mahjong Soul chained-kan dora order as unverified.
 
-## 4. Adjusted score units for `GameResult` (oka / uma)
+## 4. Adjusted score units for `GameResult` (resolved)
 
 - **`docs/design/engine.md` (§2, §5 step 5):** States `Riichi` uses no floating
   point (*"uma and oka stay in integer points"*), and `spec/rules.md` §1 gives
@@ -48,14 +40,13 @@ scenarios follow `spec/rules.md` where the two disagree and list the item here.
   `30,000` return, `+20` oka (`+20,000` to 1st), `[+20, +10, -10, -20]` base uma.
 - **Action taken:** `scenarios/endgame_oka_uma_tiebreak.scn` expresses
   `adjusted_scores` in raw integer points (`final_score - return + oka*1000 +
-  uma*1000`, e.g., `+27000` for `+27.0`). Confirm whether `GameResult` uses raw
-  points (1000 = 1.0 pt) or tenths (10 = 1.0 pt).
+  uma*1000`, e.g., `+27000` for `+27.0`). The Phase 3 ruling confirms those integer point units.
 
 ## 5. Unverified Mahjong Soul client behaviours (tracked in `spec/rules.md` §5)
 
 All items marked unverified in `spec/rules.md` §5 are written to the design's
 stated defaults and tagged `unverified` in their scenario `[meta]` headers:
-- `rules.md` §5 item 2: `double_ron_with_sticks_and_honba.scn`
+- `rules.md` §5 item 2: `double_ron_with_sticks_and_honba.scn`, `triple_ron_rulesets.scn`, and `pao_double_ron.scn`
 - `rules.md` §5 item 3: `riichi_ankan_waits.scn`
 - `rules.md` §5 item 4: `open_kan_discard_ron_dora.scn`
 - `rules.md` §5 items 4 & 10: `open_kan_chained_kan_discard_ron.scn`

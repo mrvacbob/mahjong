@@ -40,7 +40,7 @@ draws: 1z 2z 2z 2z 3z 3z 4m
 0 tsumogiri 1z
 1 tsumogiri 2z
 2 discard 4m
-window: 1=pon:44m
+window: 0=pass, 1=pon:44m, 3=pass
 1 discard 9s
 2 tsumogiri 2z
 3 tsumogiri 3z
@@ -59,4 +59,4 @@ scores: 37000 13000 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events_order: pon(1), reach(0), dahai(0), reach_accepted(0), tsumo(1), kakan(1), hora(0), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), kakan(1), hora(0), end_kyoku

@@ -1,8 +1,8 @@
-# First go-around specials (Kyuushu Kyuuhai, Chiihou, Double Riichi) are all cancelled
+# First go-around specials Kyuushu Kyuuhai and Chiihou are cancelled
 # by an earlier closed kan (ankan), which sets anyCallMade (engine.md §4.2, rules.md §4.25).
 # Seat 0 declares ankan 9m on turn 0, draws rinshan 3z, discards 3z.
-# Seat 1 draws 5z -> holds 10 distinct terminals/honors, yet kyuushu is ILLEGAL!
-# Seat 1 discards 3z.
+# Seat 1 draws 5z -> holds 11 distinct terminals/honors, yet kyuushu is ILLEGAL!
+# Seat 1 discards 1m; Seat 2 passes chi.
 # Seat 2 draws 7s -> completes hand on 1st draw, yet scores regular Tsumo (NO Chiihou!).
 # Scoring for Seat 2 (non-dealer, South):
 #   Hand: 234m 678m 234p 56s 88p + tsumo 7s
@@ -38,9 +38,10 @@ draws: 4z 5z 7s
 [steps]
 0 ankan 9m
 0 tsumogiri 3z
-# Seat 1 has 10 distinct terminals/honors on its 1st draw, but ankan set anyCallMade.
+# Seat 1 has 11 distinct terminals/honors on its 1st draw, but ankan set anyCallMade.
 assert_illegal 1: kyuushu
 1 discard 1m
+window: 2=pass
 assert_legal 2: tsumo
 2 tsumo
 

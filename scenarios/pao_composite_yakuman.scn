@@ -38,6 +38,7 @@ draws: 4z 4z 4z 3z 3z 3z 4z 8s 8m 8p 2z
 0 discard 5z
 window: 1=pon:55z
 1 discard 1m
+window: 2=pass
 2 tsumogiri 4z
 3 tsumogiri 4z
 0 discard 6z
@@ -47,13 +48,16 @@ window: 1=pon:66z
 3 discard 1z
 window: 1=pon:11z
 1 discard 1s
+window: 0=pass, 2=pass
 2 discard 7z
 # Seat 2 feeds the 3rd dragon -> Pao on Daisangen against Seat 2!
 window: 1=pon:77z
 1 discard 9s
+window: 0=pass
 2 tsumogiri 8s
 3 tsumogiri 8m
 0 tsumogiri 8p
+window: 3=pass
 1 tsumo
 
 [expect.mahjongsoul]

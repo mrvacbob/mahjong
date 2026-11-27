@@ -22,7 +22,7 @@ scores: 25000 25000 25000 25000
 
 [wall]
 hand 0: 5z 6z 111p 999p 111s 99s
-hand 1: 55z 66z 77z 23m 88p 1m 9m 1s
+hand 1: 55z 66z 77z 23m 88p 1z 9m 1s
 hand 2: 7z 1199m 5566p 2233s
 hand 3: 4m 3355m 7744p 3344s
 dora: 1z
@@ -31,15 +31,17 @@ draws: 2z 2z 2z 3z 3z 3z 4z
 [steps]
 0 discard 5z
 window: 1=pon:55z
-1 discard 1m
+1 discard 1z
 2 tsumogiri 2z
 3 tsumogiri 2z
 0 discard 6z
 window: 1=pon:66z
 1 discard 9m
+window: 2=pass
 2 discard 7z
 window: 1=pon:77z
 1 discard 1s
+window: 0=pass, 2=pass
 2 tsumogiri 3z
 3 discard 4m
 window: 1=ron

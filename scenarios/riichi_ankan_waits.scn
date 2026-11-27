@@ -1,20 +1,20 @@
 # Riichi ankan rule (rules.md §4.14, §5.3):
 # - Only wait kinds are compared (decomposition may change).
 # - Okurikan (kanning a quad that does not use the just-drawn tile) is always illegal.
-# Seat 0 (riichi): 123456m 4445s 111z (waits 3s, 5s, 6s). Draws 4s -> ankan:4s ILLEGAL (waits shrink to 5s).
+# Seat 0 (riichi): 123456p 4445m 111z (waits 3m, 5m, 6m). Draws 4m -> ankan:4m ILLEGAL (waits shrink to 5m).
 # Seat 1 (riichi): 23m 999p 33345666s (waits 1m, 4m). Draws 6s -> ankan:6s LEGAL (waits stay 1m, 4m).
 # Seat 1 draws rinshan 1m and wins by tsumo!
 # Scoring for Seat 1 (non-dealer, South):
 #   Hand: 23m 999p 33345s + ankan 6666s + rinshan tsumo 1m
-#   Yaku: double_riichi (2) + tsumo (1) + rinshan (1) = 4 han (NO ippatsu: own ankan cancels ippatsu).
+#   Yaku: double_riichi (2) + tsumo (1) + rinshan (1) + sanankou (2) = 6 han (NO ippatsu: own ankan cancels ippatsu).
 #   Dora indicators: 2z -> 3z, kan dora 5z -> 6z (0 dora). Ura: 7z -> 5z, 3z -> 4z (0 ura).
 #   Fu: 20 base + 2 tsumo + 8 ankou(9p) + 4 ankou(3s) + 16 ankan(6s) = 50 fu.
-#   4 han 50 fu = Mangan (basic 2000).
-#   Non-dealer tsumo Mangan: 2000 from non-dealers (Seats 2, 3), 4000 from dealer (Seat 0).
+#   6 han 50 fu = Haneman (basic 3000).
+#   Non-dealer tsumo Haneman: 3000 from non-dealers (Seats 2, 3), 6000 from dealer (Seat 0).
 #   Table has 2 sticks (Seat 0's + Seat 1's) -> Seat 1 takes both (+2000 from table, net +1000 vs own stick).
-#   Seat 0: -1000 (riichi) - 4000 (tsumo) = -5000.
-#   Seat 1: -1000 (riichi) + 8000 (tsumo) + 2000 (sticks) = +9000.
-#   Seat 2: -2000. Seat 3: -2000. Sum = 0.
+#   Seat 0: -1000 (riichi) - 6000 (tsumo) = -7000.
+#   Seat 1: -1000 (riichi) + 12000 (tsumo) + 2000 (sticks) = +13000.
+#   Seat 2: -3000. Seat 3: -3000. Sum = 0.
 
 [meta]
 name: riichi_ankan_waits
@@ -45,13 +45,16 @@ draws: 4z 4z 7z 7z 4m 6s
 # Turn 1: Seat 0 and Seat 1 declare Double Riichi; Seats 2, 3 tsumogiri.
 0 riichi
 0 tsumogiri 4z
+window: 2=pass
 1 riichi
 1 tsumogiri 4z
 2 tsumogiri 7z
+window: 3=pass
 3 tsumogiri 7z
 # Turn 2: Seat 0 draws 4th 4m -> ankan:4m would drop waits 3m and 6m -> ILLEGAL!
 assert_illegal 0: ankan:4m
 0 tsumogiri 4m
+window: 1=pass
 # Seat 1 draws 4th 6s -> ankan:6s keeps waits 1m/4m despite changing decomposition -> LEGAL!
 assert_legal 1: ankan:6s
 1 ankan 6s
@@ -60,9 +63,9 @@ assert_legal 1: ankan:6s
 [expect]
 outcome: tsumo
 winners: 1
-win 1: han=4 fu=50 yaku=double_riichi,rinshan,tsumo
-deltas: -5000 9000 -2000 -2000
-scores: 20000 34000 23000 23000
+win 1: han=6 fu=50 yaku=double_riichi,rinshan,sanankou,tsumo
+deltas: -7000 13000 -3000 -3000
+scores: 18000 38000 22000 22000
 sticks: 0
 honba: 0
 dealer_repeats: false

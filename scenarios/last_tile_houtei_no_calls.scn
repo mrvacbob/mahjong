@@ -29,6 +29,7 @@ hand 1: 333z 7s 111p 999p 111s
 hand 2: 56s 1199m 5566p 223s
 hand 3: 77s 3344m 77p 44p 344s
 dora: 1z
+draw_at 43: 4s 3s 4s
 draw_at 69: 3z
 
 [steps]

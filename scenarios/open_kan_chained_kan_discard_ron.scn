@@ -41,6 +41,7 @@ draws: 4z 4z 4z 2z
 0 discard 9p
 window: 1=pon:99p
 1 discard 1s
+window: 0=pass
 2 tsumogiri 4z
 3 tsumogiri 4z
 0 discard 5z
@@ -58,7 +59,7 @@ scores: 25000 21100 28900 25000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events_order: daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dahai(1), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dahai(1), hora(2), end_kyoku
 
 [expect.tenhou]
 outcome: ron
@@ -69,4 +70,4 @@ scores: 25000 17000 33000 25000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events_order: daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dahai(1), dora(7p), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dahai(1), dora(7p), hora(2), end_kyoku

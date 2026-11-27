@@ -1,11 +1,11 @@
 # Dead-end call prohibition (rules.md §4.13, engine.md §4.2).
 # Seat 1 makes three pons (5z, 6z, 7z), leaving 4 concealed tiles: 4m 5m 6m 7m.
 # Seat 0 then discards 4m. Calling chi:56m would leave only 4m and 7m, both
-# forbidden by kuikae, so chi:56m is illegal (Seat 1 is not even asked).
+# forbidden by kuikae, so chi:56m is illegal (Seat 1 can still ron and passes).
 # Then Seat 1 draws 4m (no win) and discards 7m -> Seat 2 rons 7m.
 # Scoring for Seat 2 (non-dealer, South):
-#   Hand: 234m 56m 234p 567s 88p + ron 7m
-#   Yaku: pinfu (1) + tanyao (1) = 2 han, 30 fu -> 2000 from Seat 1.
+#   Hand: 234m 68m 234p 567s 88p + ron 7m
+#   Yaku: tanyao (1) + 20 base, 10 closed ron, and 2 kanchan fu -> 1 han 40 fu, 1300 from Seat 1.
 
 [meta]
 name: dead_end_call
@@ -24,7 +24,7 @@ scores: 25000 25000 25000 25000
 [wall]
 hand 0: 5z 6z 7z 4m 111p 999p 111s
 hand 1: 55z 66z 77z 4567m 19s 9m
-hand 2: 234m 56m 234p 567s 88p
+hand 2: 234m 68m 234p 567s 88p
 hand 3: 112233m 6677p 223s
 dora: 1z
 draws: 2z 3z 4z 2z 3z 4z 2z 3z 4z 3z 4m
@@ -34,6 +34,7 @@ draws: 2z 3z 4z 2z 3z 4z 2z 3z 4z 3z 4m
 0 discard 5z
 window: 1=pon:55z
 1 discard 1s
+window: 0=pass
 # Seat 2, 3 tsumogiri; Seat 0 draws 4z, discards 6z -> Seat 1 pons 6z, discards 9s
 2 tsumogiri
 3 tsumogiri
@@ -48,20 +49,22 @@ window: 1=pon:77z
 1 discard 9m
 # Seat 2, 3 tsumogiri; Seat 0 draws 3z, discards 4m.
 # Seat 1 now holds only 4m 5m 6m 7m; chi:56m on 4m would leave 4m 7m (both kuikae!).
-# Seat 1 must NOT be offered chi:56m, so window closes immediately and Seat 1 draws 4m.
+# Seat 1 must NOT be offered chi:56m. Seat 1 passes ron, then draws 4m.
 2 tsumogiri
 3 tsumogiri
 0 discard 4m
 assert_illegal 1: chi:56m
+assert_legal 1: ron
+window: 1=pass
 1 discard 7m
 window: 2=ron
 
 [expect]
 outcome: ron
 winners: 2
-win 2: han=2 fu=30 yaku=pinfu,tanyao
-deltas: 0 -2000 2000 0
-scores: 25000 23000 27000 25000
+win 2: han=1 fu=40 yaku=tanyao
+deltas: 0 -1300 1300 0
+scores: 25000 23700 26300 25000
 sticks: 0
 honba: 0
 dealer_repeats: false

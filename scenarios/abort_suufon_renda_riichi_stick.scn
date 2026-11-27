@@ -28,6 +28,7 @@ draws: 2z 3z 4z 1z
 
 [steps]
 0 discard 1z
+window: 1=pass, 2=pass
 1 discard 1z
 2 discard 1z
 3 riichi

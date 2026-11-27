@@ -26,9 +26,9 @@ scores: 25000 25000 25000 24000
 
 [wall]
 hand 0: 234m 678m 234p 56s 88p
-hand 1: 2233m 4455p 2233s 4s
-hand 2: 4455m 6677p 4455s 6s
-hand 3: 6677m 2233p 6677s 8s
+hand 1: 2233m 4455p 2234s 7z
+hand 2: 4455m 6677p 4456s 7z
+hand 3: 6677m 2233p 6678s 7z
 dora: 5m
 # Ensure Seats 0, 2, 3 each discard at least one simple on turn 1:
 draw_at 0: 5p

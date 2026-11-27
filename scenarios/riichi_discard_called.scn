@@ -39,7 +39,9 @@ draws: 7z 3z 4s
 0 tsumogiri 7z
 window: 2=pon:77z
 2 discard 9p
+window: 3=pass
 3 tsumogiri
+window: 1=pass
 0 tsumo
 
 [expect]

@@ -34,7 +34,7 @@
 | `four_kans_one_seat_no_fifth` | mahjongsoul | Four kans by one seat continues play and forbids any 5th kan | `engine.md §4.2`, `rules.md §4.23` | verified |
 | `furiten_no_yaku_wait_not_asked` | mahjongsoul | Passing a yaku-less wait sets temporary furiten even when seat is not asked | `engine.md §4.1`, `rules.md §4.28` | verified |
 | `furiten_own_discard_yaku_less_wait` | mahjongsoul | Own-discard furiten checks yaku-less waits and called-away discards | `engine.md §4.1`, `rules.md §4.9, §4.27` | verified |
-| `furiten_surviving_call` | both | Temporary furiten across a call (Tenhou survives; Majsoul per `rules.md` vs `engine.md`) | `engine.md §4.1`, `rules.md §1, §4.28` | **unverified** (`QUESTIONS.md #1`) |
+| `furiten_surviving_call` | both | Temporary furiten survives a pon and clears on the next own draw in both rulesets | `engine.md §4.1`, `rules.md §1, §4.28` | verified to spec |
 | `kan_one_live_tile_discard_houtei` | mahjongsoul | Discard after kan with 1 live tile left can be ronned for Houtei | `engine.md §4.2`, `rules.md §4.18, §4.19` | verified |
 | `kan_one_live_tile_rinshan_not_haitei` | mahjongsoul | Kan with 1 live tile left then replacement tsumo scores Rinshan, not Haitei | `engine.md §4.2`, `rules.md §4.18` | verified |
 | `kuikae_chi_and_pon` | mahjongsoul | Kuikae forbids suji swap after Chi, same kind after Pon, and tsumogiri after call | `engine.md §4, §4.2`, `rules.md §4.12, §4.13` | verified |
@@ -46,7 +46,7 @@
 | `open_kan_discard_ron_dora` | both | Post-open-kan discard ron: Tenhou counts kan dora, Majsoul default does not | `engine.md §4.2`, `rules.md §1, §4.17, §5.4` | **unverified** (`rules.md §5.4`) |
 | `open_kan_rinshan_no_kan_dora` | mahjongsoul | Immediate rinshan tsumo after open kan does not see owed kan dora | `engine.md §4.2`, `rules.md §4.17` | verified |
 | `pao_composite_yakuman` | both | Composite yakuman pao splits non-liable yakuman on Majsoul, charges whole hand on Tenhou | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
-| `pao_double_ron` | mahjongsoul | Pao inside double ron splits only the pao winner's yakuman with liable seat | `engine.md §4.2`, `rules.md §4.21, §4.31` | verified |
+| `pao_double_ron` | mahjongsoul | Pao inside double ron splits only the pao winner's yakuman with liable seat | `engine.md §4.2`, `rules.md §4.21, §4.31` | **unverified** (`rules.md §5.2`) |
 | `pao_ron_from_liable_seat` | mahjongsoul | Pao ron from liable seat itself pays 100% + honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
 | `pao_ron_third_party` | mahjongsoul | Pao ron from 3rd party splits 50/50 with liable seat paying honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
 | `pao_tsumo_daisangen` | mahjongsoul | Pao tsumo on Daisangen makes liable seat pay 100% + honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
@@ -57,4 +57,4 @@
 | `riichi_min_live_tiles` | mahjongsoul | Riichi legal with 4 live tiles left, illegal with 3 live tiles left | `engine.md §4.2`, `rules.md §1` | verified |
 | `riichi_requirements` | mahjongsoul | Riichi requires >= 1,000 points (900 illegal, 1,000 legal) and grants double riichi | `engine.md §4.2`, `rules.md §1, §4.29` | verified |
 | `suukaikan_rinshan_win` | mahjongsoul | Fourth kan by 2nd seat allows Rinshan Kaihou win instead of aborting | `engine.md §4.2`, `rules.md §4.22` | verified |
-| `triple_ron_rulesets` | both | Triple ron pays all three on Majsoul and aborts (`sanchahou`) on Tenhou | `engine.md §4.1 row 1, §4.2`, `rules.md §1, §4.21` | verified |
+| `triple_ron_rulesets` | both | Triple ron pays all three on Majsoul and aborts (`sanchahou`) on Tenhou | `engine.md §4.1 row 1, §4.2`, `rules.md §1, §4.21` | **unverified** (`rules.md §5.2`) |

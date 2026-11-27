@@ -46,4 +46,4 @@ scores: 25000 25000 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events_order: ankan(0), ankan(0), ankan(0), dahai(0), ankan(1), dora(7z), tsumo(1), dahai(1), ryukyoku(suukaikan), end_kyoku
+events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(3z), tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), tsumo(1), ankan(1), dora(7z), tsumo(1), dahai(1), ryukyoku(suukaikan), end_kyoku

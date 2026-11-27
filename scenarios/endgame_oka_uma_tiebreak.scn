@@ -32,10 +32,10 @@ dealer: 3
 scores: 35000 24000 24000 15000
 
 [wall]
-hand 0: 1144m 7799p 1155s 6z
-hand 1: 3388m 1144p 3399s 7z
-hand 2: 5599m 5566p 1122s 4z
-hand 3: 2266m 2288p 4477s 5z
+hand 0: 1144m 7799p 1156s 6z
+hand 1: 3388m 1144p 3398s 7z
+hand 2: 5599m 5566p 1123s 4z
+hand 3: 2266m 2288p 4478s 5z
 dora: 1z
 
 [steps]

@@ -26,10 +26,10 @@ dealer: 0
 scores: 25000 25000 25000 25000
 
 [wall]
-hand 0: 1m 2244m 7799p 1155s
+hand 0: 1m 2244m 7799p 1156s
 hand 1: 111m 234p 567p 234s 7z
 hand 2: 234m 567m 789s 1111z
-hand 3: 3388m 1188p 6699s 6z
+hand 3: 3388m 1188p 6698s 6z
 dora: 2z
 draws: 3z
 

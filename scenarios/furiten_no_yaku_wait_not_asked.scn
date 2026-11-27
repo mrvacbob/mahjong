@@ -34,9 +34,11 @@ draws: 2z 2z 3z 3z 4m
 0 discard 6s
 window: 1=chi:78s
 1 discard 9m
+window: 2=pass
 assert_furiten 1: false
 # Seat 2 discards 1m (yaku-less wait for Seat 1): Seat 1 is NOT asked, yet becomes furiten!
 2 discard 1m
+assert_not_asked 1
 assert_furiten 1: true
 # Seat 3 discards 4m (tanyao wait for Seat 1): Seat 1 is furiten and CANNOT ron!
 3 discard 4m

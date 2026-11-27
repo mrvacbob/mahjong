@@ -14,6 +14,7 @@ name: pao_double_ron
 title: Pao inside a double ron splits only the pao winner's yakuman with the liable seat
 rules: mahjongsoul
 source: engine.md §4.2, rules.md §4.21, §4.31
+unverified: rules.md §5 item 2 (Mahjong Soul multi-ron honba to closest CCW only)
 
 [round]
 wind: E
@@ -25,26 +26,28 @@ scores: 25000 25000 25000 24000
 
 [wall]
 hand 0: 5z 6z 23m 678m 234p 567s
-hand 1: 55z 66z 77z 23m 66p 1m 9m 1s
+hand 1: 55z 66z 77z 23m 66p 1z 9m 1s
 hand 2: 7z 1199m 5577p 2233s
 hand 3: 4m 3355m 1199p 3344s
 dora: 1z
 draws: 8p 2z 2z 8p 3z 3z 4z
 
 [steps]
-# Turn 1: Seat 0 draws 2z, discards 5z -> Seat 1 pons 5z, discards 1m.
+# Turn 1: Seat 0 draws 8p, discards 5z -> Seat 1 pons 5z, discards 1z.
 0 discard 5z
 window: 1=pon:55z
-1 discard 1m
+1 discard 1z
 2 tsumogiri 2z
 3 tsumogiri 2z
 # Turn 2: Seat 0 draws 8p (completing pair 88p), discards 6z -> Seat 1 pons 6z, discards 9m.
 0 discard 6z
 window: 1=pon:66z
 1 discard 9m
+window: 2=pass
 2 discard 7z
 window: 1=pon:77z
 1 discard 1s
+window: 2=pass
 2 tsumogiri 3z
 3 discard 4m
 window: 0=ron, 1=ron
