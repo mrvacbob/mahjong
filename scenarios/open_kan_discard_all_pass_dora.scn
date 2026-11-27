@@ -1,7 +1,7 @@
 # Post-open-kan discard where window passes reveals the owed kan dora before next draw
 # (engine.md §4.2 Kan transactions, rules.md §4.17).
 # Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z (owes kan dora 7p -> dora 8p).
-# Seat 1 draws rinshan 1z and discards 1z (no calls/ron; Seat 2 passes chi/pon? none exist).
+# Seat 1 draws and discards rinshan 1z. Seat 3 can pon, but passes.
 # Owed kan dora (7p -> dora 8p) flips before Seat 2's draw!
 # Seat 2 draws 7s and wins by tsumo holding two 8p -> counts the new kan dora (+2)!
 # Scoring for Seat 2 (non-dealer, West):
@@ -27,7 +27,7 @@ scores: 25000 25000 25000 25000
 hand 0: 5z 147m 259p 369s 234z
 hand 1: 555z 147m 369p 148s 2z
 hand 2: 234m 678m 234p 56s 88p
-hand 3: 369m 147p 259s 3467z
+hand 3: 369m 147p 259s 1167z
 dora: 1z 7p
 rinshan: 1z
 draws: 7z 7s
@@ -36,6 +36,8 @@ draws: 7z 7s
 0 discard 5z
 window: 1=daiminkan
 1 tsumogiri 1z
+assert_legal 3: pon:11z
+window: 3=pass
 2 tsumo
 
 [expect.mahjongsoul]

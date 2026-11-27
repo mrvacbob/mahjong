@@ -13,7 +13,8 @@
 name: riichi_discard_daiminkan_cancels_ippatsu
 title: Daiminkan on a riichi discard emits reach_accepted before daiminkan and cancels ippatsu
 rules: mahjongsoul
-source: engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26
+source: engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26, §5.4
+unverified: rules.md §5 item 4 (Mahjong Soul owed kan dora on post-kan ron)
 
 [round]
 wind: E

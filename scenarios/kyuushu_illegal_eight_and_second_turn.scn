@@ -1,7 +1,7 @@
 # Kyuushu kyuuhai is illegal with only 8 distinct terminals/honors, and illegal on a seat's 2nd turn
 # (engine.md §4.2 Nine terminals & First go-around, rules.md §1 abort_kyuushu_kyuuhai).
 # Turn 1: Seat 0 holds 9 terminal/honor tiles, but only 8 DISTINCT kinds (11m 9m 19p 19s 12z + simples) ->
-#   assert_illegal 0: kyuushu! Seat 0 discards 2m.
+#   assert_illegal 0: kyuushu! Seat 0 discards its 8s draw.
 # Seats 1, 2, 3 tsumogiri.
 # Turn 2: Seat 0 draws 3z (now has 9 distinct terminals/honors!) -> still assert_illegal 0: kyuushu
 # because Seat 0 has already discarded! Seat 0 discards 7s -> Seat 1 rons 7s (2 han 30 fu = 2000).

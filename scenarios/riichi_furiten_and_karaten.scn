@@ -6,7 +6,7 @@
 # (0 copies in Seat 1's hand, 0 live copies left -> karaten!)
 #   -> assert_legal 1: riichi -> declares riichi!
 # Seat 0 wins on next draw (7s) by tsumo:
-#   Hand: 234m 678m 234p 56s 88p + tsumo 7s (dora ind 1z, ura ind 1z -> 0 dora)
+#   Hand: 234m 678m 234p 56s 88p + tsumo 7s (dora ind 1z, ura ind 5z -> 0 dora)
 #   Yaku: riichi (1) + ippatsu (1) + tsumo (1) + pinfu (1) + tanyao (1) = 5 han (Mangan)
 #   Dealer Mangan tsumo: 4000 all (+12000) + Seat 1's 1000 stick = +13000 net for Seat 0!
 #   Seat 1: -1000 (stick) - 4000 = -5000; Seats 2, 3: -4000 each.

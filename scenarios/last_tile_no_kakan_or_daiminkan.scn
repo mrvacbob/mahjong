@@ -1,33 +1,11 @@
 # Zero live tiles remaining forbids kakan on the last draw and daiminkan on the last discard
 # (engine.md §4.2 Last tile, rules.md §1 last_tile_kan_allowed, §4.18, §4.19).
-# Turn 1: Seat 0 discards 5z -> Seat 1 calls pon:55z, discards 2z (live draw 0 used; 69 live draws left).
-# Wait: live draws 1..68 (68 draws) are fast-forwarded by auto_tsumogiri 68 -> Seat 2, 3, 0, 1...
-# Let's count exact turn after Seat 1's pon + discard:
-#   live draw 0: Seat 0 (before pon).
-#   auto_tsumogiri 68 uses live draws 1..68:
-#     draw 1 -> Seat 2, draw 2 -> Seat 3, draw 3 -> Seat 0, draw 4 -> Seat 1 ...
-#     draw 68 (68 % 4 == 0) -> Seat 1!
-#   Wait: then draw 69 (the 70th live draw, 0 live tiles left!) is Seat 2!
-# So let Seat 2 be the one with pon 555z (draws 4th 5z at index 69 -> assert_illegal 2: kakan:5z),
-# and Seat 3 hold 666z (Seat 2 discards 6z at 0 live tiles -> assert_illegal 3: daiminkan, assert_not_asked 3)!
-# Let's check exact draw indices:
-#   draw 0 -> Seat 0 discards 5z -> Seat 2 calls pon:55z, discards 2z.
-#   Next draw (draw 1) -> Seat 3!
-#     draw 1 -> S3, draw 2 -> S0, draw 3 -> S1, draw 4 -> S2 ...
-#     draw 68 (68 % 4 == 0) -> S2; draw 69 -> S3!
-#   So let Seat 3 have pon 555z, and Seat 0 hold 666z!
-#     draw 0 -> S0 discards 5z -> S3 calls pon:55z, discards 2z.
-#     draw 1 -> S0, draw 2 -> S1, draw 3 -> S2, draw 4 -> S3 ...
-#     draw 68 -> S3; draw 69 -> S0!
-#   Wait: we want the seat with pon 555z to draw at index 69 (the 70th draw, 0 live tiles left)!
-#   If Seat 1 calls pon on draw 0 (S0 discards 5z -> S1 pon -> next is S2 on draw 1):
-#     draw 1=S2, 2=S3, 3=S0, 4=S1 ... 69 = (69-1)%4=0 -> S2!
-#   If Seat 0 calls pon? Can't on own discard.
-#   So just let Seat 1 discard 5z on draw 1 -> Seat 2 calls pon:55z -> next is S3 on draw 2:
-#     draw 2=S3, 3=S0, 4=S1, 5=S2 ... 69: (69-2)=67, 67%4=3 -> S2! YES!!
-#   Verify: (69 - 2) % 4 = 67 % 4 = 3 -> S3 + 3 = S2!
-#   So Seat 2 draws index 69 (0 live tiles left!), holds pon 555z, draws 4th 5z -> kakan:5z is ILLEGAL!
-#   Seat 2 discards 6z -> Seat 3 holds 666z -> daiminkan & pon are ILLEGAL, assert_not_asked 3 -> exhaustive draw!
+# Seat 0 discards draw 0. Seat 1 draws at index 1 and discards 5z.
+# Seat 2 pons and discards 2z. Live draws 2 through 68 are passed by
+# auto_tsumogiri 67, starting at seat 3 and finishing at seat 1.
+# Seat 2 has the pon of 5z and draws its fourth copy at index 69, with
+# no live tiles left. Seat 2 then discards 6z into seat 3's concealed
+# 666z. The kan actions are illegal in both positions.
 
 [meta]
 name: last_tile_no_kakan_or_daiminkan

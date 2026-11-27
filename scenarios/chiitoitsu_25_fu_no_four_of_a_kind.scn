@@ -3,7 +3,7 @@
 # Part 1: Seat 1 holds 2222m 44m 66p 88p 33s 7s and draws 7s (5 distinct pairs + 4-of-a-kind 2222m).
 #   Because 2222m cannot be two pairs in Chiitoitsu, the hand is NOT complete ->
 #   assert_illegal 1: tsumo, assert_illegal 1: riichi! Seat 1 tsumogiris 7s.
-# Part 2: After one cycle (so no Chiihou), Seat 2 holds 11m 99m 11p 99p 11s 55z 9s and draws 9s ->
+# Part 2: After one cycle (so no Chiihou), Seat 2 holds 11m 99m 11p 99p 22s 55z 9s and draws 9s ->
 #   Chiitoitsu + Menzen Tsumo = 3 han FIXED 25 fu (NOT rounded up to 30 fu)!
 #   Non-dealer 3 han 25 fu tsumo = 800 / 1600 (+3200; 30 fu would be 1000 / 2000).
 
@@ -24,7 +24,7 @@ scores: 25000 25000 25000 25000
 [wall]
 hand 0: 158m 258p 258s 1234z
 hand 1: 2222m 44m 66p 88p 33s 7s
-hand 2: 1199m 1199p 11s 55z 9s
+hand 2: 1199m 1199p 22s 55z 9s
 hand 3: 369m 37p 468s 23467z
 dora: 1z
 draws: 4z 7s 6z 7z 3z 4z 9s

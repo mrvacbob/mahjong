@@ -25,7 +25,7 @@ dealer: 0
 scores: 25000 25000 25000 25000
 
 [wall]
-# Seat 0 starts with 1111m 9999m 1111p 5z (13), draws 9p, discards 5z, then draws 9p/9p/9p via rinshan!
+# Seat 0 starts with 1111m 9999m 1111p 5z (13), draws 9p and discards 5z. It draws another 9p on its next live draw and two more from rinshan.
 hand 0: 1111m 9999m 1111p 5z
 hand 1: 55z 7s 258m 36p 148s 23z
 hand 2: 666z 6m 258p 259s 347z

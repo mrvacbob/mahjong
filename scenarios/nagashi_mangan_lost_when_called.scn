@@ -1,7 +1,6 @@
 # Nagashi Mangan is lost if any of the seat's terminal/honor discards is called away
 # (engine.md §4.2 Exhaustive draw, rules.md §1, §4.30).
-# Seat 1 discards ONLY terminals/honors for the entire round, EXCEPT on turn 1 Seat 1 discards 5z
-# and Seat 2 calls pon:55z on it!
+# Seat 1 discards only terminals and honors. Seat 2 calls pon on Seat 1’s first discard, 5z.
 # Because one of Seat 1's discards was called away, Seat 1 loses Nagashi Mangan qualification.
 # At exhaustive draw: nagashi is empty, and ordinary tenpai/noten payments apply (only Seat 0 is tenpai: +3000 / -1000 each).
 
@@ -25,7 +24,7 @@ hand 1: 36m 258p 36s 258m 47p 7s
 hand 2: 55z 47m 47p 258s 36m 3p 7s
 hand 3: 258m 258p 47s 36m 47p 3s
 dora: 8s
-# draw 0 (S0)=2m, draw 1 (S1)=5z (ponned by S2, who discards 3p -> next is S3 on draw 2!).
+# draw 0 (S0)=0m, draw 1 (S1)=5z (ponned by S2, who discards 3p -> next is S3 on draw 2!).
 # S3 (idx 2) and S0 (idx 3) discard simples; S2 already discarded 3p.
 # Seat 1 draws indices 4,8..68 (all terminals/honors), so ONLY the called 5z disqualifies Seat 1!
 draw_at 0: 0m 5z 0p 0s

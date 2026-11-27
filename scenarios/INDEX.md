@@ -40,7 +40,7 @@
 | `endgame_extension_dealer_repeat_priority_tenhou` | tenhou | Tenhou dealer repeat takes priority over non-dealer passing 30000 in West extension | `engine.md §5 step 4, rules.md §5.8` | verified |
 | `endgame_extension_max_round_w4` | mahjongsoul | West 4 ends unconditionally when dealer does not repeat even below 30,000 | `engine.md §5 step 4`, `rules.md §1` | verified |
 | `endgame_extension_sudden_death` | mahjongsoul | Reaching >= 30,000 in West extension ends game on non-dealer win | `engine.md §5 step 4`, `rules.md §1` | verified |
-| `endgame_extension_w4_dealer_repeat` | mahjongsoul | West 4 dealer repeat below 30000 continues West 4 rather than ending | `engine.md §5 step 4, §11` | verified |
+| `endgame_extension_w4_dealer_repeat` | mahjongsoul | West 4 dealer repeat below 30000 continues West 4 rather than ending | `engine.md §5 step 4, rules.md §1 extension_max_round` | verified |
 | `endgame_nagashi_pushes_dealer_out_of_first` | mahjongsoul | All Last Nagashi Mangan pushing tenpai dealer out of 1st prevents tenpai-yame | `engine.md §5`, `rules.md §5.6` | **unverified** (`rules.md §5.6`) |
 | `endgame_oka_uma_tiebreak` | both | Game end awards sticks to 1st, breaks ties by seat, applies ruleset oka & uma | `engine.md §5 step 5`, `rules.md §1` | verified |
 | `endgame_tobi_below_zero` | mahjongsoul | Dropping strictly below 0 ends game immediately with seat-order tie-break | `engine.md §5 steps 1/5`, `rules.md §1, §4.29` | verified |
@@ -61,7 +61,7 @@
 | `furiten_own_discard_yaku_less_wait` | mahjongsoul | Own-discard furiten checks yaku-less waits and called-away discards | `engine.md §4.1`, `rules.md §4.9, §4.27` | verified |
 | `furiten_riichi_passed_discard_permanent` | mahjongsoul | Passing an opponent's discard in riichi sets permanent furiten that persists after the next own draw | `engine.md §4.1, rules.md §4.28` | verified |
 | `furiten_surviving_call` | both | Temporary furiten survives a pon and clears on the next own draw in both rulesets | `engine.md §4.1`, `rules.md §1, §4.28` | verified to spec |
-| `ippatsu_cancelled_by_kakan` | mahjongsoul | A completed added kan cancels another seat's ippatsu | `engine.md §4.2, rules.md §4.26` | verified |
+| `ippatsu_cancelled_by_kakan` | mahjongsoul | A completed added kan cancels another seat's ippatsu | `engine.md §4.2, rules.md §4.26, §5.4` | unverified (Mahjong Soul post-kan ron timing) |
 | `ippatsu_cancelled_by_opponent_ankan` | mahjongsoul | An opponent's closed kan cancels a riichi seat's ippatsu | `engine.md §4.2, rules.md §4.26` | verified |
 | `ippatsu_expires_on_own_discard` | mahjongsoul | Ippatsu expires immediately after the riichi seat's next own discard | `engine.md §4.2, rules.md §2.1, §4.26` | verified |
 | `kakan_robbing_pass_furiten` | mahjongsoul | Passing a legal kakan rob completes the kan and triggers temporary furiten until own draw | `engine.md §4.1, §4.2, rules.md §4.28` | verified |
@@ -109,7 +109,7 @@
 | `riichi_ankan_waits` | mahjongsoul | Riichi ankan compares only wait kinds and forbids wait-changing kan | `engine.md §4.2`, `rules.md §4.14, §5.3` | **unverified** (`rules.md §5.3`) |
 | `riichi_discard_called` | mahjongsoul | Calling a riichi discard emits `reach_accepted` first and cancels ippatsu | `engine.md §4.1 rows 3/6, §4.2, §6`, `rules.md §4.26` | verified |
 | `riichi_discard_chi_cancels_ippatsu` | mahjongsoul | Chi on a riichi discard emits reach_accepted before chi and cancels ippatsu | `engine.md §4.1 rows 3/7, §4.2, §6, rules.md §4.26` | verified |
-| `riichi_discard_daiminkan_cancels_ippatsu` | mahjongsoul | Daiminkan on a riichi discard emits reach_accepted before daiminkan and cancels ippatsu | `engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26` | verified |
+| `riichi_discard_daiminkan_cancels_ippatsu` | mahjongsoul | Daiminkan on a riichi discard emits reach_accepted before daiminkan and cancels ippatsu | `engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26, §5.4` | unverified (Mahjong Soul post-kan ron timing) |
 | `riichi_discard_ronned` | mahjongsoul | Ron on a riichi discard cancels `reach_accepted` and pays no stick | `engine.md §4.1 row 1, §4.2, §6` | verified |
 | `riichi_discard_tenpai_only` | mahjongsoul | After declaring riichi, only tenpai-preserving discards are legal | `engine.md §4, §4.2, rules.md §1` | verified |
 | `riichi_furiten_and_karaten` | mahjongsoul | Declaring riichi is legal while furiten and while karaten (0 live copies elsewhere) | `engine.md §4.2, rules.md §1` | verified |

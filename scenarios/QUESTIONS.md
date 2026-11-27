@@ -48,7 +48,7 @@ All items marked unverified in `spec/rules.md` §5 are written to the design's
 stated defaults and tagged `unverified` in their scenario `[meta]` headers:
 - `rules.md` §5 item 2: `double_ron_with_sticks_and_honba.scn`, `triple_ron_rulesets.scn`, and `pao_double_ron.scn`
 - `rules.md` §5 item 3: `riichi_ankan_waits.scn`
-- `rules.md` §5 item 4: `open_kan_discard_ron_dora.scn`, `open_kan_discard_called_dora.scn`, and `open_kan_discard_riichi_ron_ura.scn`
+- `rules.md` §5 item 4: `open_kan_discard_ron_dora.scn`, `open_kan_discard_called_dora.scn`, `open_kan_discard_riichi_ron_ura.scn`, `ippatsu_cancelled_by_kakan.scn`, and `riichi_discard_daiminkan_cancels_ippatsu.scn`
 - `rules.md` §5 items 4 & 10: `open_kan_chained_kan_discard_ron.scn`
 - `rules.md` §5 item 10: `open_kan_to_closed_kan_chain.scn`
 - `rules.md` §5 item 5: `added_kan_robbed_ippatsu_alive.scn`
@@ -68,8 +68,9 @@ Two items listed in the Package F review coverage table cannot arise in legal 4-
 
 - **`docs/reviews/p3/F-codex.md` (§4.2 Kan transactions):** Notes that after a robbed added kan (`added_kan_robbed_ippatsu_alive.scn`), the surviving pon and unchanged kan count are not directly observable from `scenarios/FORMAT.md` assertions. Because a robbed `kakan` ends the round immediately on `ron`, no subsequent turn exists to probe legality, and `FORMAT.md` has no `assert_melds` or `assert_kan_count` directive. Exact `events:` already verifies that no `dora` or replacement `tsumo` event is emitted.
 
-## 8. West 4 dealer repeat below 30,000 (`engine.md` §5 step 4 vs `spec/rules.md` §1)
+## 8. West 4 dealer repeat below 30,000 (resolved)
 
-- **`spec/rules.md` (§1 `extension_max_round`):** Uses the shorthand *"Ends unconditionally after S4 (Tonpuu) or W4 (Hanchan)"*.
-- **`docs/design/engine.md` (§5 step 4, §11):** Explicitly specifies that the extension's last hand still repeats when the dealer repeats below 30,000 (*"If the dealer repeats otherwise, play continues"*), ending unconditionally only when the dealer does not repeat.
-- **Action taken:** `scenarios/endgame_extension_w4_dealer_repeat.scn` pins down `engine.md` §5 step 4 (West 4 continues on dealer repeat below 30,000).
+`spec/rules.md` §1 `extension_max_round` now states that the limit applies
+when play would advance past the last hand of the extension. A below-target
+dealer repeat in that hand continues play, as required by `engine.md` §5
+step 4 and tested in `endgame_extension_w4_dealer_repeat.scn`.

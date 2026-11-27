@@ -162,3 +162,8 @@ Running `python3.14 tools/scenario.py scenarios/<name>.scn` writes JSON to stdou
 Running `python3.14 tools/scenario.py --check` validates every `scenarios/*.scn`
 file (syntax, 136-tile accounting, hand simulation of tile availability, point
 conservation, and required fields).
+
+Running `python3.14 tools/scenario.py --json-dir DIR [paths...]` writes every
+scenario's JSON (as above) to `DIR/<name>.json`; a scenario that fails validation
+is written as `{"name": ..., "error": ...}`. The engine's scenario runner
+(`Tests/RiichiTests/ScenarioTests.swift`) uses this.

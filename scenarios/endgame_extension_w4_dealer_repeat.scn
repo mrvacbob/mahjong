@@ -9,7 +9,7 @@
 name: endgame_extension_w4_dealer_repeat
 title: West 4 dealer repeat below 30000 continues West 4 rather than ending
 rules: mahjongsoul
-source: engine.md §5 step 4, §11
+source: engine.md §5 step 4, rules.md §1 extension_max_round
 
 [round]
 game_length: south

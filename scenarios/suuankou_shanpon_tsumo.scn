@@ -1,8 +1,7 @@
 # Tsumo on shanpon wait with 3 concealed triplets scores 1x Suuankou
 # (rules.md §4 item 2).
-# Seat 1 holds 333m 777p 666s 22m 55p; Seat 0 discards 7z, Seat 1 draws 2m -> wait: on 1st draw Seat 1
-# would also get Chiihou! So do one cycle of tsumogiri first (Seat 1 discards 9m on turn 1, then draws 2m on turn 2)
-# so this tests pure 1x Suuankou without Chiihou!
+# Seat 1 holds 333m 777p 666s 22m 55p. It discards 9m on its first turn
+# and draws 2m on its second turn, so Chiihou does not apply.
 #   - Yaku: suuankou:1 (1x Yakuman) -> Non-dealer tsumo 8000 / 16000 (+32000).
 
 [meta]

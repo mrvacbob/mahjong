@@ -1,10 +1,8 @@
 # Natural Yakuman ignores regular yaku and dora (even with many dora)
 # (rules.md §4 item 34).
-# Seat 1 holds 555z 666z 777z 0m 46m 8p (Daisangen + 10 dora: dora ind 5z -> 666z (+3),
-# plus red 0m (+1); wait: 1 dora ind 5z + 0m = 4 dora, let's also have Seat 0 make 2 ankans so
-# dora indicators 5z, 6z, 7z give 9 dora on the 9 dragon tiles + 0m = 10 dora!).
-# Seat 0 makes 2 ankans (1p, 9p) -> dora indicators 5z, 6z, 7z (dora 6z, 7z, 5z -> 9 dora in Seat 1's hand!),
-# plus red 0m = 10 dora! Seat 0 discards 8p -> Seat 1 rons 8p!
+# Seat 0 makes two closed kans. Indicators 5z, 6z and 7z make all nine
+# dragons in seat 1's hand dora. Seat 1 has the red 5m as well.
+# Seat 0 discards 8p, completing seat 1's pair for Daisangen.
 # Scoring for Seat 1 (non-dealer, South):
 #   Natural Yakuman: daisangen:1 ONLY (1x Yakuman = 32000 from Seat 0; all 10 dora ignored!).
 
