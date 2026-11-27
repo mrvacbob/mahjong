@@ -1,0 +1,21 @@
+# Cases found by the shootout cross-review (docs/reviews/p2/). Each made one
+# entry answer wrongly while passing the rest of the corpus. Expected answers
+# are the agreement of the other eleven entries and the Rust reference.
+#
+# Riichi ankan, structural waits including a fifth copy.
+# Before the draw: waits 3m (33+456+666) and a fifth 6m (345+666+66). The 999m
+# triplet is not involved, so the kan keeps both waits: legal.
+r1 legal hand=3456666999m789p melds=- draw=9m riichi=1
+= r1 actions=ankan:9m,discard:9m
+# The next two must be run in this order in one process: a cache keyed on tile
+# counts must not confuse a count of five with a carry into the next kind.
+r2 shanten hand=1334455567m123p melds=-
+= r2 std=0 chiitoi=3 kokushi=11 min=0
+r3 legal hand=2222334455567m melds=- draw=0m riichi=1 wall=10 kans=0
+= r3 actions=discard:0m,tsumo
+# Honor tiles: before the draw 1z (held four times) is a structural fifth-copy
+# wait; a kan of 2m changes the wait set: illegal.
+r4 legal hand=122233344m1111z melds=- draw=2m riichi=1 wall=10 kans=0
+= r4 actions=discard:2m
+r5 shanten hand=1334455567m123p melds=-
+= r5 std=0 chiitoi=3 kokushi=11 min=0
