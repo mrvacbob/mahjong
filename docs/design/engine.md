@@ -227,8 +227,10 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
     the order is `kakan`, robbing window, `dora`, `tsumo`; for open kan → closed kan
     it is `dora` (owed), `ankan`, `dora` (new), `tsumo`. A rinshan win right after an
     open or added kan does not see that kan's indicator.
+  - *A kan announcement changes nothing* (hand, melds, counts, cached waits) until
+    its robbing window has closed.
   - *Ron on the discard after an open or added kan*: under `Rules.tenhou` the owed
-    indicator is revealed at the discard, before the window, so the ron counts it
+    indicator is revealed immediately before the discard (`dora`, then `dahai`), so the ron counts it
     and its ura (manual: 「後めくり（打牌または続く嶺上の直前）」). For Mahjong Soul this
     is unverified (`rules.md` §5 item 4); `Rules` field, default revealed only after
     the window passes.
@@ -443,6 +445,17 @@ Added to `mj` (the line protocol on stdin stays the default):
    riichi kan, four kans by one seat, each end-of-game branch). The gate is on
    branches reached, not only on games played.
 6. **Real logs**, when a source is settled (section 10).
+
+Notes from the first full run (`docs/notes/p3-CD.md`): the libriichi legality
+comparison is judged on action flags; furiten and waits are compared as evidence
+only, because libriichi updates them at different moments from ours. Random and
+eager bots never reach four winds, four riichi, triple ron, a robbed closed kan,
+pao, nagashi or four kans by one seat, so the coverage gate needs directed play
+(seeded walls or scripted bots) for those; until then the scenarios are their only
+test. A first pass of `check-log` over 300 real Tenhou and 300 real Mahjong Soul
+games (2024) agreed on every point change; the only differences were log
+conventions (ura shown for a non-riichi winner in a double ron, and the position of
+the `dora` event after an open kan).
 
 Mahjong Soul-only behaviour (double yakuman, triple ron, robbing a closed kan,
 component pao) is covered by layers 1, 3 and 4 only. That remains the weakest spot.
