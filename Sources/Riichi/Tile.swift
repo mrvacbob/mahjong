@@ -28,7 +28,10 @@ public struct Kind: Hashable, Comparable, Sendable, CustomStringConvertible {
         self.index = index
     }
     /// `number` is 1-9 for suits, 1-7 for honors (E S W N haku hatsu chun).
-    public init(_ suit: Suit, _ number: Int) { self.init(suit.rawValue * 9 + number - 1) }
+    public init(_ suit: Suit, _ number: Int) {
+        precondition((1...suit.size).contains(number), "kind number out of range for its suit")
+        self.init(suit.rawValue * 9 + number - 1)
+    }
 
     public static let all = (0..<34).map(Kind.init)
     public static let count = 34
@@ -246,12 +249,17 @@ public struct Meld: Hashable, Sendable {
     }
 
     /// Kinds that may not be discarded right after making this chi or pon by
-    /// taking `took` (kuikae). Red and plain fives are the same kind.
+    /// taking `took` (kuikae). Red and plain fives are the same kind. Empty for a
+    /// kan, which is followed by a replacement draw. `took` must be in the meld.
     public func kuikaeForbidden(took: Kind) -> Set<Kind> {
+        guard kind == .chi || kind == .pon else { return [] }
+        var fromHand = tiles.map(\.kind)
+        guard let i = fromHand.firstIndex(of: took) else {
+            preconditionFailure("kuikaeForbidden: the taken kind \(took) is not in the meld")
+        }
         var out: Set<Kind> = [took]
         guard kind == .chi else { return out }
-        var fromHand = tiles.map(\.kind)
-        fromHand.remove(at: fromHand.firstIndex(of: took)!)
+        fromHand.remove(at: i)
         if fromHand[0].shifted(1) == fromHand[1] {
             // Took one end of a run whose other two tiles are adjacent: the far end too.
             if took < fromHand[0], let far = fromHand[1].shifted(1) { out.insert(far) }

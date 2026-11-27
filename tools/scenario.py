@@ -8,6 +8,7 @@ Usage:
   python3.14 tools/scenario.py scenarios/foo.scn        # expand to JSON on stdout
   python3.14 tools/scenario.py --check [paths...]       # validate scenarios (default: scenarios/)
   python3.14 tools/scenario.py --list [paths...]        # list scenarios and unverified tags
+  python3.14 tools/scenario.py --json-dir DIR [paths...]  # expand every scenario to DIR/<name>.json
 """
 
 from __future__ import annotations
@@ -983,8 +984,24 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Validate and expand scenario files.")
     parser.add_argument("--check", action="store_true", help="Validate all scenario files")
     parser.add_argument("--list", action="store_true", help="List scenarios and unverified tags")
+    parser.add_argument("--json-dir", metavar="DIR",
+                        help="Expand every scenario to DIR/<name>.json (a scenario that fails "
+                             "validation is written as {\"name\", \"error\"})")
     parser.add_argument("paths", nargs="*", help="Scenario file(s) or directory")
     args = parser.parse_args(argv)
+
+    if args.json_dir:
+        out_dir = Path(args.json_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        errors = 0
+        for f in collect_files(args.paths):
+            try:
+                data = parse_scenario(f)
+            except ScenarioError as e:
+                data = {"name": f.stem, "error": str(e)}
+                errors += 1
+            (out_dir / f"{f.stem}.json").write_text(json.dumps(data, indent=1), encoding="utf-8")
+        return 1 if errors else 0
 
     if args.check:
         files = collect_files(args.paths)

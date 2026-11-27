@@ -86,7 +86,7 @@ private func expand(_ word: UInt64, size: Int, runs: Bool,
     guard word != 0 else { return .empty }
     let i = word.trailingZeroBitCount / 4
     let one = { (j: Int) -> (UInt64, Int) in (1 << UInt64(4 * j), pow5[j]) }
-    let (a, b, c) = (one(i), one(i + 1), i + 2 < size ? one(i + 2) : (0, 0))
+    let (a, b, c) = (one(i), i + 1 < size ? one(i + 1) : (0, 0), i + 2 < size ? one(i + 2) : (0, 0))
 
     var out = ShapeStates()
     func take(_ removed: (UInt64, Int), _ ds: Int, _ dt: Int, _ dp: Int) {

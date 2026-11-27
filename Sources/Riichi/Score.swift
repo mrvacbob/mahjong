@@ -38,22 +38,55 @@ public enum Payment: Sendable, Hashable {
     }
 }
 
-public struct Scored: Sendable {
+/// One line of a scored hand: a yaku, a yakuman, or a dora count.
+public struct YakuEntry: Sendable, Hashable, CustomStringConvertible {
+    public enum Name: Sendable, Hashable {
+        case yaku(YakuName)
+        /// Indicator dora, red fives, ura dora: han, but not yaku.
+        case dora, aka, ura
+
+        /// The name in `spec/formats.md` (`riichi`, `dora`, `kokushi_13`, ...).
+        public var text: String {
+            switch self {
+            case .yaku(let y): y.rawValue
+            case .dora: "dora"
+            case .aka: "aka"
+            case .ura: "ura"
+            }
+        }
+    }
+    public let name: Name
+    /// Han for an ordinary yaku or a dora count; the multiple for a yakuman.
+    public let value: Int
+
+    public init(_ name: Name, _ value: Int) { self.name = name; self.value = value }
+    public init(_ yaku: YakuName, _ value: Int) { self.init(.yaku(yaku), value) }
+
+    /// `name:value`.
+    public var description: String { "\(name.text):\(value)" }
+}
+
+public struct Scored: Sendable, Hashable {
     public enum Value: Sendable, Hashable { case ordinary(han: Int, fu: Int), yakuman(Int) }
-    /// Sorted by name. Han for ordinary yaku and `dora`/`aka`/`ura`; the multiple
-    /// for yakuman.
-    public let yaku: [(name: String, value: Int)]
+    /// Sorted by name text. Han for ordinary yaku and `dora`/`aka`/`ura`; the
+    /// multiple for yakuman.
+    public let yaku: [YakuEntry]
     public let value: Value
     public let payment: Payment
 
-    init(yaku: [(name: String, value: Int)], value: Value, payment: Payment) {
-        self.yaku = yaku.sorted { $0.name < $1.name }
+    init(yaku: [YakuEntry], value: Value, payment: Payment) {
+        self.yaku = yaku.sorted { $0.name.text < $1.name.text }
         self.value = value
         self.payment = payment
     }
 
     /// `name:value,...`, the `yaku=` text of `spec/formats.md` and the last tie-break.
-    public var yakuText: String { yaku.map { "\($0.name):\($0.value)" }.joined(separator: ",") }
+    public var yakuText: String { yaku.map(\.description).joined(separator: ",") }
+
+    /// The value of the named yaku or yakuman in this hand, if present.
+    public func value(of name: YakuName) -> Int? {
+        yaku.first { $0.name == .yaku(name) }?.value
+    }
 
     /// The spec's preference: total, real yakuman over kazoe, han, fu, then the
     /// yaku list that sorts first.
@@ -170,7 +203,8 @@ private func scoreWithWinningTile(_ req: ScoreRequest, rules: Rules) throws(Scor
         }
         let yaku = ordinaryYaku(r)
         if yaku.isEmpty { return nil }
-        let listed = yaku + [("dora", dora), ("aka", aka), ("ura", ura)].filter { $0.1 > 0 }
+        let extras = [YakuEntry(.dora, dora), YakuEntry(.aka, aka), YakuEntry(.ura, ura)]
+        let listed = yaku + extras.filter { $0.value > 0 }
         let han = listed.map(\.value).reduce(0, +)
         let f = fu(r)
         return Scored(yaku: listed, value: .ordinary(han: han, fu: f),

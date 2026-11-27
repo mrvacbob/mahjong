@@ -81,13 +81,20 @@ public struct Wall: Sendable, Hashable {
     /// in this game, from 0). `spec/wall.md` gives the algorithm and test vectors.
     public init(seed: UInt64, hand: Int) {
         precondition(hand >= 0, "hand number must be non-negative")
-        var rng = Xoshiro256StarStar(seeding: seed &+ UInt64(hand) &* 0x9E37_79B9_7F4A_7C15)
+        var rng = Xoshiro256StarStar(seeding: Wall.key(seed: seed, hand: hand))
         var t = Wall.sorted
         for i in stride(from: t.count - 1, to: 0, by: -1) {
             let j = Int(rng.next(below: UInt64(i + 1)))
             t.swapAt(i, j)
         }
         tiles = t
+    }
+
+    /// The generator key of spec/wall.md §2: `mix(seed) ^ mix(~hand)`, where `mix`
+    /// is one SplitMix64 output step from that state.
+    static func key(seed: UInt64, hand: Int) -> UInt64 {
+        var a = SplitMix64(state: seed), b = SplitMix64(state: ~UInt64(hand))
+        return a.next() ^ b.next()
     }
 
     /// The 13 tiles dealt to the seat `offset` places after the dealer (0 = dealer),

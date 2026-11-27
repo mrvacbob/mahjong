@@ -1,6 +1,6 @@
 // Yaku and yakuman, declared one per row of spec/rules.md section 2.
 
-public enum YakuName: String, Sendable {
+public enum YakuName: String, Sendable, Hashable, CaseIterable {
     case riichi, double_riichi, ippatsu, tsumo, pinfu, tanyao, iipeikou
     case yakuhai_haku, yakuhai_hatsu, yakuhai_chun, yakuhai_seat, yakuhai_round
     case haitei, houtei, rinshan, chankan, chiitoi, toitoi, sanankou, sanshoku
@@ -127,10 +127,10 @@ let yakumanList: [Yakuman] = [
 
 /// The ordinary yaku of a reading. The rules' "does not stack" exclusions are in
 /// the predicates (iipeikou vs ryanpeikou, chanta vs junchan, honitsu vs chinitsu).
-func ordinaryYaku(_ r: Reading) -> [(name: String, value: Int)] {
-    yakuList.compactMap { y in y.han(r).map { (y.name.rawValue, $0) } }
+func ordinaryYaku(_ r: Reading) -> [YakuEntry] {
+    yakuList.compactMap { y in y.han(r).map { YakuEntry(y.name, $0) } }
 }
 
-func yakumanOf(_ r: Reading) -> [(name: String, value: Int)] {
-    yakumanList.filter { $0.applies(r) }.map { ($0.name.rawValue, $0.multiple(r.rules)) }
+func yakumanOf(_ r: Reading) -> [YakuEntry] {
+    yakumanList.filter { $0.applies(r) }.map { YakuEntry($0.name, $0.multiple(r.rules)) }
 }

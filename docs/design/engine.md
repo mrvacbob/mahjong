@@ -50,7 +50,9 @@ Tests/RiichiTests/     swift-testing unit and scenario tests
   objects and arrays of floats: Mortal's replies carry a `meta` object with both.
 - The five line-protocol operations keep working unchanged, with Mahjong Soul rules
   as their default, and the corpus runs against `mj` on every change. The `legal`
-  operation becomes a thin wrapper over the code `legalActions` uses.
+  operation keeps its own one-seat entry point (it has no round state) and shares
+  the underlying checks with `legalActions`; self-play dumps keep the two in step
+  (section 8, layer 3).
 - `ShantenCalculator` is currently a class with a mutable cache. It becomes safe to
   use from several threads: an immutable table built once (done in package A).
 
@@ -255,6 +257,14 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
 - **Multi-ron**: each winner's payment is computed separately; sticks and honba go
   only to the winner nearest the discarder in turn order; the dealer repeats if any
   winner is the dealer [21].
+- **Event reason for nagashi mangan**: the `ryukyoku` event's reason is `exhaustive`;
+  the nagashi seats are listed in the result, and the point changes show the payment.
+- **A robbed kan never counts** toward four kans.
+- **Declining a self-drawn win outside riichi** and then keeping the wait: whether
+  the clients treat that seat as temporarily furiten is unverified (Tenhou's manual:
+  「和了放棄…後は同巡フリテン」). `Rules` field; default yes for Tenhou, no for Mahjong
+  Soul until checked. A replacement draw does not clear temporary furiten; only a
+  live-wall draw does.
 - **Nine terminals** is an action on the seat's own first draw and ends the round at
   once.
 

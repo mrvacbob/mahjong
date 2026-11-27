@@ -19,7 +19,9 @@ public struct Rules: Sendable, Hashable {
     /// 30,000 on Tenhou). See `oka`.
     public var returnPoints: Int
     /// Added to the final score by rank, first to fourth, in points (`uma`).
-    public var uma: [Int]
+    public var uma: [Int] {
+        didSet { precondition(uma.count == 4, "uma has one entry per rank") }
+    }
     /// Score that ends the game in all last and in the extension (`target_points`).
     public var targetPoints: Int
     public var length: GameLength

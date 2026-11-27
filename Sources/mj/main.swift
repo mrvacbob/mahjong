@@ -72,9 +72,12 @@ extension Request {
         switch present[0] {
         case "draw": return .draw(try tile("draw"))
         case "discard":
-            return .discard(try tile("discard"), fromKamicha: try string("from") == "kamicha")
+            let from = try value("from") { ["kamicha", "toimen", "shimocha"].contains($0) ? $0 : nil }
+            return .discard(try tile("discard"), fromKamicha: from == "kamicha")
         default:
-            let meld = try value("called") { Meld($0) }, took = try tile("took")
+            // A chi or pon only: a kan is followed by a replacement draw, not a discard.
+            let meld = try value("called") { m in Meld(m).flatMap { [.chi, .pon].contains($0.kind) ? $0 : nil } }
+            let took = try tile("took")
             guard meld.tiles.contains(took) else { throw BadInput(reason: "bad_took") }
             return .called(meld, took: took)
         }
@@ -126,7 +129,8 @@ func answer(_ q: Request) throws(BadInput) -> String {
         let req = ScoreRequest(
             hand: hand, melds: melds, win: win,
             context: WinContext(seat: try q.wind("seat"), round: try q.wind("round"),
-                                tsumo: try q.string("by") == "tsumo", flags: try q.flags()),
+                                tsumo: try q.value("by") { ["tsumo": true, "ron": false][$0] },
+                                flags: try q.flags()),
             dora: try q.tiles("dora", default: "-"), ura: try q.tiles("ura", default: "-"),
             // Bounded so that payments cannot overflow.
             honba: try q.int("honba", default: 0, in: 0...999))
@@ -153,7 +157,68 @@ func answer(_ q: Request) throws(BadInput) -> String {
     }
 }
 
-while let line = readLine() {
+/// `mj bench-round [ROUNDS] [tenhou]` (not part of the line protocol): rounds per
+/// second of uniform random play in process, without and with event collection.
+@available(macOS 13, *)
+func benchRounds(_ args: [String]) {
+    let rounds = args.first.flatMap { Int($0) } ?? 20_000
+    let rules: Rules = args.contains("tenhou") ? .tenhou : .mahjongSoul
+    struct RNG {
+        var state: UInt64
+        mutating func below(_ n: Int) -> Int {
+            state &+= 0x9E37_79B9_7F4A_7C15
+            var z = state
+            z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+            z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+            return Int((z ^ (z >> 31)) % UInt64(n))
+        }
+    }
+    func play(events collect: Bool) -> (Duration, Int, Int) {
+        var rng = RNG(state: 1)
+        var decisions = 0, eventCount = 0
+        var events: [Event] = []
+        let clock = ContinuousClock()
+        let start = clock.now
+        for i in 0..<rounds {
+            let wall = Wall(seed: UInt64(i), hand: 0)
+            var s = collect ? RoundState(rules: rules, wall: wall, events: &events)
+                            : RoundState(rules: rules, wall: wall)
+            while s.result == nil {
+                decisions += 1
+                if case .turn(let seat, _) = s.phase {
+                    let legal = s.legalActions(for: seat)
+                    let a = legal[rng.below(legal.count)]
+                    if collect { try! s.apply(a, by: seat, events: &events) } else { try! s.apply(a, by: seat) }
+                } else {
+                    var answers = Answers()
+                    for seat in s.seatsToAnswer {
+                        let legal = s.legalActions(for: seat)
+                        answers[seat] = legal[rng.below(legal.count)]
+                    }
+                    if collect { try! s.resolve(answers, events: &events) } else { try! s.resolve(answers) }
+                }
+            }
+            eventCount += events.count
+            events.removeAll(keepingCapacity: true)
+        }
+        return (clock.now - start, decisions, eventCount)
+    }
+    _ = shanten(Counts(), meldCount: 0)  // build the tables outside the timing
+    for collect in [false, true] {
+        let (d, decisions, events) = play(events: collect)
+        let secs = Double(d.components.seconds) + Double(d.components.attoseconds) / 1e18
+        let rps = Int(Double(rounds) / secs)
+        print("events=\(collect ? "on " : "off") rounds=\(rounds) time=\(Int(secs * 1000))ms rounds/s=\(rps) decisions/round=\(decisions / rounds) events/round=\(events / rounds)")
+    }
+}
+
+let benchmarking = CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "bench-round"
+if benchmarking {
+    if #available(macOS 13, *) { benchRounds(Array(CommandLine.arguments.dropFirst(2))) }
+    else { print("bench-round needs macOS 13") }
+}
+
+while !benchmarking, let line = readLine() {
     if line.isEmpty { continue }
     guard let q = Request(line) else {
         print("\(line.split(separator: " ").first ?? "?") error=bad_request")

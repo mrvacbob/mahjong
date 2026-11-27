@@ -16,22 +16,22 @@ struct WallVector: Sendable {
 /// implementation written from the spec text.
 let wallVectors: [WallVector] = [
     WallVector(seed: 0, hand: 0, tiles: [
-        "4m 2p 3s 8s 5p 0s 3p 4m 6p 8m 3z 2p 6p 7p 2m 6z 1p 6m 5p 6m 3z 9p 5s 6p 2p 3m 1s 8p 1m 4z 6z 3p 3m 2m",
-        "2z 4m 6s 4m 4p 8s 6m 5s 2s 1s 2m 1z 3m 7m 5s 1s 7p 9m 7z 2p 8p 7s 8m 1z 1s 5z 8p 9s 4s 4s 2m 7s 7p 2s",
-        "1z 2z 7z 6p 9s 3z 9m 7z 3s 8m 2s 1m 2s 5m 6z 9p 7m 1p 3s 3p 4z 4p 6s 5z 1m 4s 1m 2z 7s 9s 7m 5z 9m 4p",
-        "1p 5m 3p 8s 6s 1p 7z 4z 5p 6z 8m 3m 1z 8s 9p 9m 8p 0p 5m 4s 3z 0m 9p 6m 7s 4p 4z 6s 7p 3s 2z 7m 9s 5z",
+        "3s 3z 7s 4z 5z 1s 0p 4m 9s 6z 3z 8m 2z 8p 2s 3s 3p 2m 2s 3z 6z 6m 1m 2z 5z 6p 9p 2z 7m 7p 4z 5s 9s 5p",
+        "6m 4m 6z 4m 1p 4s 2p 6s 1s 3m 8m 5p 9m 1z 7s 3s 2z 3p 6s 2s 8s 6p 2p 1z 1p 2m 5s 1m 1m 4p 4p 7m 0s 4s",
+        "6m 7p 1p 5p 3m 8s 6p 9p 3p 7z 7z 7z 3p 4s 6s 4s 8s 5s 3s 3m 6s 5z 4p 8m 1s 7m 9s 9p 2s 5m 8p 8p 8m 8s",
+        "3z 9p 9m 1m 4p 4z 7m 5m 7s 1s 6p 1z 2m 6z 2m 7z 9m 5z 6m 4m 1p 7p 7p 2p 7s 3m 5m 9s 8p 1z 2p 0m 4z 9m",
     ]),
     WallVector(seed: 20261127, hand: 3, tiles: [
-        "0p 2p 1z 8s 8m 3p 1s 7s 4p 7s 2p 4s 9s 9s 7s 8p 3m 3z 3s 1p 9s 5p 2z 3s 8m 5m 4p 2m 5z 9p 1s 6z 2s 2s",
-        "1m 9m 3m 2z 7m 4z 9s 3s 1m 7m 5m 5s 3z 6z 5z 8p 1z 3m 6m 8p 2z 2p 4m 9m 9m 5s 9m 2p 8s 4z 6z 4s 7p 1p",
-        "6p 7z 4m 4p 5p 6p 2s 1z 9p 6z 8s 3z 5p 0s 2m 2s 1p 4s 3z 7z 5s 7m 8s 5z 6m 9p 3p 3p 6s 8m 2m 3p 4s 6m",
-        "0m 7z 2z 1z 7z 1m 1s 5z 4z 6s 3m 6p 7p 7m 6m 2m 7s 5m 4m 8m 4p 8p 4z 9p 4m 1s 6s 3s 7p 1m 6s 6p 1p 7p",
+        "1z 3p 7p 3z 4z 7m 1p 2z 7m 4m 1m 4s 3m 0m 7p 4p 5m 8m 6s 9m 5s 2m 2z 7s 2m 8p 7z 2s 5s 5z 9p 9s 7p 3z",
+        "9m 3s 6z 4s 8p 5m 9m 8m 4z 4s 7m 1z 1z 7s 8p 9s 1s 9s 1p 4m 1z 6z 2m 4p 7m 6p 3z 3p 6m 8m 2m 2p 6z 4z",
+        "7s 3s 5p 4p 6s 3z 1p 3m 2p 1s 0p 5z 1m 5p 8s 7s 6s 3m 0s 9m 6m 7z 1m 4s 6m 2p 2p 2s 5p 4m 5m 6p 3p 5z",
+        "4m 7z 2s 9p 3m 6s 3s 8s 3s 5z 1p 3p 6z 4z 7z 5s 1s 2z 2z 8m 2s 9p 1m 8p 4p 7p 8s 1s 6p 8s 6p 6m 9s 9p",
     ]),
     WallVector(seed: 18446744073709551615, hand: 7, tiles: [
-        "2z 5s 2m 8p 9p 8m 4p 3z 9s 6z 1m 3p 9m 8p 6m 7s 2m 4s 2z 4p 9p 5z 1m 6s 7s 6s 1z 1z 6s 2z 8p 6p 1s 8m",
-        "1p 8s 3p 5p 9m 3m 1s 3p 4p 4s 7z 7z 2m 3m 3z 6p 6m 4p 2s 6z 7z 9s 2p 6s 3p 1z 4s 5m 4m 7m 3m 5s 3m 5z",
-        "5z 6m 3s 0p 7p 2p 9s 0m 4z 7m 8m 4s 1s 8s 2s 7p 9s 7s 7p 4z 7z 8p 6p 2s 3s 9m 3s 1z 3z 4m 9p 2m 1s 0s",
-        "2z 5z 1m 9p 3s 2s 6p 1p 8s 5s 5p 5p 6z 7s 5m 1p 6m 6z 4m 4z 2p 7m 2p 9m 4m 7p 1p 3z 5m 7m 1m 8s 4z 8m",
+        "8s 1z 3m 8p 4m 7z 3z 8m 3s 4p 8s 1s 4p 7m 6z 0p 1s 9s 7z 8m 5p 7m 5s 8p 3m 5s 2z 3z 2z 3p 3m 7z 5z 1p",
+        "9s 9m 3z 7p 8m 5z 2z 1m 0m 1s 2s 9p 6p 9m 8p 5s 6s 5m 3p 4m 1z 3z 1z 6s 2m 0s 6s 2m 6p 2p 6m 1p 4z 3p",
+        "3p 4z 4m 9s 5z 2p 1m 2p 4m 5z 1z 2m 6z 2m 2z 5p 5m 7s 6m 4s 9m 8s 7s 4z 3s 2s 2s 6z 4s 7z 3s 1p 7s 3s",
+        "8s 3m 7p 9p 2s 7p 4p 4z 5m 8m 7m 1m 1m 9p 6m 4s 7s 7p 9p 6p 1s 8p 7m 9m 6z 2p 5p 6p 4s 4p 6s 9s 6m 1p",
     ]),
 ]
 
@@ -40,6 +40,15 @@ let wallVectors: [WallVector] = [
         // SplitMix64's published first output for seed 0.
         var sm = SplitMix64(state: 0)
         #expect(sm.next() == 0xE220_A839_7B1D_CDAF)
+    }
+
+    @Test func keyCheckValues() {
+        // spec/wall.md §4.
+        #expect(Wall.key(seed: 0, hand: 0) == 0x06F9_D94E_6078_E18F)
+        var x = Xoshiro256StarStar(seeding: Wall.key(seed: 0, hand: 0))
+        #expect([x.next(), x.next(), x.next()] == [0x3B26_4D20_8BB7_BCCB, 0xB79A_3478_FDF0_C6A6, 0x8D92_42CD_86FF_675C])
+        // The old linear key collided along (seed + G, hand - 1); this one does not.
+        #expect(Wall.key(seed: 0x9E37_79B9_7F4A_7C15, hand: 0) != Wall.key(seed: 0, hand: 1))
     }
 
     @Test(arguments: wallVectors) func seededWallMatchesSpec(_ v: WallVector) {
