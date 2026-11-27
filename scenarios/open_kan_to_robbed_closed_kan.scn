@@ -1,0 +1,43 @@
+# Seat 1 calls 5m from seat 0 and draws the fourth 9m from rinshan.
+# Seat 2 has single-wait Kokushi on 9m (pair 1m) and robs the ankan.
+# The open kan's owed 1p indicator precedes the ankan announcement under
+# the written chained-kan order. No 7p indicator or second replacement follows.
+# Nondealer single yakuman base 8000 * 4 = 32000 from seat 1 to seat 2.
+# Zero sticks and honba; the nondealer win advances the deal.
+
+[meta]
+name: open_kan_to_robbed_closed_kan
+title: Kokushi robs the closed kan chained after an open kan
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.16, §4.17
+unverified: rules.md §5 item 10 (owed indicator before the robbed ankan)
+
+[round]
+scores: 25000 35000 25000 15000
+
+[wall]
+hand 0: 5m 147m 258s 1234z 3p 6p
+hand 1: 055m 999m 234p 56s 88p
+hand 2: 11m 19p 19s 1234567z
+hand 3: 368m 147p 258s 1267z
+dora: 3z 1p 7p
+rinshan: 9m 7s
+draws: 7z
+
+[steps]
+0 discard 5m
+window: 1=daiminkan
+1 ankan 9m
+assert_legal 2: ron
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: yakuman=1 yaku=kokushi:1
+deltas: 0 -32000 32000 0
+scores: 25000 3000 57000 15000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(1p), ankan(1), hora(2), end_kyoku

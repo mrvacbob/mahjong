@@ -1,15 +1,16 @@
 # Riichi furiten after skipping a self-drawn winning tile via closed kan (engine.md §4.1, rules.md §4.28).
-# Seat 0 declares riichi holding 23444s 678m 234p 88p (waits: 1s, 4s).
-# On turn 2, Seat 0 draws the 4th 4s: BOTH tsumo AND ankan:4s are legal (structural waits stay {1s, 4s}!).
-# Seat 0 chooses ankan 4s instead of tsumo -> skipped a winning tile in riichi -> permanently riichi-furiten!
-# Seat 0 draws rinshan 9z->7z, tsumogiris it.
-# Seat 1 discards 1s -> Seat 0 is permanently furiten and CANNOT ron 1s!
-# Seat 2 rons 1s instead.
+# Seat 0 declares riichi holding 1112344s 123m 789p (waits: 1s, 4s).
+# On turn 2, Seat 0 draws the 4th 1s: BOTH tsumo AND ankan:1s are legal (structural waits stay {1s, 4s}!).
+# Seat 0 chooses ankan 1s instead of tsumo -> skipped a winning tile in riichi -> permanently riichi-furiten!
+# Seat 0 draws rinshan 7z, tsumogiris it.
+# Seat 1 discards 4s -> Seat 0 is permanently furiten and CANNOT ron 4s!
+# Seat 2 rons 4s instead.
 # Scoring for Seat 2 (non-dealer, West):
-#   Hand: 23s 567m 456p 789p 99m + ron 1s (ryanmen wait 1s/4s)
+#   Hand: 23s 567m 456p 789p 99m + ron 4s (ryanmen wait 1s/4s)
 #   Yaku: pinfu (1 han). Dora indicators: 1z -> 2z, kan dora 2z -> 3z (0 dora).
 #   Fu: 20 base + 10 menzen ron = 30 fu.
-#   Non-dealer ron 1 han 30 fu = 1000 from Seat 1, plus Seat 0's 1000 riichi stick on the table!
+#   Base 30 * 2^3 = 240; nondealer ron rounds 4 * 240 = 960 up to 1000.
+#   Seat 2 also takes Seat 0's 1000-point riichi stick.
 #   Seat 0: -1000 (riichi). Seat 1: -1000 (ron). Seat 2: +1000 (ron) + 1000 (stick) = +2000.
 
 [meta]
@@ -27,29 +28,31 @@ dealer: 0
 scores: 25000 25000 25000 25000
 
 [wall]
-hand 0: 23444s 678m 234p 88p
-hand 1: 1s 1144p 5566p 1122m
+hand 0: 1112344s 123m 789p
+hand 1: 4s 147m 258p 257s 125z
 hand 2: 23s 567m 456p 789p 99m
-hand 3: 3344m 7799p 6677s 6z
+hand 3: 369m 147p 369s 1267z
 dora: 1z 2z
 ura: 5z 5z
 rinshan: 7z
-draws: 3z 3z 3z 3z 4s 4z
+draws: 3z 3z 3z 4z 1s 4z
 
 [steps]
 0 riichi
 0 tsumogiri 3z
 1 tsumogiri 3z
 2 tsumogiri 3z
-3 tsumogiri 3z
-# Seat 0 draws 4th 4s: both tsumo and ankan:4s are legal!
+3 tsumogiri 4z
+# Seat 0 draws 4th 1s: both tsumo and ankan:1s are legal!
+assert_furiten 0: false
 assert_legal 0: tsumo
-assert_legal 0: ankan:4s
-0 ankan 4s
+assert_legal 0: ankan:1s
+0 ankan 1s
 # Skipping tsumo in riichi sets permanent riichi furiten!
 assert_furiten 0: true
 0 tsumogiri 7z
-1 discard 1s
+1 discard 4s
+assert_furiten 0: true
 assert_illegal 0: ron
 assert_not_asked 0
 assert_legal 2: ron

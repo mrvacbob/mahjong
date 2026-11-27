@@ -1,0 +1,83 @@
+# Seat 0 waits on 1s/4s with 1112344s 555z 789p. After drawing the
+# winning 1s, seat 0 closes it instead of declaring tsumo. The structural
+# waits remain 1s/4s, and 4s is still available. Replacement 7z is outside the wait.
+# Seat 1 discards 4s. Mahjong Soul defaults to allowing ron, while Tenhou's
+# temporary furiten survives rinshan. Seat 0's next live draw clears it
+# and completes the hand on the last 4s.
+# Winning sets: 234s, 44s, 555z, 789p and closed kan 1111s.
+# The haku gives one han in both branches; Tenhou also adds menzen tsumo.
+# Indicators 1z/2z point to absent 2z/3z. No honba or sticks are paid.
+# The 4s can finish 234s or the pair. For ron, the higher-paying pair
+# reading adds 2 fu: 20 + 10 + 32 + 8 + 2 = 72 -> 80 fu.
+# Base 80 * 2^3 = 640; dealer ron rounds 3840 up to 3900.
+# On tsumo, 20 + 2 + 32 + 8 + 2 = 64 -> 70 fu, as does 62 fu
+# with the ryanmen assignment. Base 70 * 2^4 = 1120;
+# dealer tsumo rounds 2240 up to 2300 each = 6900 total.
+# Either dealer win repeats East 1 at honba 1.
+
+[meta]
+name: declined_tsumo_outside_riichi
+title: Declining a legal tsumo outside riichi may set temporary furiten
+rules: both
+source: engine.md §4.2 Declining a self-drawn win outside riichi
+unverified: engine.md §4.2 (client behavior after declining tsumo outside riichi)
+
+[round]
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1112344s 555z 789p
+hand 1: 4s 147m 258p 258s 125z
+hand 2: 258m 369p 258s 1267z
+hand 3: 368m 147p 369s 1237z
+dora: 1z 2z
+rinshan: 7z
+draws: 4z 4z 4z 6z 1s 3z 3z 3z 4s
+
+[steps]
+0 tsumogiri 4z
+1 tsumogiri 4z
+2 tsumogiri 4z
+3 tsumogiri 6z
+assert_furiten 0: false
+assert_legal 0: tsumo
+assert_legal 0: ankan:1s
+0 ankan 1s
+0 tsumogiri 7z
+1 discard 4s
+
+[steps.mahjongsoul]
+assert_furiten 0: false
+assert_legal 0: ron
+window: 0=ron
+
+[steps.tenhou]
+assert_furiten 0: true
+assert_not_asked 0
+2 tsumogiri 3z
+3 tsumogiri 3z
+assert_furiten 0: false
+assert_legal 0: tsumo
+0 tsumo
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 0
+win 0: han=1 fu=80 yaku=yakuhai_haku
+deltas: 3900 -3900 0 0
+scores: 28900 21100 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: ankan(0), dora(2z), tsumo(0), dahai(0), dahai(1), hora(0), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 0
+win 0: han=2 fu=70 yaku=tsumo,yakuhai_haku
+deltas: 6900 -2300 -2300 -2300
+scores: 31900 22700 22700 22700
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: ankan(0), dora(2z), tsumo(0), dahai(0), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku

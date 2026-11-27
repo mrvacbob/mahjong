@@ -1,0 +1,72 @@
+# Declining a self-drawn win outside riichi under Tenhou rules sets temporary
+# furiten until the seat's next live draw (docs/design/engine.md §4.2).
+# Seat 0 (dealer, not in riichi) holds 234m 678m 234p 4567s (waits: 4s, 7s).
+# Seat 0 draws 4s (legal tsumo), declines tsumo, and discards 7s (now waiting
+# tanki on 4s; 4s is NOT in Seat 0's own pond, so own-discard furiten is false).
+# Seat 1 draws 9z->7z and discards 4s from hand.
+# Under Tenhou rules, Seat 0 must be temporarily furiten and NOT offered ron.
+# Under Mahjong Soul rules (default: false until checked), Seat 0 is not furiten
+# and may ron 4s.
+
+[meta]
+name: tenhou_skip_tsumo_temporary_furiten
+title: Declining a self-drawn win outside riichi sets temporary furiten under Tenhou
+rules: both
+source: engine.md §4.2
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 4567s
+hand 1: 4s 1199m 1199p 1122z
+hand 2: 147m 147p 258s 2345z
+hand 3: 3344m 5588p 6688s 6z
+dora: 1z
+draws: 4s 7z 5z 5z 3z
+
+[steps]
+assert_legal 0: tsumo
+0 discard 7s
+
+[steps.tenhou]
+assert_furiten 0: true
+1 discard 4s
+assert_illegal 0: ron
+assert_not_asked 0
+2 tsumogiri 5z
+3 tsumogiri 5z
+# Seat 0's next live draw clears temporary furiten
+assert_furiten 0: false
+0 tsumogiri 3z
+auto_tsumogiri 65
+
+[steps.mahjongsoul]
+assert_furiten 0: false
+1 discard 4s
+assert_legal 0: ron
+window: 0=ron
+
+[expect.tenhou]
+outcome: exhaustive_draw
+tenpai: 0
+deltas: 3000 -1000 -1000 -1000
+scores: 28000 24000 24000 24000
+sticks: 0
+honba: 1
+dealer_repeats: true
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 0
+win 0: han=1 fu=40 yaku=tanyao
+deltas: 2000 -2000 0 0
+scores: 27000 23000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true

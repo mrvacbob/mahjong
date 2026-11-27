@@ -1,0 +1,67 @@
+# Seat 1 declares double riichi waiting on 7m/8m. Seat 0 then closes two
+# kans, cancelling ippatsu and exposing three 1m dora and three 5m ura
+# (each triplet of indicators points at 222m or 666m, respectively).
+# Seat 1 rons 8m with two readings:
+# - 222m 333m 444m 666m 88m: Suuankou Tanki, double natural yakuman
+#   (26 han nominally, represented as 2 yakuman). Its base is 16000;
+#   nondealer ron is 4 * 16000 = 64000. Bonuses do not count.
+# - 234m 234m 234m 666m 88m: chinitsu 6 + iipeikou 1 + double riichi 2
+#   + tanyao 1 + 9 dora + 9 ura = 28 han. Menzen ron 30 + simple triplet 4
+#   + tanki 2 = 36 -> 40 fu. Kazoe is capped at base 8000, so ron
+#   would pay 32000. The double yakuman pays twice as much.
+# Tenhou treats Suuankou Tanki as single yakuman: both readings pay
+# 32000 there, with the natural yakuman winning the tie. Seat 1 pays
+# and collects its own 1000-point deposit in either ruleset.
+
+[meta]
+name: ambiguous_wait_yakuman_beats_higher_han
+title: Double natural yakuman pays more than a 28 han interpretation
+rules: both
+source: rules.md §3, §4.3, §4.6, §4.33
+
+[round]
+scores: 64000 12000 12000 12000
+
+[wall]
+hand 0: 1111p 9999p 8m 1367z
+hand 1: 2223334446668m
+hand 2: 147s 258p 1234567z
+hand 3: 369s 367p 2234567z
+dora: 1m 1m 1m
+ura: 5m 5m 5m
+rinshan: 7p 8p
+draws: 6s 1s 9s 3s 9m
+
+[steps]
+0 tsumogiri 6s
+1 riichi
+1 tsumogiri 1s
+2 tsumogiri 9s
+3 tsumogiri 3s
+0 ankan 1p
+0 ankan 9p
+0 discard 8m
+assert_legal 1: ron
+window: 1=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 1
+win 1: yakuman=2 yaku=suuankou_tanki:2
+deltas: -64000 64000 0 0
+scores: 0 76000 12000 12000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: reach_accepted(1), ankan(0), dora(1m), ankan(0), dora(1m), dahai(0), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=suuankou_tanki:1
+deltas: -32000 32000 0 0
+scores: 32000 44000 12000 12000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: reach_accepted(1), ankan(0), dora(1m), ankan(0), dora(1m), dahai(0), hora(1), end_kyoku

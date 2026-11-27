@@ -5,16 +5,13 @@
 # Seat 1 (riichi): 23m 999p 33345666s (waits 1m, 4m). Draws 6s -> ankan:6s LEGAL (waits stay 1m, 4m).
 # Seat 1 draws rinshan 1m and wins by tsumo!
 # Scoring for Seat 1 (non-dealer, South):
-#   Hand: 23m 999p 33345s + ankan 6666s + rinshan tsumo 1m
-#   Yaku: double_riichi (2) + tsumo (1) + rinshan (1) + sanankou (2) = 6 han (NO ippatsu: own ankan cancels ippatsu).
-#   Dora indicators: 2z -> 3z, kan dora 5z -> 6z (0 dora). Ura: 7z -> 5z, 3z -> 4z (0 ura).
-#   Fu: 20 base + 2 tsumo + 8 ankou(9p) + 4 ankou(3s) + 16 ankan(6s) = 50 fu.
-#   6 han 50 fu = Haneman (basic 3000).
-#   Non-dealer tsumo Haneman: 3000 from non-dealers (Seats 2, 3), 6000 from dealer (Seat 0).
-#   Table has 2 sticks (Seat 0's + Seat 1's) -> Seat 1 takes both (+2000 from table, net +1000 vs own stick).
-#   Seat 0: -1000 (riichi) - 6000 (tsumo) = -7000.
-#   Seat 1: -1000 (riichi) + 12000 (tsumo) + 2000 (sticks) = +13000.
-#   Seat 2: -3000. Seat 3: -3000. Sum = 0.
+#   123m 999p 33s 345s + closed kan 6666s. Only two concealed sets.
+#   Double riichi (2) + menzen tsumo (1) + rinshan (1) = 4 han.
+#   Dora 3z/6z and ura 5z/4z are absent. The kan cancels ippatsu.
+#   20 base + 2 tsumo + 8 (terminal triplet) + 16 (simple closed kan)
+#   = 46, rounded to 50 fu. Mangan base 2000: dealer pays 4000, others 2000.
+#   Seat 0 pays 1000 riichi + 4000 tsumo. Seat 1 pays 1000 riichi,
+#   receives 8000 tsumo + 2000 from the table, and nets 9000.
 
 [meta]
 name: riichi_ankan_waits
@@ -34,12 +31,12 @@ scores: 25000 25000 25000 25000
 [wall]
 hand 0: 123456p 4445m 111z
 hand 1: 23m 999p 33345666s
-hand 2: 1122s 5566m 7788s 4z
-hand 3: 7788m 7788p 1122s 7z
+hand 2: 44z 137m 258p 147s 26z
+hand 3: 77z 789m 147p 258s 25z
 dora: 2z 5z
 ura: 7z 3z
 rinshan: 1m
-draws: 4z 4z 7z 7z 4m 6s
+draws: 4z 4z 7z 6z 4m 6s
 
 [steps]
 # Turn 1: Seat 0 and Seat 1 declare Double Riichi; Seats 2, 3 tsumogiri.
@@ -48,9 +45,10 @@ draws: 4z 4z 7z 7z 4m 6s
 window: 2=pass
 1 riichi
 1 tsumogiri 4z
+window: 2=pass
 2 tsumogiri 7z
 window: 3=pass
-3 tsumogiri 7z
+3 tsumogiri 6z
 # Turn 2: Seat 0 draws 4th 4m -> ankan:4m would drop waits 3m and 6m -> ILLEGAL!
 assert_illegal 0: ankan:4m
 0 tsumogiri 4m
@@ -63,9 +61,9 @@ assert_legal 1: ankan:6s
 [expect]
 outcome: tsumo
 winners: 1
-win 1: han=6 fu=50 yaku=double_riichi,rinshan,sanankou,tsumo
-deltas: -7000 13000 -3000 -3000
-scores: 18000 38000 22000 22000
+win 1: han=4 fu=50 yaku=double_riichi,rinshan,tsumo
+deltas: -5000 9000 -2000 -2000
+scores: 20000 34000 23000 23000
 sticks: 0
 honba: 0
 dealer_repeats: false

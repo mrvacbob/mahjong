@@ -1,6 +1,6 @@
 # Scenario Index
 
-123 hand-worked scenario tests (`scenarios/*.scn`), validated and expanded to JSON by `tools/scenario.py`.
+132 hand-worked scenario tests (`scenarios/*.scn`), validated and expanded to JSON by `tools/scenario.py`.
 
 | Scenario | Rules | What it pins down | Source rule | Status |
 | :--- | :---: | :--- | :--- | :---: |
@@ -12,6 +12,7 @@
 | `added_kan_rinshan_no_kan_dora` | both | Immediate rinshan tsumo after an added kan does not reveal or count the owed kan dora | `engine.md §4.2, rules.md §4.17` | verified |
 | `added_kan_robbed_ippatsu_alive` | mahjongsoul | Robbing an added kan preserves ippatsu and flips no kan dora | `engine.md §4.2`, `rules.md §4.15, §4.26, §5.5` | **unverified** (`rules.md §5.5`) |
 | `ambiguous_wait_max_payment` | mahjongsoul | Ambiguous decompositions choose the highest-paying reading in both sequence and triplet directions | `rules.md §4.6` | verified |
+| `ambiguous_wait_yakuman_beats_higher_han` | both | Double natural yakuman beats a 28-han counted reading on Mahjong Soul and ties it on Tenhou | `rules.md §3, §4.3, §4.6, §4.33` | verified |
 | `call_priority_daiminkan_over_chi` | mahjongsoul | Daiminkan beats Chi in the same discard window | `engine.md §4.1 rows 6/7, rules.md §4.37` | verified |
 | `call_priority_pon_over_chi` | mahjongsoul | Pon beats Chi in same window; red-five pon variants are distinct | `engine.md §4, §4.1 rows 6/7`, `rules.md §4.37` | verified |
 | `call_priority_ron_over_daiminkan` | mahjongsoul | Ron beats Daiminkan in the same discard window | `engine.md §4.1 rows 1/6, rules.md §4.37` | verified |
@@ -21,6 +22,7 @@
 | `closed_kan_rinshan_tsumo` | mahjongsoul | Closed kan flips kan dora immediately for rinshan tsumo and cancels own ippatsu | `engine.md §4.2`, `rules.md §4.17, §4.26` | verified |
 | `closed_kan_robbed_kokushi` | both | Robbing closed kan is Kokushi-only on Majsoul and forbidden on Tenhou | `engine.md §4.2`, `rules.md §1, §4.16` | verified |
 | `dead_end_call` | mahjongsoul | Chi that would leave only kuikae-forbidden tiles is illegal | `engine.md §4.2`, `rules.md §4.13` | verified |
+| `declined_tsumo_outside_riichi` | both | Declining tsumo by closing a wait-preserving kan gives temporary furiten only under the Tenhou default | `engine.md §4.2` | **unverified** (`engine.md §4.2`) |
 | `double_ron_tenhou` | tenhou | Tenhou double ron gives sticks and honba only to closest CCW winner and repeats dealer | `engine.md §4.1 row 1, §4.2, rules.md §1, §4.21` | verified |
 | `double_ron_with_sticks_and_honba` | mahjongsoul | Double ron gives sticks & honba only to closest CCW winner; dealer repeats | `engine.md §4.1 row 1, §4.2`, `rules.md §1, §4.21, §5.2` | **unverified** (`rules.md §5.2`) |
 | `double_wind_pair_4_fu` | mahjongsoul | Double-wind pair awards 4 fu pushing closed ron from 40 fu to 50 fu | `rules.md §1, §3.1, §4.11` | verified |
@@ -34,6 +36,7 @@
 | `endgame_all_last_tenpai_yame` | mahjongsoul | All Last dealer tenpai in strict 1st with >= 30,000 ends game + takes sticks | `engine.md §5 steps 4/5`, `rules.md §1` | verified |
 | `endgame_all_last_tie_not_first` | mahjongsoul | All Last dealer tied for top score is not 1st by seat order -> repeats | `engine.md §5 step 4`, `rules.md §1` | verified |
 | `endgame_east_e4_extension_start` | mahjongsoul | East-game E4 enters South 1 extension when all scores are below 30000 | `engine.md §5 step 4, rules.md §1` | verified |
+| `endgame_east_s4_dealer_repeat` | both | East-game South 4 repeats when the tenpai dealer finishes below 30000 | `engine.md §5 step 4, rules.md §1 extension_max_round` | verified |
 | `endgame_east_s4_max_round` | mahjongsoul | East-game South 4 ends unconditionally when dealer does not repeat even below 30000 | `engine.md §5 steps 4/5, rules.md §1` | verified |
 | `endgame_extension_advance_below_30000` | mahjongsoul | West 1 advances to West 2 when dealer does not repeat and all scores stay below 30000 | `engine.md §5 step 4, rules.md §1` | verified |
 | `endgame_extension_dealer_repeat_priority` | mahjongsoul | Dealer repeat takes priority over non-dealer passing 30,000 in extension | `engine.md §5 step 4`, `rules.md §5.8` | **unverified** (`rules.md §5.8`) |
@@ -82,6 +85,8 @@
 | `nagashi_mangan_tenpai_dealer` | mahjongsoul | Nagashi Mangan replaces tenpai payments without breaking dealer tenpai renchan | `engine.md §4.2`, `rules.md §1, §4.30` | verified |
 | `natural_yakuman_ignores_dora` | mahjongsoul | Natural Yakuman scores 1x Yakuman and ignores all regular yaku and dora | `rules.md §4.34` | verified |
 | `no_kiriage_3han60fu_and_4han30fu_ron` | both | No kiriage mangan for dealer 3 han 60 fu (11600) and non-dealer 4 han 30 fu (7700) ron | `rules.md §1, §3.2, §4.20` | verified |
+| `no_kiriage_3han60fu_dealer_tsumo` | both | Dealer 3 han 60 fu tsumo pays 3900 all | `rules.md §1, §3.2, §4.20` | verified |
+| `no_kiriage_3han60fu_nondealer_tsumo` | both | Nondealer 3 han 60 fu tsumo pays 2000 / 3900 | `rules.md §1, §3.2, §4.20` | verified |
 | `no_kiriage_dealer_tsumo` | both | No kiriage mangan for dealer 4 han 30 fu tsumo (3900 all) | `rules.md §1, §3.2, §4.20` | verified |
 | `no_kiriage_tsumo_boundaries` | both | No kiriage mangan for non-dealer 4 han 30 fu tsumo (2000 / 3900) | `rules.md §1, §3.2, §4.20` | verified |
 | `no_pao_suukantsu` | mahjongsoul | Feeding the 4th kan for Suukantsu does not trigger Pao | `engine.md §4.2`, `rules.md §1, §4.32` | verified |
@@ -93,6 +98,7 @@
 | `open_kan_discard_ron_dora` | both | Post-open-kan discard ron: Tenhou counts kan dora, Majsoul default does not | `engine.md §4.2`, `rules.md §1, §4.17, §5.4` | **unverified** (`rules.md §5.4`) |
 | `open_kan_rinshan_no_kan_dora` | mahjongsoul | Immediate rinshan tsumo after open kan does not see owed kan dora | `engine.md §4.2`, `rules.md §4.17` | verified |
 | `open_kan_to_closed_kan_chain` | both | Open kan -> replacement draw -> closed kan reveals owed dora then ankan then new dora | `engine.md §4.2, rules.md §4.17, §5.10` | **unverified** (`rules.md §5 item 10`) |
+| `open_kan_to_robbed_closed_kan` | mahjongsoul | Owed dora precedes a chained closed kan robbed by Kokushi | `engine.md §4.2, rules.md §4.16, §4.17` | **unverified** (`rules.md §5 item 10`) |
 | `open_pinfu_ron_30_fu` | mahjongsoul | Open all-sequence ryanmen ron with zero extra fu scores 30 fu minimum | `rules.md §1, §3.1, §4.8` | verified |
 | `pao_composite_yakuman` | both | Composite yakuman pao splits non-liable yakuman on Majsoul, charges whole hand on Tenhou | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
 | `pao_composite_yakuman_ron` | both | Composite yakuman third-party ron splits only liable yakuman on Mahjong Soul and whole hand on Tenhou | `engine.md §4.2, rules.md §1, §4.31` | verified |
@@ -102,8 +108,10 @@
 | `pao_ron_from_liable_seat` | mahjongsoul | Pao ron from liable seat itself pays 100% + honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
 | `pao_ron_liable_seat_tenhou` | tenhou | Tenhou pao ron dealt by the liable seat itself pays 100% plus honba | `engine.md §4.2, rules.md §1, §4.31` | verified |
 | `pao_ron_third_party` | mahjongsoul | Pao ron from 3rd party splits 50/50 with liable seat paying honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
+| `pao_ron_third_party_tenhou` | tenhou | Third-party Daisangen ron splits liability and charges honba to the liable seat | `engine.md §4.2, rules.md §1, §4.31` | verified |
 | `pao_set_by_daiminkan` | both | Daiminkan completing the third dragon sets Daisangen pao on the discarder | `engine.md §4.2, rules.md §1, §4.31` | verified |
 | `pao_tsumo_daisangen` | mahjongsoul | Pao tsumo on Daisangen makes liable seat pay 100% + honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
+| `pao_tsumo_daisangen_tenhou` | tenhou | Pon-established Daisangen tsumo charges the liable seat the entire hand and honba | `engine.md §4.2, rules.md §1, §4.31` | verified |
 | `pinfu_exclusions` | mahjongsoul | Pinfu is excluded by a value pair and by a nobetan tanki wait | `rules.md §4.5` | verified |
 | `riichi_ankan_okurikan_illegal` | mahjongsoul | Okurikan (closed kan not using the just-drawn tile) is illegal after riichi | `rules.md §1, §4.14` | verified |
 | `riichi_ankan_waits` | mahjongsoul | Riichi ankan compares only wait kinds and forbids wait-changing kan | `engine.md §4.2`, `rules.md §4.14, §5.3` | **unverified** (`rules.md §5.3`) |
@@ -125,5 +133,6 @@
 | `suuankou_shanpon_tsumo` | mahjongsoul | Shanpon tsumo on four concealed triplets scores 1x Suuankou | `rules.md §4.2` | verified |
 | `suucha_riichi_discard_ron` | mahjongsoul | Ron on the fourth riichi discard wins without accepting the fourth stick or aborting | `engine.md §4.1 rows 1/3/5, §4.2, rules.md §4.24` | verified |
 | `suukaikan_discard_ron` | mahjongsoul | Ron on the fourth multi-seat kan discard wins instead of aborting as suukaikan | `engine.md §4.1 rows 1/4, §4.2, rules.md §4.22` | verified |
+| `suukaikan_open_kan_owed_dora` | both | Fourth open kan reveals owed dora at its discard before the four-kan abort | `engine.md §4.2, rules.md §1, §4.22` | **unverified** on Mahjong Soul (`rules.md §5 item 4`) |
 | `suukaikan_rinshan_win` | mahjongsoul | Fourth kan by 2nd seat allows Rinshan Kaihou win instead of aborting | `engine.md §4.2`, `rules.md §4.22` | verified |
 | `triple_ron_rulesets` | both | Triple ron pays all three on Majsoul and aborts (`sanchahou`) on Tenhou | `engine.md §4.1 row 1, §4.2`, `rules.md §1, §4.21` | **unverified** (`rules.md §5.2`) |

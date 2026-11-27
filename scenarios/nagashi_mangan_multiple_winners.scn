@@ -63,4 +63,4 @@ scores: 17000 31000 31000 21000
 sticks: 1
 honba: 2
 dealer_repeats: false
-events_order: start_kyoku, ryukyoku(nagashi_mangan), end_kyoku
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

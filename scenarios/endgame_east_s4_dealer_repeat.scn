@@ -1,0 +1,62 @@
+# South 4 dealer repeat below 30,000 continues play (engine.md §5 step 4, §11).
+# South 4, dealer 3, scores: 26000 25000 24000 25000.
+# Exhaustive draw: only dealer Seat 3 is tenpai -> deltas: -1000 -1000 -1000 +3000.
+# Post-round scores: 25000 24000 23000 28000.
+# Dealer repeats (and is below 30000) -> per engine.md §5 step 4 ("If the dealer repeats otherwise,
+# play continues"), the extension's last hand repeats: South 4 honba 1, dealer 3!
+
+[meta]
+name: endgame_east_s4_dealer_repeat
+title: East-game South 4 dealer repeat below 30000 continues South 4
+rules: both
+source: engine.md §5 step 4, rules.md §1 extension_max_round
+
+[round]
+game_length: east
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 26000 25000 24000 25000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 258m 369p 147s 1235z
+hand 2: 369m 147p 258s 2467z
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+# Allocate all six live waits to other seats, outside dealer 3's pond.
+draw_at 1: 4s 4s 4s
+draw_at 5: 7s 7s 7s
+
+[steps]
+auto_tsumogiri 70
+
+[expect.mahjongsoul]
+outcome: exhaustive_draw
+tenpai: 3
+deltas: -1000 -1000 -1000 3000
+scores: 25000 24000 23000 28000
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: S
+next_round: 4
+next_dealer: 3
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku
+
+[expect.tenhou]
+outcome: exhaustive_draw
+tenpai: 3
+deltas: -1000 -1000 -1000 3000
+scores: 25000 24000 23000 28000
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: S
+next_round: 4
+next_dealer: 3
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

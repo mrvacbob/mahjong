@@ -28,20 +28,20 @@ scores: 25000 25000 25000 25000
 
 [wall]
 hand 0: 999m 234m 678p 56s 88p
-hand 1: 112233p 112233s 4z
-hand 2: 1155m 4455p 2233s 7z
-hand 3: 6677m 7799p 4488s 6z
+hand 1: 147m 258p 147s 1256z
+hand 2: 258m 369p 258s 1267z
+hand 3: 368m 147p 369s 1277z
 dora: 1z 8m
 ura: 5z 5z
 rinshan: 7s
-draws: 3z 3z 3z 3z 9m
+draws: 3z 3z 3z 4z 9m
 
 [steps]
 0 riichi
 0 tsumogiri 3z
 1 tsumogiri 3z
 2 tsumogiri 3z
-3 tsumogiri 3z
+3 tsumogiri 4z
 0 ankan 9m
 0 tsumo
 

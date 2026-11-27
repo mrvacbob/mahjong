@@ -1,0 +1,53 @@
+# 9999m closed kan, 222m, 678p, 567s, 88p; the 7s is a replacement draw.
+# Menzen tsumo, rinshan and one 7p dora (indicator 6p) give 3 han.
+# The kan indicator 1z adds no dora. The kan interrupts the first go-around.
+# 20 base + 2 tsumo + 32 terminal closed kan + 4 simple triplet
+# = 58, rounded to 60 fu. Base 60 * 2^(3+2) = 1920 without kiriage.
+# Dealer tsumo: round 3840 up to 3900 each, for 11700 total.
+# Nondealer tsumo: round 3840 up to 3900 and each 1920 up to 2000,
+# for 7900 total. Honba and sticks start at zero.
+
+[meta]
+name: no_kiriage_3han60fu_dealer_tsumo
+title: No kiriage for dealer 3 han 60 fu tsumo
+rules: both
+source: rules.md §1, §3.2, §4.20
+
+[round]
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 999m 222m 678p 56s 88p
+hand 1: 147m 258p 147s 1256z
+hand 2: 258m 369p 258s 1267z
+hand 3: 368m 147p 369s 1277z
+dora: 6p 1z
+rinshan: 7s
+draws: 9m
+
+[steps]
+0 ankan 9m
+assert_legal 0: tsumo
+0 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 0
+win 0: han=3 fu=60 yaku=dora:1,rinshan,tsumo
+deltas: 11700 -3900 -3900 -3900
+scores: 36700 21100 21100 21100
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(1z), tsumo(0), hora(0), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 0
+win 0: han=3 fu=60 yaku=dora:1,rinshan,tsumo
+deltas: 11700 -3900 -3900 -3900
+scores: 36700 21100 21100 21100
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(1z), tsumo(0), hora(0), end_kyoku
