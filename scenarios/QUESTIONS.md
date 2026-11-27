@@ -48,10 +48,28 @@ All items marked unverified in `spec/rules.md` §5 are written to the design's
 stated defaults and tagged `unverified` in their scenario `[meta]` headers:
 - `rules.md` §5 item 2: `double_ron_with_sticks_and_honba.scn`, `triple_ron_rulesets.scn`, and `pao_double_ron.scn`
 - `rules.md` §5 item 3: `riichi_ankan_waits.scn`
-- `rules.md` §5 item 4: `open_kan_discard_ron_dora.scn`
+- `rules.md` §5 item 4: `open_kan_discard_ron_dora.scn`, `open_kan_discard_called_dora.scn`, and `open_kan_discard_riichi_ron_ura.scn`
 - `rules.md` §5 items 4 & 10: `open_kan_chained_kan_discard_ron.scn`
+- `rules.md` §5 item 10: `open_kan_to_closed_kan_chain.scn`
 - `rules.md` §5 item 5: `added_kan_robbed_ippatsu_alive.scn`
 - `rules.md` §5 item 6: `endgame_nagashi_pushes_dealer_out_of_first.scn`
 - `rules.md` §5 item 7: `formal_tenpai_fifth_copy.scn`
 - `rules.md` §5 item 8: `endgame_extension_dealer_repeat_priority.scn`
 - `rules.md` §5 item 9: `abort_suufon_renda_riichi_stick.scn`
+
+## 6. Physically impossible coverage gaps from `docs/reviews/p3/F-codex.md`
+
+Two items listed in the Package F review coverage table cannot arise in legal 4-player Riichi Mahjong and therefore have no scenario file:
+
+- **Dead-end Pon (`rules.md` §4 item 13):** A seat with $k \in \{0,1,2,3\}$ melds holds $13 - 3k \ge 4$ concealed tiles. Calling Pon on tile kind $X$ uses 2 copies of $X$ from hand plus 1 discarded, leaving $11 - 3k \ge 2$ concealed tiles and at most 1 remaining copy of $X$ in the 4-copy deck. Because Pon kuikae forbids only kind $X$, at least one tile of a different kind always remains to discard.
+- **Submitted call losing to Four Riichi (`engine.md` §4.1 row 5):** When the 4th seat declares riichi, all three other seats are already in riichi and cannot legally submit `pon`, `chi`, or `daiminkan`. Only `ron` (covered by `suucha_riichi_discard_ron.scn`) can legally be submitted on the 4th riichi discard.
+
+## 7. Format limitation: post-robbed-kakan meld and kan-count state
+
+- **`docs/reviews/p3/F-codex.md` (§4.2 Kan transactions):** Notes that after a robbed added kan (`added_kan_robbed_ippatsu_alive.scn`), the surviving pon and unchanged kan count are not directly observable from `scenarios/FORMAT.md` assertions. Because a robbed `kakan` ends the round immediately on `ron`, no subsequent turn exists to probe legality, and `FORMAT.md` has no `assert_melds` or `assert_kan_count` directive. Exact `events:` already verifies that no `dora` or replacement `tsumo` event is emitted.
+
+## 8. West 4 dealer repeat below 30,000 (`engine.md` §5 step 4 vs `spec/rules.md` §1)
+
+- **`spec/rules.md` (§1 `extension_max_round`):** Uses the shorthand *"Ends unconditionally after S4 (Tonpuu) or W4 (Hanchan)"*.
+- **`docs/design/engine.md` (§5 step 4, §11):** Explicitly specifies that the extension's last hand still repeats when the dealer repeats below 30,000 (*"If the dealer repeats otherwise, play continues"*), ending unconditionally only when the dealer does not repeat.
+- **Action taken:** `scenarios/endgame_extension_w4_dealer_repeat.scn` pins down `engine.md` §5 step 4 (West 4 continues on dealer repeat below 30,000).

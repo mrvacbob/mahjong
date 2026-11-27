@@ -1,0 +1,52 @@
+# Call priority: Daiminkan beats Chi in the same discard window
+# (engine.md §4.1 rows 6/7, rules.md §4.37).
+# Seat 0 discards 2m.
+# Seat 1 (shimocha) answers chi:34m; Seat 2 answers daiminkan (holding 222m).
+# Row 6 (daiminkan) beats Row 7 (chi): Seat 2 makes daiminkan, draws rinshan 9s, wins by tsumo!
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 345p 678s 666z 9s + daiminkan 2222m + tsumo 9s (rinshan)
+#   Dora ind 1z (kan dora not flipped on rinshan tsumo) -> 0 dora
+#   Yaku: rinshan (1) + yakuhai_hatsu (1) = 2 han
+#   Fu: 20 base + 2 tsumo + 8 open kan (2m) + 8 closed triplet (6z) + 2 tanki (9s) = 40 fu
+#   Non-dealer 2 han 40 fu tsumo: 700 / 1300 (+2700).
+
+[meta]
+name: call_priority_daiminkan_over_chi
+title: Daiminkan beats Chi in the same discard window
+rules: mahjongsoul
+source: engine.md §4.1 rows 6/7, rules.md §4.37
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 34m 7m 147p 258s 1235z
+hand 2: 222m 345p 678s 666z 9s
+hand 3: 369m 169p 147s 2457z
+dora: 1z 3z
+rinshan: 9s
+draws: 2m
+
+[steps]
+0 tsumogiri 2m
+assert_legal 1: chi:34m
+assert_legal 2: daiminkan
+window: 1=chi:34m, 2=daiminkan
+2 tsumo
+
+[expect]
+outcome: tsumo
+winners: 2
+win 2: han=2 fu=40 yaku=rinshan,yakuhai_hatsu
+deltas: -1300 -700 2700 -700
+scores: 23700 24300 27700 24300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(2), tsumo(2), hora(2), end_kyoku

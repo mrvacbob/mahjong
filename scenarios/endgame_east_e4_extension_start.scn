@@ -1,0 +1,44 @@
+# East-game (Tonpuu) E4 enters South extension when top score < 30,000 and dealer does not repeat
+# (engine.md §5 step 4, rules.md §1 game_length, extension_round_enabled).
+# East 4, dealer 3, scores: 26000 25000 25000 24000.
+# Exhaustive draw with 0 tenpai -> dealer does not repeat, max score 26000 < 30000 ->
+# enters South 1 (dealer 0, honba 1).
+
+[meta]
+name: endgame_east_e4_extension_start
+title: East-game E4 enters South 1 extension when all scores are below 30000
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1
+
+[round]
+game_length: east
+wind: E
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 26000 25000 25000 24000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 258m 369p 147s 1235z
+hand 2: 369m 147p 258s 2467z
+hand 3: 148m 269p 148s 1456z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: -
+deltas: 0 0 0 0
+scores: 26000 25000 25000 24000
+sticks: 0
+honba: 1
+dealer_repeats: false
+game_ended: false
+next_wind: S
+next_round: 1
+next_dealer: 0
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

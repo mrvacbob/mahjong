@@ -1,0 +1,51 @@
+# Tobi caused by exhaustive draw noten payments takes precedence over a repeating dealer
+# (engine.md §5 steps 1/3/5, rules.md §1 tobi_enabled, §4.29).
+# East 1, dealer 0, scores: 35000 500 34500 30000.
+# Exhaustive draw: only dealer Seat 0 is tenpai -> deltas: +3000 -1000 -1000 -1000.
+# Post-round scores: 38000 -500 33500 29000.
+# Seat 1 drops to -500 (< 0) -> Tobi ends the game immediately even though dealer Seat 0 is tenpai!
+# Final ranks: 0, 2, 3, 1.
+# Mahjong Soul adjusted scores (return 25000, oka 0, uma +15/+5/-5/-15):
+#   S0 (1st): 38000 - 25000 + 15000 = +28000
+#   S2 (2nd): 33500 - 25000 +  5000 = +13500
+#   S3 (3rd): 29000 - 25000 -  5000 =  -1000
+#   S1 (4th):  -500 - 25000 - 15000 = -40500
+
+[meta]
+name: endgame_tobi_draw_overrides_repeat
+title: Tobi caused by exhaustive draw payments ends the game ahead of dealer tenpai repeat
+rules: mahjongsoul
+source: engine.md §5 steps 1/3/5, rules.md §1, §4.29
+
+[round]
+game_length: south
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 35000 500 34500 30000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 147m 258p 369s 1234z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 0
+deltas: 3000 -1000 -1000 -1000
+scores: 38000 -500 33500 29000
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: true
+final_scores: 38000 -500 33500 29000
+final_ranks: 0 2 3 1
+adjusted_scores: 28000 -40500 13500 -1000
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

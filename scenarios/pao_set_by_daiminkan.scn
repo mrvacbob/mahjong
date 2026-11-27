@@ -1,0 +1,64 @@
+# Pao (liability) set by daiminkan on the 3rd dragon (Daisangen), won by rinshan tsumo
+# (engine.md §4.2 Pao, rules.md §1 pao_daisangen, §4.31).
+# Honba: 1.
+# Seat 1 pons 5z (from S0) and 6z (from S3), holding 777z + 234m + 8s.
+# Seat 2 discards 7z -> Seat 1 calls daiminkan on 7z (sets Daisangen pao on Seat 2!),
+# draws rinshan 8s and immediately wins by tsumo!
+# Both rulesets: Daisangen (1x = 32000) + 300 honba = 32300 paid 100% by Seat 2!
+
+[meta]
+name: pao_set_by_daiminkan
+title: Daiminkan completing the third dragon sets Daisangen pao on the discarder
+rules: both
+source: engine.md §4.2, rules.md §1, §4.31
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 258p 369s 123z
+hand 1: 55z 66z 777z 234m 8s 9p 1z
+hand 2: 7z 258m 369p 147s 234z
+hand 3: 6z 369m 147p 259s 234z
+dora: 1z 2z
+rinshan: 8s
+draws: 4z 9s
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 9p
+2 tsumogiri 9s
+3 discard 6z
+window: 1=pon:66z
+1 discard 1z
+2 discard 7z
+window: 1=daiminkan
+1 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 1
+win 1: yakuman=1 yaku=daisangen:1
+deltas: 0 32300 -32300 0
+scores: 25000 57300 -7300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), pon(1), dahai(1), tsumo(2), dahai(2), daiminkan(1), tsumo(1), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 1
+win 1: yakuman=1 yaku=daisangen:1
+deltas: 0 32300 -32300 0
+scores: 25000 57300 -7300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), pon(1), dahai(1), tsumo(2), dahai(2), daiminkan(1), tsumo(1), hora(1), end_kyoku

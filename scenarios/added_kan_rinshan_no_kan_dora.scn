@@ -1,0 +1,66 @@
+# Immediate Rinshan Kaihou tsumo after an added kan (kakan) does NOT see the owed kan dora
+# (engine.md §4.2 Kan transactions, rules.md §4.17).
+# Seat 0 discards 5z -> Seat 1 calls pon:55z, discards 9m.
+# Seats 2, 3, 0 tsumogiri; Seat 1 draws 4th 5z, declares kakan 5z (no robber),
+# draws rinshan 7s and immediately wins by tsumo!
+# Kan dora indicator (7p -> dora 8p, of which Seat 1 holds two!) is NOT flipped and NOT counted!
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234m 678m 56s 88p + kakan 5555z + tsumo 7s (dora ind 1z -> 0 dora; kan dora 7p NOT active)
+#   Yaku: rinshan (1) + yakuhai_haku (1) = 2 han
+#   Fu: 20 base + 2 tsumo + 16 open kan (5z) = 38 -> 40 fu
+#   Non-dealer 2 han 40 fu tsumo: 700 / 1300 (+2700).
+
+[meta]
+name: added_kan_rinshan_no_kan_dora
+title: Immediate rinshan tsumo after an added kan does not reveal or count the owed kan dora
+rules: both
+source: engine.md §4.2, rules.md §4.17
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 259p 369s 234z
+hand 1: 55z 234m 678m 56s 88p 9m
+hand 2: 258m 369p 147s 1236z
+hand 3: 369m 147p 259s 2347z
+dora: 1z 7p
+rinshan: 7s
+draws: 4z 2z 3z 4z 5z
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 9m
+2 tsumogiri 2z
+3 tsumogiri 3z
+0 tsumogiri 4z
+1 kakan 5z
+1 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 1
+win 1: han=2 fu=40 yaku=rinshan,yakuhai_haku
+deltas: -1300 2700 -700 -700
+scores: 23700 27700 24300 24300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), kakan(1), tsumo(1), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 1
+win 1: han=2 fu=40 yaku=rinshan,yakuhai_haku
+deltas: -1300 2700 -700 -700
+scores: 23700 27700 24300 24300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), kakan(1), tsumo(1), hora(1), end_kyoku

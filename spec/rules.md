@@ -22,7 +22,7 @@ Primary reference URLs used throughout:
 | `tobi_threshold` | `< 0` (`0` continues) | `< 0` (`0` continues) | Exactly `0` points does not bust (`mahjongsoul.com`). |
 | `game_length` | `east` (Tonpuu) or `south` (Hanchan) | `east` (Tonpuu) or `south` (Hanchan) | Standard ranked queues (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `extension_round_enabled` | `true` (South in East; West in South) | `true` (South in East; West in South) | Triggered if 1st place `< 30000` at end of E4 (Tonpuu) or S4 (Hanchan) (`mahjongsoul.com`, `tenhou.net/man/`). |
-| `extension_max_round` | 1 extra round (no North round) | 1 extra round (no North round) | Ends unconditionally after S4 (Tonpuu) or W4 (Hanchan) (`mahjongsoul.com`). |
+| `extension_max_round` | 1 extra round (no North round) | 1 extra round (no North round) | Ends unconditionally after S4 (Tonpuu) or W4 (Hanchan) (`mahjongsoul.com`). Clarified after the Phase 3 scenario work: "ends after W4" means when the deal passes beyond W4 (or S4 in an East game). A dealer repeat in that last hand still continues play unless the dealer is first on 30,000 or more (Tenhou manual, 「連荘○　親が原点以上のトップなら和了止め/聴牌止め、他は連荘」). |
 | `sudden_death_target` | `>= 30000` | `>= 30000` | During extension, game ends immediately after any hand where a player reaches `>= 30000` (`mahjongsoul.com`). |
 | `agari_yame` | `true` (automatic) | `true` (automatic) | In All Last, if dealer wins and is 1st with `>= 30000`, game ends automatically (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `tenpai_yame` | `true` (automatic) | `true` (automatic) | In All Last, if dealer is tenpai at exhaustive draw and is 1st with `>= 30000`, game ends automatically (`mahjongsoul.com`, `tenhou.net/man/`). |

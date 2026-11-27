@@ -1,0 +1,47 @@
+# Terminal pass-to-exhaustion on an explicit legal Houtei ron window
+# (engine.md §4.1 row 8, §4.2, rules.md §4.19).
+# Live draws 0..68 are fast-forwarded with auto_tsumogiri 69 (Seat 1 draws index 69, 0 live tiles left).
+# Wait: all four 4s and three 7s are placed in non-Seat-2 hands/dora so Seat 2 never discards or passes
+# its waits (4s/7s) before index 69!
+# On live draw 69 (Seat 1's last draw), Seat 1 draws 7s and tsumogiris 7s.
+# Seat 2 (holding 234m 678m 234p 56s 88p) has a legal Houtei ron, explicitly answers pass ->
+# Row 8: exhaustive draw! Only Seat 2 is tenpai (+3000 / -1000 each).
+
+[meta]
+name: last_tile_houtei_pass_exhaustive
+title: Passing a legal Houtei ron on the last discard leads directly to exhaustive draw
+rules: mahjongsoul
+source: engine.md §4.1 row 8, §4.2, rules.md §4.19
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+# Hold all four 4s and three 7s in hands 0, 1, 3 so Seat 2 never becomes furiten during auto_tsumogiri 69
+hand 0: 147m 258p 44s 7s 1234z
+hand 1: 258m 369p 4s 77s 1235z
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 369m 147p 149s 2467z
+dora: 1z
+draw_at 69: 7s
+
+[steps]
+auto_tsumogiri 69
+1 tsumogiri 7s
+assert_legal 2: ron
+window: 2=pass
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 2
+deltas: -1000 -1000 3000 -1000
+scores: 24000 24000 28000 24000
+sticks: 0
+honba: 1
+dealer_repeats: false
+events_order: dahai(1), ryukyoku(exhaustive), end_kyoku

@@ -1,0 +1,65 @@
+# No Kiriage Mangan on dealer tsumo in both rulesets: 4 han 30 fu = 3900 all (NOT 4000 all)
+# (rules.md §1 kiriage_mangan_enabled, §3.2, §4 item 20).
+# Turn 1: Seats 0, 1, 2 tsumogiri; Seat 3 discards 2m -> Dealer Seat 0 calls chi:34m and discards 9m.
+# Seats 1, 2, 3 tsumogiri; Dealer Seat 0 draws 7s and wins by tsumo!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 678m 234p 06s 88p + chi 234m + tsumo 7s (dora ind 7p -> dora 8p x2; red 0s -> aka:1)
+#   Yaku: tanyao (1) + dora:2 (88p) + aka:1 (0s) = 4 han
+#   Fu: 20 base + 2 tsumo = 22 -> 30 fu
+#   Dealer 4 han 30 fu tsumo: 3900 all (+11700, NOT 4000 all)!
+
+[meta]
+name: no_kiriage_dealer_tsumo
+title: No kiriage mangan for dealer 4 han 30 fu tsumo (3900 all)
+rules: both
+source: rules.md §1, §3.2, §4.20
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 34m 678m 234p 06s 88p 9m
+hand 1: 147m 159p 369s 1234z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 7p
+draws: 1z 2z 3z 2m 4z 5z 6z 7s
+
+[steps]
+0 tsumogiri 1z
+1 tsumogiri 2z
+2 tsumogiri 3z
+3 tsumogiri 2m
+window: 0=chi:34m
+0 discard 9m
+1 tsumogiri 4z
+2 tsumogiri 5z
+3 tsumogiri 6z
+0 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 0
+win 0: han=4 fu=30 yaku=aka:1,dora:2,tanyao
+deltas: 11700 -3900 -3900 -3900
+scores: 36700 21100 21100 21100
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), chi(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 0
+win 0: han=4 fu=30 yaku=aka:1,dora:2,tanyao
+deltas: 11700 -3900 -3900 -3900
+scores: 36700 21100 21100 21100
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), chi(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku

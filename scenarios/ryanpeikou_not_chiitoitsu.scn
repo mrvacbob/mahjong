@@ -1,0 +1,44 @@
+# Ryanpeikou is scored as 4 sequences + pair (3 han, normal fu), NOT Chiitoitsu, and does not stack with Iipeikou
+# (rules.md §4 item 4).
+# Seat 1 holds 223344m 55667p 88s; Seat 0 discards 7p -> Seat 1 rons 7p!
+#   - 234m 234m 567p 567p 88s: ryanpeikou (3) + pinfu (1, ryanmen 4p/7p) + tanyao (1) = 5 han 30 fu (Mangan)
+#   - Does NOT score chiitoi or iipeikou!
+#   - Non-dealer Mangan ron = 8000 from Seat 0.
+
+[meta]
+name: ryanpeikou_not_chiitoitsu
+title: Ryanpeikou scores 4 sequences plus pair (3 han, 30 fu) rather than Chiitoitsu or Iipeikou
+rules: mahjongsoul
+source: rules.md §4.4
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 148p 369s 1234z
+hand 1: 223344m 55667p 88s
+hand 2: 158m 269p 147s 1235z
+hand 3: 569m 139p 259s 2467z
+dora: 1z
+draws: 7p
+
+[steps]
+0 tsumogiri 7p
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=5 fu=30 yaku=pinfu,ryanpeikou,tanyao
+deltas: -8000 8000 0 0
+scores: 17000 33000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku

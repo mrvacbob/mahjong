@@ -1,0 +1,62 @@
+# Kuikae edge cases: matching red five after pon, red called tile suji after chi, and kanchan carve-out
+# (engine.md §4.2 Kuikae, rules.md §4.12, §4.13).
+# 1) Pon with matching red five in hand: Seat 0 discards 5m -> Seat 1 calls pon:55m while holding 0m ->
+#    assert_illegal 1: discard:0m (red 5 is same kind as called 5m!). Seat 1 discards 0p.
+# 2) Chi on a red five (suji swap): Seat 2 calls chi:67p on Seat 1's 0p while holding 5p and 8p ->
+#    assert_illegal 2: discard:5p (same kind as 0p) AND assert_illegal 2: discard:8p (opposite-end suji!).
+#    Seat 2 discards 5s.
+# 3) Kanchan chi carve-out: Seat 3 calls chi:46s on Seat 2's 5s while holding 5s, 3s, 7s ->
+#    assert_illegal 3: discard:5s (same kind), assert_legal 3: discard:3s, assert_legal 3: discard:7s!
+#    Seat 3 discards 7s -> Seat 0 rons 7s (pinfu + tanyao = 2 han 30 fu -> Dealer 2900)!
+
+[meta]
+name: kuikae_red_five_and_kanchan
+title: Kuikae forbids matching red five after pon, suji after red-five chi, and only middle tile after kanchan chi
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.12, §4.13
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 055m 0p 147p 208s 123z
+hand 2: 5678p 5s 147m 148s 23z
+hand 3: 34567s 268m 369p 24z
+dora: 1z
+draws: 5m
+
+[steps]
+0 tsumogiri 5m
+window: 1=pon:55m
+assert_illegal 1: discard:0m
+assert_legal 1: discard:0p
+1 discard 0p
+window: 2=chi:67p
+assert_illegal 2: discard:5p
+assert_illegal 2: discard:8p
+assert_legal 2: discard:5s
+2 discard 5s
+window: 3=chi:46s
+assert_illegal 3: discard:5s
+assert_legal 3: discard:3s
+assert_legal 3: discard:7s
+3 discard 7s
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 2900 0 0 -2900
+scores: 27900 25000 25000 22100
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), chi(2), dahai(2), chi(3), dahai(3), hora(0), end_kyoku

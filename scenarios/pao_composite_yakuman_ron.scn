@@ -1,0 +1,72 @@
+# Pao on a composite yakuman (Daisangen + Tsuuiisou) won by 3rd-party ron
+# (engine.md §4.2 Pao, rules.md §1 pao_composite_yakuman, pao_ron_split, §4.31).
+# Honba: 1.
+# Seat 1 pons 5z (from S0), 6z (from S3), and 7z (from S2 -> sets Daisangen pao on Seat 2!),
+# holding 111z 2z (all honors -> Daisangen + Tsuuiisou = 2x Yakuman, 64000).
+# Seat 3 (3rd party) discards 2z -> Seat 1 rons 2z!
+# - Mahjong Soul: Daisangen (32000) split 50/50 between liable Seat 2 (16000 + 300 honba = 16300)
+#   and discarder Seat 3 (16000); Tsuuiisou (32000) paid normally by discarder Seat 3!
+#   Totals: Seat 2 -16300, Seat 3 -48000, Seat 1 +64300.
+# - Tenhou: Whole composite hand (64000) split 50/50 between liable Seat 2 (32000 + 300 honba = 32300)
+#   and discarder Seat 3 (32000)!
+#   Totals: Seat 2 -32300, Seat 3 -32000, Seat 1 +64300.
+
+[meta]
+name: pao_composite_yakuman_ron
+title: Composite yakuman third-party ron splits only liable yakuman on Mahjong Soul and whole hand on Tenhou
+rules: both
+source: engine.md §4.2, rules.md §1, §4.31
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 258p 369s 34z 8m
+hand 1: 55z 66z 77z 111z 2z 9m 9p 9s
+hand 2: 7z 258m 369p 147s 34z 6m
+hand 3: 6z 2z 369m 147p 258s 34z
+dora: 4z
+draws: 1m 1p 1s 2p 3p
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 9m
+2 tsumogiri 1p
+3 discard 6z
+window: 1=pon:66z
+1 discard 9p
+2 discard 7z
+window: 1=pon:77z
+1 discard 9s
+2 tsumogiri 3p
+3 discard 2z
+assert_legal 1: ron
+window: 1=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 1
+win 1: yakuman=2 yaku=daisangen:1,tsuuiisou:1
+deltas: 0 64300 -16300 -48000
+scores: 25000 89300 8700 -23000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), dahai(3), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 1
+win 1: yakuman=2 yaku=daisangen:1,tsuuiisou:1
+deltas: 0 64300 -32300 -32000
+scores: 25000 89300 -7300 -7000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), dahai(3), hora(1), end_kyoku

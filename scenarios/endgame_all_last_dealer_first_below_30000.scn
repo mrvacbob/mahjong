@@ -1,0 +1,45 @@
+# All Last: first-place repeating dealer still below 30,000 continues (no tenpai-yame)
+# (engine.md §5 step 4, rules.md §1 target_points, tenpai_yame).
+# South 4, dealer 3, scores: 24000 24000 25500 26500.
+# Exhaustive draw: only dealer Seat 3 is tenpai -> deltas: -1000 -1000 -1000 +3000.
+# Post-round scores: 23000 23000 24500 29500.
+# Dealer Seat 3 is strict 1st, but 29500 < 30000 -> game continues in South 4 honba 1!
+
+[meta]
+name: endgame_all_last_dealer_first_below_30000
+title: All Last first-place repeating dealer below 30000 continues play
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 24000 24000 25500 26500
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 258m 369p 147s 1235z
+hand 2: 369m 147p 258s 2467z
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 3
+deltas: -1000 -1000 -1000 3000
+scores: 23000 23000 24500 29500
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: S
+next_round: 4
+next_dealer: 3
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

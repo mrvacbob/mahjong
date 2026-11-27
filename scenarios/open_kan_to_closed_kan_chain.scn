@@ -1,0 +1,64 @@
+# Chained kans: open kan -> replacement draw -> closed kan (owed dora + new dora order)
+# (engine.md §4.1, §4.2, rules.md §4.17, §5 item 10).
+# Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z (owes kan dora #1: 1p -> dora 2p).
+# Seat 1 draws rinshan[0] (4th 9m) and declares ankan 9m!
+# Per engine.md §4.2: owed dora (1p) flips BEFORE ankan, then ankan, then new dora (7p -> dora 8p),
+# then rinshan[1] (7s).
+# Seat 1 wins by Rinshan Kaihou tsumo on 7s, counting BOTH kan dora (one 2p + two 8p = 3 dora)!
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 234p 56s 88p + daiminkan 5555z + ankan 9999m + tsumo 7s
+#   Yaku: rinshan (1) + yakuhai_haku (1) + dora:3 (2p, 8p, 8p) = 5 han (Mangan)
+#   Fu: 20 base + 2 tsumo + 16 open kan(5z) + 32 closed kan(9m) = 70 fu
+#   Non-dealer Mangan tsumo: 2000 / 4000 (+8000).
+
+[meta]
+name: open_kan_to_closed_kan_chain
+title: Open kan -> replacement draw -> closed kan reveals owed dora then ankan then new dora
+rules: both
+source: engine.md §4.2, rules.md §4.17, §5.10
+unverified: rules.md §5 item 10 (Mahjong Soul chained kan dora order)
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 258s 1234z 3p 6p
+hand 1: 555z 999m 234p 56s 88p
+hand 2: 258m 147p 148s 1236z
+hand 3: 36m 369p 29s 12467z 4m
+dora: 3z 1p 7p
+rinshan: 9m 7s
+draws: 7z
+
+[steps]
+0 discard 5z
+window: 1=daiminkan
+1 ankan 9m
+1 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 1
+win 1: han=5 fu=70 yaku=dora:3,rinshan,yakuhai_haku
+deltas: -4000 8000 -2000 -2000
+scores: 21000 33000 23000 23000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(1p), ankan(1), dora(7p), tsumo(1), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 1
+win 1: han=5 fu=70 yaku=dora:3,rinshan,yakuhai_haku
+deltas: -4000 8000 -2000 -2000
+scores: 21000 33000 23000 23000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(1p), ankan(1), dora(7p), tsumo(1), hora(1), end_kyoku

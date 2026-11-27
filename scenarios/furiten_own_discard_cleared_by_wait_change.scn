@@ -1,0 +1,61 @@
+# Own-discard furiten becomes false after a wait change removes the discarded wait
+# (engine.md §4.1 furiten, rules.md §4.27).
+# Seat 0 discards 1m on turn 1, leaving 23m 456p 678s 234s 88p (waiting 1m/4m) -> own-discard furiten!
+# Seat 1 discards 4m -> Seat 0 is furiten and NOT asked.
+# Seats 2, 3 tsumogiri.
+# Seat 0 draws 5m and discards 2m -> hand is now 35m 456p 678s 234s 88p (kanchan wait 4m only!).
+# Pond is [1m, 2m], neither is in waits {4m} -> own-discard furiten is now FALSE!
+# Seat 1 draws and discards 4m -> Seat 0 legally rons 4m!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 35m 456p 678s 234s 88p + ron 4m (dora ind 1z -> 0 dora)
+#   Yaku: tanyao (1)
+#   Fu: 20 base + 10 menzen ron + 2 kanchan (4m) = 32 -> 40 fu
+#   Dealer 1 han 40 fu ron = 2000 from Seat 1.
+
+[meta]
+name: furiten_own_discard_cleared_by_wait_change
+title: Own-discard furiten becomes false after changing waits away from the discarded tile
+rules: mahjongsoul
+source: engine.md §4.1, rules.md §4.27
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 23m 456p 678s 234s 88p
+hand 1: 4m 147m 258p 369s 123z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+draws: 1m 7z 2z 3z 5m 4m
+
+[steps]
+0 tsumogiri 1m
+assert_furiten 0: true
+1 discard 4m
+assert_furiten 0: true
+assert_illegal 0: ron
+assert_not_asked 0
+2 tsumogiri 2z
+3 tsumogiri 3z
+0 discard 2m
+assert_furiten 0: false
+1 tsumogiri 4m
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=1 fu=40 yaku=tanyao
+deltas: 2000 -2000 0 0
+scores: 27000 23000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), dahai(1), hora(0), end_kyoku

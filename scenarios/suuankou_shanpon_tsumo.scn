@@ -1,0 +1,47 @@
+# Tsumo on shanpon wait with 3 concealed triplets scores 1x Suuankou
+# (rules.md §4 item 2).
+# Seat 1 holds 333m 777p 666s 22m 55p; Seat 0 discards 7z, Seat 1 draws 2m -> wait: on 1st draw Seat 1
+# would also get Chiihou! So do one cycle of tsumogiri first (Seat 1 discards 9m on turn 1, then draws 2m on turn 2)
+# so this tests pure 1x Suuankou without Chiihou!
+#   - Yaku: suuankou:1 (1x Yakuman) -> Non-dealer tsumo 8000 / 16000 (+32000).
+
+[meta]
+name: suuankou_shanpon_tsumo
+title: Shanpon tsumo on four concealed triplets scores 1x Suuankou
+rules: mahjongsoul
+source: rules.md §4.2
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 359s 1234z
+hand 1: 333m 777p 666s 22m 55p
+hand 2: 258m 369p 147s 1235z
+hand 3: 469m 148p 248s 2467z
+dora: 1z
+draws: 7z 9m 9p 9s 7z 2m
+
+[steps]
+0 tsumogiri 7z
+1 tsumogiri 9m
+2 tsumogiri 9p
+3 tsumogiri 9s
+0 tsumogiri 7z
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: yakuman=1 yaku=suuankou:1
+deltas: -16000 32000 -8000 -8000
+scores: 9000 57000 17000 17000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), hora(1), end_kyoku

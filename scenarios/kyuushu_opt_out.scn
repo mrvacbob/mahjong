@@ -1,0 +1,44 @@
+# Nine terminals (kyuushu kyuuhai) is optional: opting out continues the round normally
+# (engine.md §4.2 Nine terminals, rules.md §1 abort_kyuushu_kyuuhai).
+# Seat 0 has 9 distinct terminals/honors on 1st draw -> assert_legal 0: kyuushu.
+# Seat 0 opts out and discards 7s -> Seat 1 rons 7s (pinfu + tanyao = 2 han 30 fu = 2000)!
+
+[meta]
+name: kyuushu_opt_out
+title: Opting out of legal kyuushu kyuuhai continues the round normally
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 19m 19p 19s 123z 7s 247m
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 4z
+draws: 4z
+
+[steps]
+# Seat 0 has 10 distinct terminals/honors (1m,9m,1p,9p,1s,9s,1z,2z,3z,4z) -> kyuushu is legal!
+assert_legal 0: kyuushu
+0 discard 7s
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2000 2000 0 0
+scores: 23000 27000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku

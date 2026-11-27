@@ -1,0 +1,73 @@
+# Pao (liability) for Daisuushii (Big Four Winds) on tsumo in both rulesets
+# (engine.md §4.2 Pao, rules.md §1 pao_daisuushii, natural_double_yakuman, §4.31).
+# Honba: 1.
+# Seat 1 pons 1z (from S0), 2z (from S3), 3z (from S0), then Seat 2 discards 4z -> Seat 1 calls pon:44z!
+# That 4th wind meld sets Daisuushii pao on Seat 2.
+# Seat 1 draws 8s (completing pair 88s) and wins by tsumo:
+#   - Mahjong Soul: Daisuushii is 2x Yakuman (64000) + 300 honba = 64300 paid 100% by Seat 2!
+#   - Tenhou: Daisuushii is 1x Yakuman (32000) + 300 honba = 32300 paid 100% by Seat 2!
+
+[meta]
+name: pao_daisuushii
+title: Daisuushii pao charges the liable seat 2x yakuman on Mahjong Soul and 1x on Tenhou
+rules: both
+source: engine.md §4.2, rules.md §1, §4.31
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1z 3z 147m 258p 369s 56z
+hand 1: 11223344z 8s 9m 9p 9s 7z
+hand 2: 4z 258m 369p 147s 567z
+hand 3: 2z 369m 147p 259s 567z
+dora: 5z
+draws: 1m 2m 3m 4m 1p 2p 3p 4p 6m 7m 8s
+
+[steps]
+0 discard 1z
+window: 1=pon:11z
+1 discard 9m
+2 tsumogiri 2m
+3 discard 2z
+window: 1=pon:22z
+1 discard 9p
+2 tsumogiri 4m
+3 tsumogiri 1p
+0 discard 3z
+window: 1=pon:33z
+1 discard 9s
+2 discard 4z
+window: 1=pon:44z
+1 discard 7z
+2 tsumogiri 4p
+3 tsumogiri 6m
+0 tsumogiri 7m
+1 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 1
+win 1: yakuman=2 yaku=daisuushii:2
+deltas: 0 64300 -64300 0
+scores: 25000 89300 -39300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), pon(1), tsumo(1), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 1
+win 1: yakuman=1 yaku=daisuushii:1
+deltas: 0 32300 -32300 0
+scores: 25000 57300 -7300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), pon(1), tsumo(1), hora(1), end_kyoku

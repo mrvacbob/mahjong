@@ -1,0 +1,54 @@
+# Scheduled All Last (South 4) ending on a non-dealer win when someone has >= 30,000
+# (engine.md §5 steps 4/5, rules.md §1).
+# South 4, dealer 3, scores: 29000 24000 23000 24000.
+# Dealer Seat 3 discards 7s -> Seat 0 (non-dealer) rons 7s (pinfu + tanyao = 2 han 30 fu = 2000).
+# Post-round scores: 31000 24000 23000 22000. Dealer does not repeat and Seat 0 >= 30000 -> game ends!
+# Final ranks: 0, 1, 2, 3.
+# Mahjong Soul adjusted scores:
+#   S0 (1st): 31000 - 25000 + 15000 = +21000
+#   S1 (2nd): 24000 - 25000 +  5000 =  +4000
+#   S2 (3rd): 23000 - 25000 -  5000 =  -7000
+#   S3 (4th): 22000 - 25000 - 15000 = -18000
+
+[meta]
+name: endgame_all_last_nondealer_win_ends
+title: Scheduled All Last ends on a non-dealer win when top score is at least 30000
+rules: mahjongsoul
+source: engine.md §5 steps 4/5, rules.md §1
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 29000 24000 23000 24000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 147m 258p 369s 1234z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+draws: 7s
+
+[steps]
+3 tsumogiri 7s
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 2000 0 0 -2000
+scores: 31000 24000 23000 22000
+sticks: 0
+honba: 0
+dealer_repeats: false
+game_ended: true
+final_scores: 31000 24000 23000 22000
+final_ranks: 0 1 2 3
+adjusted_scores: 21000 4000 -7000 -18000
+events: start_kyoku, tsumo(3), dahai(3), hora(0), end_kyoku

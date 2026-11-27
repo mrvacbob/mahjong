@@ -1,0 +1,54 @@
+# Four winds (suufon renda) is cancelled if any call (including ankan) occurs beforehand
+# (engine.md §4.1 row 2, §4.2 First go-around, rules.md §4.25).
+# Seat 0 declares ankan 1m (setting anyCallMade=true), draws rinshan 1z, discards 1z.
+# Seats 1, 2, 3 each discard 1z on their first discards -> all 4 first discards are 1z,
+# but because ankan set anyCallMade=true, suufon_renda does NOT trigger!
+# Play continues to Seat 0's next draw (7s) where Seat 0 wins by tsumo!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 234p 678p 56s 88m + ankan 1111m + tsumo 7s (dora ind 3z, 4z -> dora 4z, 1z -> 0 dora)
+#   Yaku: tsumo (1)
+#   Fu: 20 base + 2 tsumo + 32 closed kan (1m) = 54 -> 60 fu
+#   Dealer 1 han 60 fu tsumo = 1000 all (+3000).
+
+[meta]
+name: first_go_around_suufon_cancelled_by_call
+title: An earlier closed kan prevents four identical first-turn winds from aborting as suufon renda
+rules: mahjongsoul
+source: engine.md §4.1 row 2, §4.2, rules.md §4.25
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 111m 234p 678p 56s 88m
+hand 1: 1z 258m 369p 147s 235z
+hand 2: 1z 369m 147p 258s 246z
+hand 3: 1z 479m 258p 369s 347z
+dora: 3z 4z
+rinshan: 1z
+draws: 1m 2z 3z 4z 7s
+
+[steps]
+0 ankan 1m
+0 tsumogiri 1z
+1 discard 1z
+2 discard 1z
+3 discard 1z
+# Play continues! Seat 0 draws 7s and wins by tsumo.
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: han=1 fu=60 yaku=tsumo
+deltas: 3000 -1000 -1000 -1000
+scores: 28000 24000 24000 24000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku

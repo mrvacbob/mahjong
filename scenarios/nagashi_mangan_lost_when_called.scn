@@ -1,0 +1,67 @@
+# Nagashi Mangan is lost if any of the seat's terminal/honor discards is called away
+# (engine.md §4.2 Exhaustive draw, rules.md §1, §4.30).
+# Seat 1 discards ONLY terminals/honors for the entire round, EXCEPT on turn 1 Seat 1 discards 5z
+# and Seat 2 calls pon:55z on it!
+# Because one of Seat 1's discards was called away, Seat 1 loses Nagashi Mangan qualification.
+# At exhaustive draw: nagashi is empty, and ordinary tenpai/noten payments apply (only Seat 0 is tenpai: +3000 / -1000 each).
+
+[meta]
+name: nagashi_mangan_lost_when_called
+title: Having a terminal/honor discard called away disqualifies Nagashi Mangan
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.30
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 36m 258p 36s 258m 47p 7s
+hand 2: 55z 47m 47p 258s 36m 3p 7s
+hand 3: 258m 258p 47s 36m 47p 3s
+dora: 8s
+# draw 0 (S0)=2m, draw 1 (S1)=5z (ponned by S2, who discards 3p -> next is S3 on draw 2!).
+# S3 (idx 2) and S0 (idx 3) discard simples; S2 already discarded 3p.
+# Seat 1 draws indices 4,8..68 (all terminals/honors), so ONLY the called 5z disqualifies Seat 1!
+draw_at 0: 0m 5z 0p 0s
+draw_at 4: 1m
+draw_at 8: 1m
+draw_at 12: 1m
+draw_at 16: 1m
+draw_at 20: 9m
+draw_at 24: 9m
+draw_at 28: 9m
+draw_at 32: 9m
+draw_at 36: 1p
+draw_at 40: 1p
+draw_at 44: 1p
+draw_at 48: 1p
+draw_at 52: 9p
+draw_at 56: 9p
+draw_at 60: 9p
+draw_at 64: 9p
+draw_at 68: 1s
+
+[steps]
+0 tsumogiri 0m
+1 tsumogiri 5z
+window: 2=pon:55z
+2 discard 3p
+window: 3=pass
+auto_tsumogiri 68
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 0
+nagashi: -
+deltas: 3000 -1000 -1000 -1000
+scores: 28000 24000 24000 24000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: pon(2), ryukyoku(exhaustive), end_kyoku

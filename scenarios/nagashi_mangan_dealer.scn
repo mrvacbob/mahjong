@@ -1,0 +1,61 @@
+# Dealer Nagashi Mangan while dealer is NOTEN: pays 4000 all (+12000) and does NOT repeat dealer
+# (engine.md §4.2 Exhaustive draw, rules.md §1, §4.30).
+# All 4 starting hands are strictly noten simples (no pairs, scattered 2..8).
+# Seat 0 (dealer) draws and tsumogiris ONLY terminals/honors (18 draws: indices 0,4,8..68), none called.
+# Payout: Dealer Mangan tsumo = 4000 all (+12000 / -4000 / -4000 / -4000).
+# Because Nagashi Mangan does not affect renchan and Dealer Seat 0 is noten, dealer_repeats: false!
+# Sticks remain on table; honba is not paid and increments +1.
+
+[meta]
+name: nagashi_mangan_dealer
+title: Dealer Nagashi Mangan pays 4000 all and still rotates dealer when dealer is noten
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.30
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 1
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 258m 36p 258s 47m 47p 4s
+hand 1: 36m 258p 36s 258m 47p 7s
+hand 2: 47m 47p 258s 36m 36p 7s 8m
+hand 3: 258m 258p 47s 36m 47p 3s
+dora: 8s
+# Seats 1, 2, 3 discard simples on turn 1 (disqualified). Seat 0 (idx 0,4..68) draws ONLY terminals/honors.
+draw_at 0: 1m 0m 0p 0s
+draw_at 4: 1m
+draw_at 8: 1m
+draw_at 12: 1m
+draw_at 16: 9m
+draw_at 20: 9m
+draw_at 24: 9m
+draw_at 28: 9m
+draw_at 32: 1p
+draw_at 36: 1p
+draw_at 40: 1p
+draw_at 44: 1p
+draw_at 48: 9p
+draw_at 52: 9p
+draw_at 56: 9p
+draw_at 60: 9p
+draw_at 64: 1s
+draw_at 68: 1s
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: -
+nagashi: 0
+deltas: 12000 -4000 -4000 -4000
+scores: 37000 21000 21000 21000
+sticks: 1
+honba: 2
+dealer_repeats: false
+events_order: start_kyoku, ryukyoku(nagashi_mangan), end_kyoku

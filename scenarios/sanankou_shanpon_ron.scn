@@ -1,0 +1,46 @@
+# Ron on 3rd concealed triplet (shanpon wait) breaks Sanankou and scores the triplet as open (2 fu)
+# (rules.md §4 item 1).
+# Seat 1 holds 333m 777p 678s 22m 55p (two concealed triplets + shanpon 22m/55p + sequence 678s).
+# Seat 0 discards 2m -> Seat 1 rons 2m:
+#   - 222m is treated as an OPEN triplet (+2 fu, not +4 fu) -> NO sanankou!
+#   - Yaku: tanyao (1) (dora ind 1z -> 0 dora)
+#   - Fu: 20 base + 10 menzen ron + 4 (333m) + 4 (777p) + 2 (open 222m) = 40 fu
+#   - Non-dealer 1 han 40 fu ron = 1300 from Seat 0.
+
+[meta]
+name: sanankou_shanpon_ron
+title: Ron on a shanpon third triplet makes it open (2 fu) and does not score Sanankou
+rules: mahjongsoul
+source: rules.md §4.1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 333m 777p 678s 22m 55p
+hand 2: 258m 369p 147s 1235z
+hand 3: 469m 148p 259s 2467z
+dora: 1z
+draws: 2m
+
+[steps]
+0 tsumogiri 2m
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=1 fu=40 yaku=tanyao
+deltas: -1300 1300 0 0
+scores: 23700 26300 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku

@@ -1,0 +1,52 @@
+# Calling chi on a riichi discard emits reach_accepted first and cancels ippatsu
+# (engine.md §4.1 rows 3/7, §4.2, §6, rules.md §4.26).
+# Seat 0 declares double riichi and discards 2m.
+# Seat 1 calls chi:34m -> reach_accepted(0) precedes chi(1), and Seat 0's ippatsu is cancelled.
+# Seat 1 discards 7s -> Seat 0 rons 7s WITHOUT ippatsu!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 567m 234p 678p 56s 88m + ron 7s (dora ind 1z, ura ind 1z -> 0 dora)
+#   Yaku: double_riichi (2) + pinfu (1) + tanyao (1) = 4 han 30 fu (NO ippatsu!)
+#   Dealer 4 han 30 fu = 11600 (no kiriage mangan; with ippatsu it would be 12000).
+#   Seat 0 recovers its own 1000 stick: net deltas +11600 -11600 0 0.
+
+[meta]
+name: riichi_discard_chi_cancels_ippatsu
+title: Chi on a riichi discard emits reach_accepted before chi and cancels ippatsu
+rules: mahjongsoul
+source: engine.md §4.1 rows 3/7, §4.2, §6, rules.md §4.26
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 567m 234p 678p 56s 88m
+hand 1: 34m 7s 147p 258s 1234z
+hand 2: 147m 258p 369s 1235z
+hand 3: 258m 369p 148s 2467z
+dora: 1z
+ura: 1z
+draws: 2m
+
+[steps]
+0 riichi
+0 tsumogiri 2m
+window: 1=chi:34m
+1 discard 7s
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=4 fu=30 yaku=double_riichi,pinfu,tanyao
+deltas: 11600 -11600 0 0
+scores: 36600 13400 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), chi(1), dahai(1), hora(0), end_kyoku

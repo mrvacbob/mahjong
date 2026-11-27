@@ -1,0 +1,48 @@
+# Chuuren Poutou is invalidated by declaring a closed kan (ankan)
+# (rules.md §2.2, §4 item 36).
+# Seat 0 (dealer, East) starts with 1111m 2345678m 99m and draws 9m on live draw 0
+# (11112345678999m — would be Chuuren Poutou if won without kanning!).
+# Instead Seat 0 declares ankan 1m (leaving 2345678999m + a1111m), draws rinshan 8m, and wins by tsumo!
+# Because ankan invalidates Chuuren Poutou (and also breaks Tenhou), Seat 0 scores regular Chinitsu:
+#   Hand: 234m 567m 88m 999m + ankan 1111m + tsumo 8m (dora ind 1z, 2z -> 0 dora)
+#   Yaku: chinitsu (6) + rinshan (1) + tsumo (1) = 8 han (Baiman)
+#   Fu: 20 base + 2 tsumo + 32 closed kan (1m) + 8 closed terminal triplet (999m) + 2 tanki (8m) = 64 -> 70 fu
+#   Dealer Baiman tsumo: 8000 all (+24000), NOT Yakuman (16000 all)!
+
+[meta]
+name: chuuren_invalidated_by_ankan
+title: Declaring ankan breaks Chuuren Poutou and scores ordinary Chinitsu instead
+rules: mahjongsoul
+source: rules.md §2.2, §4.36
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111234567899m
+hand 1: 147p 258s 1234z 258p
+hand 2: 369p 147s 1235z 369s
+hand 3: 147p 258s 2467z 469p
+dora: 1z 2z
+rinshan: 8m
+draws: 9m
+
+[steps]
+0 ankan 1m
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: han=8 fu=70 yaku=chinitsu,rinshan,tsumo
+deltas: 24000 -8000 -8000 -8000
+scores: 49000 17000 17000 17000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), hora(0), end_kyoku

@@ -1,0 +1,51 @@
+# All Last terminal decision at exactly 30,000 points (>= 30000 ends game)
+# (engine.md §5 steps 4/5, rules.md §1 target_points, tenpai_yame).
+# South 4, dealer 3, scores: 25000 24000 24000 27000.
+# Exhaustive draw: only dealer Seat 3 is tenpai -> deltas: -1000 -1000 -1000 +3000.
+# Post-round scores: 24000 23000 23000 30000.
+# Dealer Seat 3 is strict 1st with exactly 30,000 (>= 30000) -> tenpai-yame ends game!
+# Final ranks: 3 (30000), 0 (24000), 1 (23000, seat 1 > seat 2), 2 (23000).
+# Mahjong Soul adjusted scores:
+#   S0 (2nd): 24000 - 25000 +  5000 =  +4000
+#   S1 (3rd): 23000 - 25000 -  5000 =  -7000
+#   S2 (4th): 23000 - 25000 - 15000 = -17000
+#   S3 (1st): 30000 - 25000 + 15000 = +20000
+
+[meta]
+name: endgame_all_last_exact_30000
+title: All Last dealer tenpai reaching exactly 30000 in first ends the game
+rules: mahjongsoul
+source: engine.md §5 steps 4/5, rules.md §1
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 25000 24000 24000 27000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 258m 369p 147s 1235z
+hand 2: 369m 147p 258s 2467z
+hand 3: 234m 678m 234p 56s 88p
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 3
+deltas: -1000 -1000 -1000 3000
+scores: 24000 23000 23000 30000
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: true
+final_scores: 24000 23000 23000 30000
+final_ranks: 3 0 1 2
+adjusted_scores: 4000 -7000 -17000 20000
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

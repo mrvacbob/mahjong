@@ -1,0 +1,54 @@
+# Riichi declaration restricts the following discard strictly to tenpai-preserving tiles
+# (engine.md §4, §4.2, rules.md §1).
+# Seat 0 holds 234m 678m 234p 56s 88p + draws 1z (only discarding 1z preserves tenpai on 4s/7s).
+# After `0 riichi`: tsumogiri (1z) is legal, while discarding 8p, 2m, or 5s is illegal!
+# Seat 0 discards 1z, then Seat 1 draws and discards 7s -> Seat 0 rons 7s!
+# Scoring for Seat 0 (dealer, East):
+#   Yaku: double_riichi (2) + ippatsu (1) + pinfu (1) + tanyao (1) = 5 han (Mangan)
+#   Dealer Mangan ron: 12000 from Seat 1 (recovers own 1000 stick -> net +12000).
+
+[meta]
+name: riichi_discard_tenpai_only
+title: After declaring riichi, only tenpai-preserving discards are legal
+rules: mahjongsoul
+source: engine.md §4, §4.2, rules.md §1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 147m 258p 369s 1234z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+ura: 5z
+draws: 1z 7s
+
+[steps]
+assert_legal 0: riichi
+0 riichi
+assert_legal 0: tsumogiri
+assert_illegal 0: discard:8p
+assert_illegal 0: discard:2m
+assert_illegal 0: discard:5s
+0 tsumogiri 1z
+1 tsumogiri 7s
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=5 fu=30 yaku=double_riichi,ippatsu,pinfu,tanyao
+deltas: 12000 -12000 0 0
+scores: 37000 13000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), dahai(1), hora(0), end_kyoku

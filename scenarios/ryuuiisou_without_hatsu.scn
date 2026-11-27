@@ -1,0 +1,43 @@
+# Ryuuiisou (All Green) does not require Hatsu (6z) and does not also score Chinitsu
+# (rules.md §2.2, §4 item 35).
+# Seat 1 holds 223344s 666s 888s 2s (all green tiles, zero 6z!); Seat 0 discards 2s -> Seat 1 rons 2s!
+# Scoring for Seat 1 (non-dealer, South):
+#   Natural Yakuman: ryuuiisou:1 (1x Yakuman = 32000 from Seat 0).
+
+[meta]
+name: ryuuiisou_without_hatsu
+title: Ryuuiisou made purely of green souzu without Hatsu scores 1x Yakuman
+rules: mahjongsoul
+source: rules.md §2.2, §4.35
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 159s 1234z
+hand 1: 223344s 666s 888s 2s
+hand 2: 258m 369p 159s 1235z
+hand 3: 369m 147p 159s 2467z
+dora: 1z
+draws: 2s
+
+[steps]
+0 tsumogiri 2s
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=ryuuiisou:1
+deltas: -32000 32000 0 0
+scores: -7000 57000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku

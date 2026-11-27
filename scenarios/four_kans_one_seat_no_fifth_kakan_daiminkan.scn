@@ -1,0 +1,68 @@
+# Four kans by one seat continues play and forbids a 5th kakan or daiminkan by any seat
+# (engine.md §4.2 Four kans, rules.md §4.23).
+# Turn 1: Seat 0 discards 5z -> Seat 1 calls pon:55z, discards 2z. Seats 2, 3 tsumogiri.
+# Turn 2: Seat 0 makes 4 closed kans (1m, 9m, 1p, 9p) -> 4 kans total, all by Seat 0, so play continues!
+# Seat 0 discards 6z -> Seat 2 holds 666z: pon:66z IS legal, but daiminkan is ILLEGAL (5th kan)!
+# Seat 2 passes; Seat 1 draws 4th 5z (has pon 555z): kakan:5z is ILLEGAL (5th kan)!
+# Seat 1 discards 7s -> Seat 0 rons 7s (suukantsu + tanki 7s)!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 7s + ankan 1111m + ankan 9999m + ankan 1111p + ankan 9999p + ron 7s
+#   Wait: Seat 0 has 4 closed kans + tanki 7s -> suuankou_tanki (2x) + suukantsu (1x) = 3x Yakuman!
+#   (Dealer 3x Yakuman ron = 3 * 48000 = 144000 from Seat 1!)
+
+[meta]
+name: four_kans_one_seat_no_fifth_kakan_daiminkan
+title: Four kans by one seat forbids a fifth kakan and fifth daiminkan even with matching tiles
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.23
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+# Seat 0 starts with 1111m 9999m 1111p 5z (13), draws 9p, discards 5z, then draws 9p/9p/9p via rinshan!
+hand 0: 1111m 9999m 1111p 5z
+hand 1: 55z 7s 258m 36p 148s 23z
+hand 2: 666z 6m 258p 259s 347z
+hand 3: 247m 47p 369s 1234z 8p
+dora: 1z 2z 1z 4z 7z
+rinshan: 9p 9p 7s 6z
+draws: 9p 3z 4z 9p 5z
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 2z
+2 tsumogiri 3z
+3 tsumogiri 4z
+# Seat 0 draws 9p (now has two 9p), declares 3 ankans -> rinshan[0]=9p, rinshan[1]=9p (now has four 9p!),
+# rinshan[2]=7s, then ankan 9p -> rinshan[3]=6z!
+0 ankan 1m
+0 ankan 9m
+0 ankan 1p
+0 ankan 9p
+0 tsumogiri 6z
+assert_legal 2: pon:66z
+assert_illegal 2: daiminkan
+window: 2=pass
+assert_illegal 1: kakan:5z
+assert_illegal 1: kakan
+1 discard 7s
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: yakuman=3 yaku=suuankou_tanki:2,suukantsu:1
+deltas: 144000 -144000 0 0
+scores: 169000 -119000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(1z), tsumo(0), ankan(0), dora(4z), tsumo(0), ankan(0), dora(7z), tsumo(0), dahai(0), tsumo(1), dahai(1), hora(0), end_kyoku

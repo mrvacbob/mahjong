@@ -1,0 +1,67 @@
+# No Kiriage Mangan on ron in both rulesets: Dealer 3 han 60 fu = 11600 and Non-dealer 4 han 30 fu = 7700
+# (rules.md §1 kiriage_mangan_enabled, §3.2, §4 item 20).
+# Seat 0 declares ankan 2m (flips kan dora ind 1z -> dora 2z, 0 dora) and discards 4z.
+# Seat 1 draws and discards 7s -> BOTH Seat 2 (non-dealer) and Seat 0 (dealer) ron 7s!
+# Initial dora ind: 7p -> dora 8p!
+# - Seat 2 (non-dealer, West): 234m 678m 234p 56s 88p + ron 7s
+#   Yaku: pinfu (1) + tanyao (1) + dora:2 (88p) = 4 han 30 fu -> 7700 (NOT 8000 Mangan)!
+# - Seat 0 (dealer, East): ankan 2222m + 111z + 678p + 56s + 99s + ron 7s
+#   Yaku: yakuhai_round (1) + yakuhai_seat (1) + dora:1 (8p) = 3 han
+#   Fu: 20 base + 10 menzen ron + 16 simple closed kan (2222m) + 8 closed honor triplet (111z) = 54 -> 60 fu!
+#   Dealer 3 han 60 fu ron = 11600 (NOT 12000 Mangan)!
+# Total Seat 1 pays: 7700 + 11600 = 19300 (honba=0, sticks=0).
+
+[meta]
+name: no_kiriage_3han60fu_and_4han30fu_ron
+title: No kiriage mangan for dealer 3 han 60 fu (11600) and non-dealer 4 han 30 fu (7700) ron
+rules: both
+source: rules.md §1, §3.2, §4.20
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 222m 111z 678p 56s 99s
+hand 1: 149m 159p 14s 23456z
+hand 2: 345m 678m 234p 56s 88p
+hand 3: 159m 159p 248s 2346z
+dora: 7p 1z
+rinshan: 4z
+draws: 2m 7s
+
+[steps]
+0 ankan 2m
+0 tsumogiri 4z
+1 tsumogiri 7s
+assert_legal 2: ron
+assert_legal 0: ron
+window: 2=ron, 0=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 2, 0
+win 2: han=4 fu=30 yaku=dora:2,pinfu,tanyao
+win 0: han=3 fu=60 yaku=dora:1,yakuhai_round,yakuhai_seat
+deltas: 11600 -19300 7700 0
+scores: 36600 5700 32700 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(1z), tsumo(0), dahai(0), tsumo(1), dahai(1), hora(2), hora(0), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 2, 0
+win 2: han=4 fu=30 yaku=dora:2,pinfu,tanyao
+win 0: han=3 fu=60 yaku=dora:1,yakuhai_round,yakuhai_seat
+deltas: 11600 -19300 7700 0
+scores: 36600 5700 32700 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(1z), tsumo(0), dahai(0), tsumo(1), dahai(1), hora(2), hora(0), end_kyoku

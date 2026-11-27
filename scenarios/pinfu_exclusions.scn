@@ -1,0 +1,52 @@
+# Pinfu exclusions: value pair (dragon) and non-ryanmen wait (nobetan tanki) both exclude Pinfu
+# (rules.md §4 item 5).
+# Double ron on Seat 0's 5m discard (honba=0, sticks=0):
+# - Seat 1 (non-dealer, South): 123p 456p 789p 34m 55z + ron 5m
+#   Ryanmen wait (2m/5m), 4 sequences, BUT dragon pair 55z (+2 fu) excludes Pinfu!
+#   Yaku: ittsu (2) (dora ind 1z -> 0 dora). Fu: 20 + 10 (menzen ron) + 2 (dragon pair) = 32 -> 40 fu.
+#   Non-dealer 2 han 40 fu ron = 2600 (with pinfu it would be 3 han 30 fu = 3900).
+# - Seat 2 (non-dealer, West): 2345m 234p 678p 678s + ron 5m
+#   Nobetan 2345m waiting 2m/5m is a tanki wait (+2 fu), which excludes Pinfu!
+#   Yaku: tanyao (1). Fu: 20 + 10 (menzen ron) + 2 (tanki) = 32 -> 40 fu.
+#   Non-dealer 1 han 40 fu ron = 1300 (with pinfu it would be 2 han 30 fu = 2000).
+# Total Seat 0 pays: 2600 + 1300 = 3900.
+
+[meta]
+name: pinfu_exclusions
+title: Pinfu is excluded by a value pair and by a nobetan tanki wait
+rules: mahjongsoul
+source: rules.md §4.5
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 169m 159p 149s 1234z
+hand 1: 123p 456p 789p 34m 55z
+hand 2: 2345m 234p 678p 678s
+hand 3: 179m 159p 139s 2347z
+dora: 1z
+draws: 5m
+
+[steps]
+0 tsumogiri 5m
+assert_legal 1: ron
+assert_legal 2: ron
+window: 1=ron, 2=ron
+
+[expect]
+outcome: ron
+winners: 1, 2
+win 1: han=2 fu=40 yaku=ittsu
+win 2: han=1 fu=40 yaku=tanyao
+deltas: -3900 2600 1300 0
+scores: 21100 27600 26300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), hora(2), end_kyoku

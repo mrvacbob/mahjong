@@ -1,0 +1,49 @@
+# Tsumo on 3rd concealed triplet (shanpon wait) keeps it concealed (4 fu) and scores Sanankou
+# (rules.md §4 item 1).
+# One cycle of tsumogiri first so Seat 1 does not trigger Chiihou on turn 1.
+# Seat 1 holds 333m 777p 678s 22m 55p and draws 2m on turn 2 -> wins by tsumo!
+#   - 222m is a CONCEALED triplet (+4 fu) -> scores sanankou (2)!
+#   - Yaku: tsumo (1) + tanyao (1) + sanankou (2) = 4 han (dora ind 1z -> 0 dora)
+#   - Fu: 20 base + 2 tsumo + 4 (333m) + 4 (777p) + 4 (222m) = 34 -> 40 fu
+#   - Non-dealer 4 han 40 fu (Mangan) tsumo: 2000 / 4000 (+8000).
+
+[meta]
+name: sanankou_shanpon_tsumo
+title: Tsumo on a shanpon third triplet keeps it concealed and scores Sanankou
+rules: mahjongsoul
+source: rules.md §4.1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 333m 777p 678s 22m 55p
+hand 2: 258m 369p 147s 1235z
+hand 3: 469m 148p 259s 2467z
+dora: 1z
+draws: 7z 9m 9p 9s 7z 2m
+
+[steps]
+0 tsumogiri 7z
+1 tsumogiri 9m
+2 tsumogiri 9p
+3 tsumogiri 9s
+0 tsumogiri 7z
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: han=4 fu=40 yaku=sanankou,tanyao,tsumo
+deltas: -4000 8000 -2000 -2000
+scores: 21000 33000 23000 23000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), hora(1), end_kyoku

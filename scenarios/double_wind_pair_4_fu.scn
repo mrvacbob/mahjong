@@ -1,0 +1,46 @@
+# Double-wind pair (seat wind == round wind) awards 4 fu (not 2 fu) and breaks Pinfu
+# (rules.md §1 double_wind_pair_fu, §3.1, §4 item 11).
+# East 1, Seat 0 (dealer, East) holds 11z 999s 123p 456p 78p; Seat 1 discards 9p -> Seat 0 rons 9p!
+#   - Yaku: ittsu (2) (dora ind 2z -> dora 3z -> 0 dora)
+#   - Fu: 20 base + 10 menzen ron + 8 closed terminal triplet (999s) + 4 double-wind pair (11z) = 42 -> 50 fu!
+#     (If 11z were only 2 fu, sum would be 40 fu = 3900 instead of 50 fu = 4800!)
+#   - Dealer 2 han 50 fu ron = 4800 from Seat 1.
+
+[meta]
+name: double_wind_pair_4_fu
+title: Double-wind pair awards 4 fu pushing closed ron from 40 fu to 50 fu
+rules: mahjongsoul
+source: rules.md §1, §3.1, §4.11
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 11z 999s 123p 456p 78p
+hand 1: 147m 258p 147s 2345z
+hand 2: 258m 369p 258s 2346z
+hand 3: 369m 147p 368s 3467z
+dora: 2z
+draws: 7z 9p
+
+[steps]
+0 tsumogiri 7z
+1 tsumogiri 9p
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=2 fu=50 yaku=ittsu
+deltas: 4800 -4800 0 0
+scores: 29800 20200 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), hora(0), end_kyoku

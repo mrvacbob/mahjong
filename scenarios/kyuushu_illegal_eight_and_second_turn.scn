@@ -1,0 +1,53 @@
+# Kyuushu kyuuhai is illegal with only 8 distinct terminals/honors, and illegal on a seat's 2nd turn
+# (engine.md §4.2 Nine terminals & First go-around, rules.md §1 abort_kyuushu_kyuuhai).
+# Turn 1: Seat 0 holds 9 terminal/honor tiles, but only 8 DISTINCT kinds (11m 9m 19p 19s 12z + simples) ->
+#   assert_illegal 0: kyuushu! Seat 0 discards 2m.
+# Seats 1, 2, 3 tsumogiri.
+# Turn 2: Seat 0 draws 3z (now has 9 distinct terminals/honors!) -> still assert_illegal 0: kyuushu
+# because Seat 0 has already discarded! Seat 0 discards 7s -> Seat 1 rons 7s (2 han 30 fu = 2000).
+
+[meta]
+name: kyuushu_illegal_eight_and_second_turn
+title: Kyuushu kyuuhai is illegal with 8 distinct kinds and illegal after the seat's first discard
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 119m 19p 19s 12z 2m 4p 7s 8m
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 4z
+draws: 8s 4z 5z 6z 3z
+
+[steps]
+# 8 distinct T/H (1m,9m,1p,9p,1s,9s,1z,2z) despite 9 T/H tiles -> illegal!
+assert_illegal 0: kyuushu
+0 tsumogiri 8s
+1 tsumogiri 4z
+2 tsumogiri 5z
+3 tsumogiri 6z
+# Seat 0 draws 3z -> now 9 distinct T/H, but already discarded once -> still illegal!
+assert_illegal 0: kyuushu
+0 discard 7s
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2000 2000 0 0
+scores: 23000 27000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), hora(1), end_kyoku

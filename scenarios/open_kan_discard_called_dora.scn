@@ -1,0 +1,62 @@
+# Post-open-kan discard followed by a call (pon) still reveals the owed kan dora
+# (engine.md §4.2 Kan transactions, rules.md §4.17, §5 item 4).
+# Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z (owes kan dora 7p -> dora 8p).
+# Seat 1 draws rinshan 6z and discards 6z -> Seat 2 calls pon:66z and discards 9m!
+# Owed kan dora (7p -> dora 8p) is revealed (between dahai(1) and pon(2)) and active for Seat 2's win.
+# Seat 3 draws and discards 7s -> Seat 2 rons 7s with yakuhai_hatsu (1) + dora:2 (88p) = 3 han 30 fu = 3900!
+
+[meta]
+name: open_kan_discard_called_dora
+title: Post-open-kan discard called by pon reveals the owed kan dora
+rules: both
+source: engine.md §4.2, rules.md §4.17, §5.4
+unverified: rules.md §5 item 4 (Mahjong Soul owed kan dora event timing when post-kan discard is called)
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 259p 369s 234z
+hand 1: 555z 147m 369p 148s 2z
+hand 2: 66z 234m 678m 56s 88p 9m
+hand 3: 369m 147p 259s 1347z
+dora: 1z 7p
+rinshan: 6z
+draws: 7z 7s
+
+[steps]
+0 discard 5z
+window: 1=daiminkan
+1 tsumogiri 6z
+window: 2=pon:66z
+2 discard 9m
+3 tsumogiri 7s
+assert_legal 2: ron
+window: 2=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 2
+win 2: han=3 fu=30 yaku=dora:2,yakuhai_hatsu
+deltas: 0 0 3900 -3900
+scores: 25000 25000 28900 21100
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7p), pon(2), dahai(2), tsumo(3), dahai(3), hora(2), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 2
+win 2: han=3 fu=30 yaku=dora:2,yakuhai_hatsu
+deltas: 0 0 3900 -3900
+scores: 25000 25000 28900 21100
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7p), pon(2), dahai(2), tsumo(3), dahai(3), hora(2), end_kyoku

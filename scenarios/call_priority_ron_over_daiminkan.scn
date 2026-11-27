@@ -1,0 +1,47 @@
+# Call priority: Ron beats Daiminkan in the same discard window
+# (engine.md §4.1 rows 1/6, rules.md §4.37).
+# Seat 0 discards 2m.
+# Seat 1 answers daiminkan (holding 222m); Seat 2 answers ron!
+# Row 1 (ron) beats Row 6 (daiminkan): Seat 2 wins immediately, no daiminkan event.
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 34m 678m 234p 567s 88p + ron 2m (dora ind 1z -> 0 dora)
+#   Yaku: pinfu (1) + tanyao (1) = 2 han 30 fu -> 2000 from Seat 0.
+
+[meta]
+name: call_priority_ron_over_daiminkan
+title: Ron beats Daiminkan in the same discard window
+rules: mahjongsoul
+source: engine.md §4.1 rows 1/6, rules.md §4.37
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 222m 147p 258s 1235z
+hand 2: 34m 678m 234p 567s 88p
+hand 3: 369m 169p 148s 2467z
+dora: 1z
+draws: 2m
+
+[steps]
+0 tsumogiri 2m
+assert_legal 1: daiminkan
+assert_legal 2: ron
+window: 1=daiminkan, 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+deltas: -2000 0 2000 0
+scores: 23000 25000 27000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(2), end_kyoku

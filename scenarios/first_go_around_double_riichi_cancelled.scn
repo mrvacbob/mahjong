@@ -1,0 +1,53 @@
+# Double riichi is downgraded to ordinary riichi by an earlier call (sets anyCallMade)
+# (engine.md §4.2 First go-around, rules.md §4.25).
+# Seat 0 discards 5z -> Seat 1 calls pon:55z (setting anyCallMade=true), discards 9m.
+# Seat 2 on its very first draw declares riichi and discards 1z.
+# Seat 3 draws and discards 7s -> Seat 2 rons 7s with ordinary riichi (1 han), NOT double_riichi (2 han)!
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s (dora ind 1z, ura ind 1z -> 0 dora)
+#   Yaku: riichi (1) + ippatsu (1) + pinfu (1) + tanyao (1) = 4 han 30 fu (NOT 5 han Mangan!)
+#   Non-dealer 4 han 30 fu ron = 7700 from Seat 3 (recovers own 1000 stick -> net +7700).
+
+[meta]
+name: first_go_around_double_riichi_cancelled
+title: An earlier call downgrades a first-draw riichi from double riichi to ordinary riichi
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.25
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 258p 369s 123z
+hand 1: 55z 9s 258m 369p 147s 2z
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+ura: 1z
+draws: 4z 1z 7s
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 9s
+2 riichi
+2 tsumogiri 1z
+3 tsumogiri 7s
+assert_legal 2: ron
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=4 fu=30 yaku=ippatsu,pinfu,riichi,tanyao
+deltas: 0 0 7700 -7700
+scores: 25000 25000 32700 17300
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), reach(2), dahai(2), reach_accepted(2), tsumo(3), dahai(3), hora(2), end_kyoku

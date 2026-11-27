@@ -1,0 +1,43 @@
+# Positive Chiihou (Blessing of Earth) on non-dealer's first unbroken draw
+# (engine.md §4.2 First go-around, rules.md §2.2).
+# Dealer Seat 0 discards 1z with no calls; Seat 1 draws 7s on its first unbroken draw -> Chiihou!
+# Scoring for Seat 1 (non-dealer, South):
+#   Natural yakuman: chiihou:1 -> 1x Yakuman (non-dealer tsumo = 8000 / 16000, +32000).
+
+[meta]
+name: first_go_around_chiihou
+title: Non-dealer wins on first unbroken draw for Chiihou yakuman
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §2.2
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 234m 678m 234p 56s 88p
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+draws: 6z 7s
+
+[steps]
+0 tsumogiri 6z
+assert_legal 1: tsumo
+1 tsumo
+
+[expect]
+outcome: tsumo
+winners: 1
+win 1: yakuman=1 yaku=chiihou:1
+deltas: -16000 32000 -8000 -8000
+scores: 9000 57000 17000 17000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), hora(1), end_kyoku

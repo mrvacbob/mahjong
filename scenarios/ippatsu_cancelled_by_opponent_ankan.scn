@@ -1,0 +1,52 @@
+# An opponent's closed kan (ankan) cancels a riichi seat's ippatsu
+# (engine.md §4.2 Ippatsu, rules.md §4.26).
+# Seat 0 declares double riichi and discards 9m.
+# Seat 1 draws 4th 9p and declares ankan 9p -> cancels Seat 0's ippatsu!
+# Seat 1 draws rinshan 7s and discards 7s -> Seat 0 rons 7s WITHOUT ippatsu!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s (dora ind 1z, 2z; ura 1z, 2z -> 0 dora)
+#   Yaku: double_riichi (2) + pinfu (1) + tanyao (1) = 4 han 30 fu (NO ippatsu!)
+#   Dealer 4 han 30 fu ron = 11600 from Seat 1 (with ippatsu it would be 12000).
+
+[meta]
+name: ippatsu_cancelled_by_opponent_ankan
+title: An opponent's closed kan cancels a riichi seat's ippatsu
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §4.26
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 999p 147m 25p 369s 12z
+hand 2: 258m 36p 147s 12356z
+hand 3: 369m 147p 258s 2467z
+dora: 1z 2z
+ura: 5z 5z
+rinshan: 7s
+draws: 9m 9p
+
+[steps]
+0 riichi
+0 tsumogiri 9m
+1 ankan 9p
+1 tsumogiri 7s
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=4 fu=30 yaku=double_riichi,pinfu,tanyao
+deltas: 11600 -11600 0 0
+scores: 36600 13400 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), ankan(1), dora(2z), tsumo(1), dahai(1), hora(0), end_kyoku

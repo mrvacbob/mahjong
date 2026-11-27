@@ -1,0 +1,47 @@
+# Open Pinfu-shape hand won by Ron scores 30 fu minimum (never 20 fu)
+# (rules.md §1 open_pinfu_ron_30_fu, §3.1, §4 item 8).
+# Seat 0 discards 2m -> Seat 1 calls chi:34m and discards 9m, leaving open 678m 234p 56s 88p + c234m.
+# Seat 2 draws and discards 7s -> Seat 1 rons 7s!
+# Hand has 4 sequences, non-yakuhai pair 88p, ryanmen wait 7s -> 0 extra fu on open ron -> minimum 30 fu!
+# Yaku: tanyao (1) (dora ind 1z -> 0 dora) -> Non-dealer 1 han 30 fu ron = 1000 from Seat 2.
+
+[meta]
+name: open_pinfu_ron_30_fu
+title: Open all-sequence ryanmen ron with zero extra fu scores 30 fu minimum
+rules: mahjongsoul
+source: rules.md §1, §3.1, §4.8
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 158p 369s 1234z
+hand 1: 34m 678m 234p 56s 88p 9m
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+draws: 2m 7s
+
+[steps]
+0 tsumogiri 2m
+window: 1=chi:34m
+1 discard 9m
+2 tsumogiri 7s
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=1 fu=30 yaku=tanyao
+deltas: 0 1000 -1000 0
+scores: 25000 26000 24000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), chi(1), dahai(1), tsumo(2), dahai(2), hora(1), end_kyoku

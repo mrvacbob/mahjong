@@ -1,0 +1,53 @@
+# Ron on the post-kan discard of the fourth kan by a second seat
+# (engine.md §4.1 rows 1/4, §4.2, rules.md §4.22).
+# Seat 0 makes 3 closed kans (1m, 9m, 1p), discards 2z.
+# Seat 1 makes the 4th kan (ankan 9p), draws rinshan 7s (no win), discards 7s.
+# Seat 2 rons 7s -> Row 1 (Ron) overrides Row 4 (suukaikan abort)!
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 234m 678m 234p 56s 88p + ron 7s
+#   Dora indicators: 1z, 2z, 3z, 4z, 7z -> dora 2z, 3z, 4z, 1z, 5z (0 dora in hand)
+#   Yaku: pinfu (1) + tanyao (1) = 2 han 30 fu -> 2000 from Seat 1.
+
+[meta]
+name: suukaikan_discard_ron
+title: Ron on the fourth multi-seat kan discard wins instead of aborting as suukaikan
+rules: mahjongsoul
+source: engine.md §4.1 rows 1/4, §4.2, rules.md §4.22
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111m 9999m 1111p 2z
+hand 1: 9999p 234m 678m 234p
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 147s 258s 369s 567z 4p
+dora: 1z 2z 3z 4z 7z
+rinshan: 3z 4z 4z 7s
+draws: 2z 3z
+
+[steps]
+0 ankan 1m
+0 ankan 9m
+0 ankan 1p
+0 discard 2z
+1 ankan 9p
+1 tsumogiri 7s
+assert_legal 2: ron
+window: 2=ron
+
+[expect]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 0 -2000 2000 0
+scores: 25000 23000 27000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(3z), tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), tsumo(1), ankan(1), dora(7z), tsumo(1), dahai(1), hora(2), end_kyoku

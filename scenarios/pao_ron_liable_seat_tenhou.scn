@@ -1,0 +1,54 @@
+# Tenhou counterpart: Pao ron from the liable seat itself pays 100% + honba
+# (engine.md §4.2 Pao, rules.md §1 pao_ron_split, §4.31).
+# Honba: 1.
+# Seat 1 pons 5z (from S0), 6z (from S3), 7z (from S2 -> sets Daisangen pao on Seat 2).
+# Seat 2 (the liable seat itself) discards 7s -> Seat 1 rons 7s!
+# Seat 2 pays 100% of Daisangen (32000) + 300 honba = 32300.
+
+[meta]
+name: pao_ron_liable_seat_tenhou
+title: Tenhou pao ron dealt by the liable seat itself pays 100% plus honba
+rules: tenhou
+source: engine.md §4.2, rules.md §1, §4.31
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 258p 369s 123z
+hand 1: 55z 66z 77z 56s 88p 9m 9p 9s
+hand 2: 7z 7s 258m 369p 14s 123z
+hand 3: 6z 369m 147p 258s 234z
+dora: 1z
+draws: 4z 1m 2p
+
+[steps]
+0 discard 5z
+window: 1=pon:55z
+1 discard 9m
+2 tsumogiri 1m
+3 discard 6z
+window: 1=pon:66z
+1 discard 9p
+2 discard 7z
+window: 1=pon:77z
+1 discard 9s
+2 discard 7s
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=daisangen:1
+deltas: 0 32300 -32300 0
+scores: 25000 57300 -7300 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), pon(1), pon(1), dahai(2), hora(1), end_kyoku

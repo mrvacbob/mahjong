@@ -1,0 +1,45 @@
+# Ron on shanpon wait with 3 concealed triplets scores Sanankou + Toitoi, NOT Suuankou
+# (rules.md §4 item 2).
+# Seat 1 holds 333m 777p 666s 22m 55p; Seat 0 discards 2m -> Seat 1 rons 2m!
+#   - 222m is an OPEN triplet (+2 fu) -> NOT Suuankou!
+#   - Yaku: sanankou (2) + toitoi (2) + tanyao (1) = 5 han (Mangan) (dora ind 1z -> 0 dora)
+#   - Fu: 20 base + 10 menzen ron + 4 (333m) + 4 (777p) + 4 (666s) + 2 (open 222m) = 44 -> 50 fu
+#   - Non-dealer Mangan ron = 8000 from Seat 0.
+
+[meta]
+name: suuankou_shanpon_ron
+title: Shanpon ron on four triplets scores Sanankou + Toitoi instead of Suuankou
+rules: mahjongsoul
+source: rules.md §4.2
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 258p 359s 1234z
+hand 1: 333m 777p 666s 22m 55p
+hand 2: 258m 369p 147s 1235z
+hand 3: 469m 148p 248s 2467z
+dora: 1z
+draws: 2m
+
+[steps]
+0 tsumogiri 2m
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=5 fu=50 yaku=sanankou,tanyao,toitoi
+deltas: -8000 8000 0 0
+scores: 17000 33000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), end_kyoku

@@ -1,0 +1,46 @@
+# East-game (Tonpuu) South 4 ends unconditionally when dealer does not repeat even below 30,000
+# (engine.md §5 steps 4/5, rules.md §1 extension_max_round).
+# South 4, dealer 3, scores: 26000 25000 25000 24000.
+# Exhaustive draw with 0 tenpai -> dealer does not repeat; next wind would be West (beyond extension) ->
+# game ends immediately even though max score is 26000 < 30000!
+# Final ranks: 0, 1, 2, 3 (S1 and S2 tied at 25000, seat 1 > seat 2).
+# Mahjong Soul adjusted scores: +16000, +5000, -5000, -16000.
+
+[meta]
+name: endgame_east_s4_max_round
+title: East-game South 4 ends unconditionally when dealer does not repeat even below 30000
+rules: mahjongsoul
+source: engine.md §5 steps 4/5, rules.md §1
+
+[round]
+game_length: east
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 26000 25000 25000 24000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 258m 369p 147s 1235z
+hand 2: 369m 147p 258s 2467z
+hand 3: 148m 269p 148s 1456z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: -
+deltas: 0 0 0 0
+scores: 26000 25000 25000 24000
+sticks: 0
+honba: 1
+dealer_repeats: false
+game_ended: true
+final_scores: 26000 25000 25000 24000
+final_ranks: 0 1 2 3
+adjusted_scores: 16000 5000 -5000 -16000
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

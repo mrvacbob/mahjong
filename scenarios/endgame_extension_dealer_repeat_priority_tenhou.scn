@@ -1,0 +1,45 @@
+# Direct Tenhou coverage: Dealer repeat takes priority over non-dealer passing 30,000 in extension
+# (engine.md §5 step 4, rules.md §5 item 8 — verified for Tenhou manual).
+# West 1, dealer 0, scores: 24000 29000 24000 23000.
+# Exhaustive draw: Seats 0 (dealer) and 1 (non-dealer) tenpai -> deltas: +1500 +1500 -1500 -1500.
+# Post-round scores: 25500 30500 22500 21500.
+# Seat 1 reached 30500 (>= 30000), but dealer Seat 0 repeats without being 1st -> game continues in W1 honba 1!
+
+[meta]
+name: endgame_extension_dealer_repeat_priority_tenhou
+title: Tenhou dealer repeat takes priority over non-dealer passing 30000 in West extension
+rules: tenhou
+source: engine.md §5 step 4, rules.md §5.8
+
+[round]
+game_length: south
+wind: W
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 24000 29000 24000 23000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 123m 456m 789p 23s 99s
+hand 2: 147m 258p 369s 1234z
+hand 3: 258m 369p 147s 1235z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 0, 1
+deltas: 1500 1500 -1500 -1500
+scores: 25500 30500 22500 21500
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: W
+next_round: 1
+next_dealer: 0
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

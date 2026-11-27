@@ -1,0 +1,42 @@
+# Positive Tenhou (Blessing of Heaven) on dealer's initial 14-tile draw
+# (engine.md §4.2 First go-around, rules.md §2.2).
+# Dealer Seat 0 holds 234m 678m 234p 56s 88p and draws 7s as live draw 0 -> wins immediately!
+# Scoring for Seat 0 (dealer, East):
+#   Natural yakuman: tenhou:1 -> 1x Yakuman (dealer tsumo = 16000 all, +48000).
+
+[meta]
+name: first_go_around_tenhou
+title: Dealer wins on initial 14-tile draw for Tenhou yakuman
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §2.2
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 147m 258p 369s 1234z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+draws: 7s
+
+[steps]
+assert_legal 0: tsumo
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: yakuman=1 yaku=tenhou:1
+deltas: 48000 -16000 -16000 -16000
+scores: 73000 9000 9000 9000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), hora(0), end_kyoku

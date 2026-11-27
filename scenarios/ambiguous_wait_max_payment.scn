@@ -1,0 +1,53 @@
+# Ambiguous hand decomposition chooses the highest-paying interpretation (both directions)
+# (rules.md §4 item 6).
+# Double ron on Seat 0's 5m discard (honba=0, sticks=0):
+# - Seat 1 (non-dealer, South): 2233445m 234p 678s + ron 5m
+#   Reading A (sequences): 22m 345m 345m 234p 678s (ryanmen 5m) -> pinfu + iipeikou + tanyao = 3 han 30 fu = 3900.
+#   Reading B (tanki): 234m 234m 55m 234p 678s (tanki 5m) -> iipeikou + tanyao = 2 han 40 fu = 2600.
+#   Reading A pays more (3900 > 2600) and is chosen!
+# - Seat 2 (non-dealer, West): 111222333p 456s 5m + ron 5m
+#   Reading A (triplets): 111p 222p 333p 456s 55m (tanki 5m) -> sanankou = 2 han,
+#     fu = 20 + 10 + 8 (111p) + 4 (222p) + 4 (333p) + 2 (tanki) = 48 -> 50 fu -> 3200!
+#   Reading B (sequences): 123p 123p 123p 456s 55m -> iipeikou = 1 han 40 fu -> 1300!
+#   Reading A pays more (3200 > 1300) and is chosen!
+# Total Seat 0 pays: 3900 + 3200 = 7100.
+
+[meta]
+name: ambiguous_wait_max_payment
+title: Ambiguous decompositions choose the highest-paying reading in both sequence and triplet directions
+rules: mahjongsoul
+source: rules.md §4.6
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 169m 58p 139s 12345z
+hand 1: 2233445m 234p 678s
+hand 2: 111222333p 456s 5m
+hand 3: 179m 69p 129s 23467z
+dora: 1z
+draws: 5m
+
+[steps]
+0 tsumogiri 5m
+assert_legal 1: ron
+assert_legal 2: ron
+window: 1=ron, 2=ron
+
+[expect]
+outcome: ron
+winners: 1, 2
+win 1: han=3 fu=30 yaku=iipeikou,pinfu,tanyao
+win 2: han=2 fu=50 yaku=sanankou
+deltas: -7100 3900 3200 0
+scores: 17900 28900 28200 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), hora(1), hora(2), end_kyoku

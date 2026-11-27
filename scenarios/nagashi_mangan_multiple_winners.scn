@@ -1,0 +1,66 @@
+# Multiple Nagashi Mangan winners at exhaustive draw: every qualifying seat is paid
+# (engine.md §4.2 Exhaustive draw, rules.md §1, §4.30).
+# All 4 starting hands are noten and use only simples (2..8), leaving all 52 terminals/honors for draws!
+# Seats 1 (18 draws: indices 1,5,9..69) and 2 (17 draws: indices 2,6,10..66) draw and tsumogiri
+# ONLY terminals/honors, and none are called -> BOTH Seat 1 and Seat 2 achieve Nagashi Mangan!
+# Payout:
+#   - Seat 1 (non-dealer): +8000 (-4000 from S0, -2000 from S2, -2000 from S3)
+#   - Seat 2 (non-dealer): +8000 (-4000 from S0, -2000 from S1, -2000 from S3)
+#   Net deltas: S0 = -8000, S1 = +6000, S2 = +6000, S3 = -4000 (sum = 0).
+#   Dealer Seat 0 is noten -> dealer_repeats: false; honba += 1; stick stays on table.
+
+[meta]
+name: nagashi_mangan_multiple_winners
+title: Multiple qualifying Nagashi Mangan seats are all paid at exhaustive draw
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1, §4.30
+
+[round]
+wind: E
+round: 1
+honba: 1
+sticks: 1
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+# All 4 hands are strictly noten simples (no pairs, scattered 2..8)
+hand 0: 258m 36p 258s 47m 47p 4s
+hand 1: 36m 258p 36s 258m 47p 7s
+hand 2: 47m 47p 258s 36m 36p 7s 8m
+hand 3: 258m 258p 47s 36m 47p 3s
+dora: 8s
+# Seat 0 (idx 0) and Seat 3 (idx 3) discard simples on turn 1 (disqualified from Nagashi).
+# Seats 1 (idx 1,5..69) and 2 (idx 2,6..66) draw ONLY terminals/honors (35 tiles).
+draw_at 0: 0m 1m 1m 0p
+draw_at 5: 1m 1m
+draw_at 9: 9m 9m
+draw_at 13: 9m 9m
+draw_at 17: 1p 1p
+draw_at 21: 1p 1p
+draw_at 25: 9p 9p
+draw_at 29: 9p 9p
+draw_at 33: 1s 1s
+draw_at 37: 1s 1s
+draw_at 41: 9s 9s
+draw_at 45: 9s 9s
+draw_at 49: 1z 1z
+draw_at 53: 1z 1z
+draw_at 57: 2z 2z
+draw_at 61: 2z 2z
+draw_at 65: 3z 3z
+draw_at 69: 3z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: -
+nagashi: 1, 2
+deltas: -8000 6000 6000 -4000
+scores: 17000 31000 31000 21000
+sticks: 1
+honba: 2
+dealer_repeats: false
+events_order: start_kyoku, ryukyoku(nagashi_mangan), end_kyoku

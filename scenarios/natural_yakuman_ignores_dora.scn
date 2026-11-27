@@ -1,0 +1,50 @@
+# Natural Yakuman ignores regular yaku and dora (even with many dora)
+# (rules.md §4 item 34).
+# Seat 1 holds 555z 666z 777z 0m 46m 8p (Daisangen + 10 dora: dora ind 5z -> 666z (+3),
+# plus red 0m (+1); wait: 1 dora ind 5z + 0m = 4 dora, let's also have Seat 0 make 2 ankans so
+# dora indicators 5z, 6z, 7z give 9 dora on the 9 dragon tiles + 0m = 10 dora!).
+# Seat 0 makes 2 ankans (1p, 9p) -> dora indicators 5z, 6z, 7z (dora 6z, 7z, 5z -> 9 dora in Seat 1's hand!),
+# plus red 0m = 10 dora! Seat 0 discards 8p -> Seat 1 rons 8p!
+# Scoring for Seat 1 (non-dealer, South):
+#   Natural Yakuman: daisangen:1 ONLY (1x Yakuman = 32000 from Seat 0; all 10 dora ignored!).
+
+[meta]
+name: natural_yakuman_ignores_dora
+title: Natural Yakuman scores 1x Yakuman and ignores all regular yaku and dora
+rules: mahjongsoul
+source: rules.md §4.34
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1111p 9999p 147m 36s
+hand 1: 555z 666z 777z 406m 8p
+hand 2: 258m 368p 147s 1234z
+hand 3: 379m 258p 259s 1234z
+dora: 5z 6z 7z
+rinshan: 8p 9s
+draws: 9s
+
+[steps]
+0 ankan 1p
+0 ankan 9p
+0 discard 8p
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: yakuman=1 yaku=daisangen:1
+deltas: -32000 32000 0 0
+scores: -7000 57000 25000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), ankan(0), dora(6z), tsumo(0), ankan(0), dora(7z), tsumo(0), dahai(0), hora(1), end_kyoku

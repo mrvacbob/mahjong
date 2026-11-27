@@ -1,0 +1,60 @@
+# Kazoe Yakuman with >= 26 han is still capped at a single (1x) Yakuman
+# (rules.md §1 kazoe_yakuman_enabled, §4 item 33).
+# Seat 0 discards 1z; Seat 1 declares double riichi and discards 9p (waiting 4m/7m on 2233440566788m).
+# Seat 2 declares 3 closed kans (1p, 9p, 1s -> reveals 3 kan dora indicators, total 4 dora + 4 ura;
+# also cancels Seat 1's ippatsu) and discards 7m -> Seat 1 rons 7m!
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 2233440566788m + ron 7m -> 234m 234m 067m 567m 88m (ryanmen 7m)
+#   Dora indicators: 1m, 2m, 3m, 4m -> dora 2m(x2), 3m(x2), 4m(x2), 5m(x2) = 8 dora!
+#   Ura indicators:  5m, 6m, 7m, 1m -> ura  6m(x2), 7m(x2), 8m(x2), 2m(x2) = 8 ura!
+#   Aka: 0m = 1 aka!
+#   Yaku: chinitsu (6) + ryanpeikou (3) + double_riichi (2) + pinfu (1) + tanyao (1)
+#       + aka:1 + dora:8 + ura:8 = 30 han (>= 26 han)!
+#   Fu: 30 fu.
+#   Paid as 1x Kazoe Yakuman ONLY (32000 from Seat 2, NOT 64000; recovers own 1000 stick -> net +32000).
+
+[meta]
+name: kazoe_yakuman_26_han_cap
+title: A 30-han non-yakuman hand is capped at a single 1x Kazoe Yakuman
+rules: mahjongsoul
+source: rules.md §1, §4.33
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 19m 258p 369s 12345z
+hand 1: 2233440566788m
+hand 2: 1111p 999p 1111s 7m 3z
+hand 3: 19m 36p 258s 123467z
+dora: 1m 2m 3m 4m
+ura: 5m 6m 7m 1m
+rinshan: 9p 6z 7z
+draws: 4z 9s 2z
+
+[steps]
+0 tsumogiri 4z
+1 riichi
+1 tsumogiri 9s
+2 ankan 1p
+2 ankan 9p
+2 ankan 1s
+2 discard 7m
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=30 fu=30 yaku=aka:1,chinitsu,dora:8,double_riichi,pinfu,ryanpeikou,tanyao,ura:8
+deltas: 0 32000 -32000 0
+scores: 25000 57000 -7000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), reach(1), dahai(1), reach_accepted(1), tsumo(2), ankan(2), dora(2m), tsumo(2), ankan(2), dora(3m), tsumo(2), ankan(2), dora(4m), tsumo(2), dahai(2), hora(1), end_kyoku

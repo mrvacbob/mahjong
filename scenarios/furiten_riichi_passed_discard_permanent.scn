@@ -1,0 +1,66 @@
+# Permanent riichi furiten from passing an opponent's discard persists past the next own draw
+# (engine.md §4.1 furiten, rules.md §4.28).
+# Seat 0 declares double riichi (waiting 4s/7s).
+# Seat 1 discards 4s -> Seat 0 has legal ron but passes -> permanent riichi furiten!
+# Seats 2, 3 tsumogiri; Seat 0 draws 1z and tsumogiris -> STILL furiten after own draw!
+# Seat 1 discards 7s -> Seat 0 is still furiten (assert_illegal ron, assert_not_asked).
+# Seats 2, 3 tsumogiri; Seat 0 draws 7s -> wins by tsumo!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 234m 678m 234p 56s 88p + tsumo 7s (dora ind 1z, ura ind 1z -> 0 dora)
+#   Yaku: double_riichi (2) + tsumo (1) + pinfu (1) + tanyao (1) = 5 han (Mangan)
+#   Dealer Mangan tsumo: 4000 all (+12000; recovers own 1000 stick -> net +12000).
+
+[meta]
+name: furiten_riichi_passed_discard_permanent
+title: Passing an opponent's discard in riichi sets permanent furiten that persists after the next own draw
+rules: mahjongsoul
+source: engine.md §4.1, rules.md §4.28
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 4s 7s 147m 258p 369s 12z
+hand 2: 258m 369p 147s 1235z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+ura: 5z
+draws: 9m 7z 2z 3z 1z 6z 3z 4z 7s
+
+[steps]
+0 riichi
+0 tsumogiri 9m
+1 discard 4s
+assert_legal 0: ron
+window: 0=pass
+assert_furiten 0: true
+2 tsumogiri 2z
+3 tsumogiri 3z
+assert_furiten 0: true
+0 tsumogiri 1z
+assert_furiten 0: true
+1 discard 7s
+assert_furiten 0: true
+assert_illegal 0: ron
+assert_not_asked 0
+2 tsumogiri 3z
+3 tsumogiri 4z
+assert_furiten 0: true
+0 tsumo
+
+[expect]
+outcome: tsumo
+winners: 0
+win 0: han=5 fu=20 yaku=double_riichi,pinfu,tanyao,tsumo
+deltas: 12000 -4000 -4000 -4000
+scores: 37000 21000 21000 21000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku

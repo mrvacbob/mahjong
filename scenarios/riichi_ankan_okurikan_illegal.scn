@@ -1,0 +1,60 @@
+# Okurikan (declaring ankan on a quad that does not use the just-drawn tile) is illegal after riichi
+# (rules.md §1 riichi_ankan_rule, §4 item 14).
+# Seat 0 holds 1111m 23m 234p 678p 8p (tenpai tanki on 8p: 111m 123m 234p 678p + 8p),
+# declares double riichi and discards 9m.
+# Seats 1, 2, 3 tsumogiri.
+# On Seat 0's next draw, Seat 0 draws 9s (NOT 1m) while holding four 1m ->
+#   assert_illegal 0: ankan:1m, assert_illegal 0: ankan!
+# Seat 0 tsumogiris 9s; Seat 1 draws and discards 8p -> Seat 0 rons 8p!
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 111m 123m 234p 678p 8p + ron 8p (dora ind 1z, ura ind 1z -> 0 dora)
+#   Yaku: double_riichi (2)
+#   Fu: 20 base + 10 menzen ron + 8 closed terminal triplet (111m) + 2 tanki (8p) = 40 fu
+#   Dealer 2 han 40 fu ron = 3900 from Seat 1 (recovers own 1000 stick -> net +3900).
+
+[meta]
+name: riichi_ankan_okurikan_illegal
+title: Okurikan (closed kan not using the just-drawn tile) is illegal after riichi
+rules: mahjongsoul
+source: rules.md §1, §4.14
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 111123m 234p 678p 8p
+hand 1: 479m 159p 147s 1234z
+hand 2: 58m 159p 258s 12356z
+hand 3: 469m 149p 369s 2467z
+dora: 1z
+ura: 1z
+draws: 9m 2z 3z 4z 9s 8p
+
+[steps]
+0 riichi
+0 tsumogiri 9m
+1 tsumogiri 2z
+2 tsumogiri 3z
+3 tsumogiri 4z
+assert_illegal 0: ankan:1m
+assert_illegal 0: ankan
+0 tsumogiri 9s
+1 tsumogiri 8p
+assert_legal 0: ron
+window: 0=ron
+
+[expect]
+outcome: ron
+winners: 0
+win 0: han=2 fu=40 yaku=double_riichi
+deltas: 3900 -3900 0 0
+scores: 28900 21100 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), dahai(1), hora(0), end_kyoku

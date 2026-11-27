@@ -1,0 +1,52 @@
+# Riichi rejection for closed noten hand and open tenpai hand (engine.md §4.2, rules.md §1).
+# Seat 0 has a closed noten hand (>= 1000 pts, >= 4 live tiles) -> assert_illegal 0: riichi.
+# Seat 0 discards 5z -> Seat 1 calls pon:55z and discards 9m, leaving open tenpai (waiting 4s/7s).
+# Seats 2, 3, 0 tsumogiri; Seat 1 draws 1z (open tenpai, >= 1000 pts, >= 4 live tiles) -> assert_illegal 1: riichi!
+# Seat 1 tsumogiris 1z; Seat 2 draws and discards 7s -> Seat 1 rons 7s (yakuhai_haku 1 han 30 fu = 1000).
+
+[meta]
+name: riichi_illegal_open_and_noten
+title: Riichi is illegal on a closed noten hand and on an open tenpai hand
+rules: mahjongsoul
+source: engine.md §4.2, rules.md §1
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 5z 147m 258p 369s 123z
+hand 1: 55z 234m 678m 56s 88p 9m
+hand 2: 258m 369p 147s 1236z
+hand 3: 369m 147p 258s 2467z
+dora: 1z
+draws: 4z 2z 3z 4z 1z 7s
+
+[steps]
+assert_illegal 0: riichi
+0 discard 5z
+window: 1=pon:55z
+1 discard 9m
+2 tsumogiri 2z
+3 tsumogiri 3z
+0 tsumogiri 4z
+assert_illegal 1: riichi
+1 tsumogiri 1z
+2 tsumogiri 7s
+assert_legal 1: ron
+window: 1=ron
+
+[expect]
+outcome: ron
+winners: 1
+win 1: han=1 fu=30 yaku=yakuhai_haku
+deltas: 0 1000 -1000 0
+scores: 25000 26000 24000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), hora(1), end_kyoku

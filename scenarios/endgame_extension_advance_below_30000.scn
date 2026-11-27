@@ -1,0 +1,44 @@
+# Within-extension advance when dealer does not repeat and all scores remain below 30,000
+# (engine.md §5 step 4, rules.md §1).
+# West 1, dealer 0, scores: 26000 25000 25000 24000.
+# Exhaustive draw with 0 tenpai -> dealer does not repeat, max score 26000 < 30000 ->
+# advances to West 2 (dealer 1, honba 1).
+
+[meta]
+name: endgame_extension_advance_below_30000
+title: West 1 advances to West 2 when dealer does not repeat and all scores stay below 30000
+rules: mahjongsoul
+source: engine.md §5 step 4, rules.md §1
+
+[round]
+game_length: south
+wind: W
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 26000 25000 25000 24000
+
+[wall]
+hand 0: 147m 258p 369s 1234z
+hand 1: 258m 369p 147s 1235z
+hand 2: 369m 147p 258s 2467z
+hand 3: 148m 269p 148s 1456z
+dora: 1z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: -
+deltas: 0 0 0 0
+scores: 26000 25000 25000 24000
+sticks: 0
+honba: 1
+dealer_repeats: false
+game_ended: false
+next_wind: W
+next_round: 2
+next_dealer: 1
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

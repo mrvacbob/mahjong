@@ -1,0 +1,52 @@
+# Direct Tenhou double-ron payment coverage (engine.md §4.1 row 1, §4.2 Multi-ron, rules.md §1, §4.21).
+# Honba: 2, sticks: 1 (1000 on table), dealer: 0.
+# Seat 1 discards 7s -> BOTH Seat 2 (closest CCW, non-dealer) and Seat 0 (dealer, 2nd in CCW order) ron 7s!
+# Winners in CCW order from Seat 1: 2, 0.
+# - Seat 2 (non-dealer, closest CCW): 234m 678m 234p 56s 88p + ron 7s -> pinfu (1) + tanyao (1) = 2 han 30 fu = 2000
+#   + 600 honba (2 * 300, closest CCW only) + 1000 stick (closest CCW only) = +3600 (Seat 1 pays 2600).
+# - Seat 0 (dealer, 2nd CCW): 234m 678m 234p 56s 88p + ron 7s -> pinfu (1) + tanyao (1) = 2 han 30 fu = 2900
+#   + 0 honba + 0 sticks = +2900 (Seat 1 pays 2900).
+# Total Seat 1 pays: 2600 + 2900 = 5500.
+# Deltas: +2900, -5500, +3600, 0 (sum = +1000, sticks 1 -> 0).
+# Dealer Seat 0 is among the winners -> dealer_repeats: true, honba: 3!
+
+[meta]
+name: double_ron_tenhou
+title: Tenhou double ron gives sticks and honba only to closest CCW winner and repeats dealer
+rules: tenhou
+source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21
+
+[round]
+wind: E
+round: 1
+honba: 2
+sticks: 1
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 234m 678m 234p 56s 88p
+hand 1: 7s 149m 159p 149s 123z
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 159m 159p 139s 2345z
+dora: 1z
+draws: 4z 6z
+
+[steps]
+0 tsumogiri 4z
+1 discard 7s
+assert_legal 2: ron
+assert_legal 0: ron
+window: 2=ron, 0=ron
+
+[expect]
+outcome: ron
+winners: 2, 0
+win 2: han=2 fu=30 yaku=pinfu,tanyao
+win 0: han=2 fu=30 yaku=pinfu,tanyao
+deltas: 2900 -5500 3600 0
+scores: 27900 19500 28600 25000
+sticks: 0
+honba: 3
+dealer_repeats: true
+events: start_kyoku, tsumo(0), dahai(0), tsumo(1), dahai(1), hora(2), hora(0), end_kyoku
