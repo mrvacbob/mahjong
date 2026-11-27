@@ -2,7 +2,8 @@
 # winning 1s, seat 0 closes it instead of declaring tsumo. The structural
 # waits remain 1s/4s, and 4s is still available. Replacement 7z is outside the wait.
 # Seat 1 discards 4s. Mahjong Soul defaults to allowing ron, while Tenhou's
-# temporary furiten survives rinshan. Seat 0's next live draw clears it
+# temporary furiten survives rinshan and blocks ron. Seat 0 passes its pon offer.
+# Seat 0's next live draw clears furiten
 # and completes the hand on the last 4s.
 # Winning sets: 234s, 44s, 555z, 789p and closed kan 1111s.
 # The haku gives one han in both branches; Tenhou also adds menzen tsumo.
@@ -53,7 +54,9 @@ window: 0=ron
 
 [steps.tenhou]
 assert_furiten 0: true
-assert_not_asked 0
+assert_legal 0: pon:44s
+assert_illegal 0: ron
+window: 0=pass
 2 tsumogiri 3z
 3 tsumogiri 3z
 assert_furiten 0: false

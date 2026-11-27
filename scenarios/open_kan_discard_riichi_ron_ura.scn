@@ -7,7 +7,7 @@
 #   Hand: 234m 678m 234p 56s 88p + ron 7s
 #   - Mahjong Soul (default): owed kan dora #1 is NOT revealed before ron, so only 1 ura indicator (1z) applies:
 #     double_riichi (2) + pinfu (1) + tanyao (1) = 4 han 30 fu -> Dealer ron = 11600!
-#   - Tenhou: owed kan dora #1 IS revealed at the discard, so 2 ura indicators (1z, 7p -> ura 8p x2!) apply:
+#   - Tenhou: owed kan dora #1 IS revealed before the discard, so 2 ura indicators (1z, 7p -> ura 8p x2!) apply:
 #     double_riichi (2) + pinfu (1) + tanyao (1) + ura:2 (88p) = 6 han (Haneman) -> Dealer ron = 18000!
 
 [meta]
@@ -63,4 +63,4 @@ scores: 43000 7000 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), daiminkan(1), tsumo(1), dahai(1), dora(2z), hora(0), end_kyoku
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), daiminkan(1), tsumo(1), dora(2z), dahai(1), hora(0), end_kyoku

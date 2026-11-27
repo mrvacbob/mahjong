@@ -2,7 +2,8 @@
 # (engine.md §4.2 Kan transactions, rules.md §4.17).
 # Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z (owes kan dora 7p -> dora 8p).
 # Seat 1 draws and discards rinshan 1z. Seat 3 can pon, but passes.
-# Owed kan dora (7p -> dora 8p) flips before Seat 2's draw!
+# Tenhou flips the owed indicator (7p -> dora 8p) before Seat 1's discard.
+# The Mahjong Soul default flips it after the all-pass window, before Seat 2's draw.
 # Seat 2 draws 7s and wins by tsumo holding two 8p -> counts the new kan dora (+2)!
 # Scoring for Seat 2 (non-dealer, West):
 #   Hand: 234m 678m 234p 56s 88p + tsumo 7s (dora ind 1z, 7p -> dora 2z, 8p)
@@ -13,7 +14,8 @@
 name: open_kan_discard_all_pass_dora
 title: Post-open-kan discard with all-pass reveals owed kan dora before the next draw
 rules: both
-source: engine.md §4.2, rules.md §4.17
+source: engine.md §4.2, rules.md §4.17, §5.4
+unverified: rules.md §5 item 4 (Mahjong Soul owed kan dora timing after an all-pass window)
 
 [round]
 wind: E
@@ -60,4 +62,4 @@ scores: 21000 23000 33000 23000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7p), tsumo(2), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7p), dahai(1), tsumo(2), hora(2), end_kyoku

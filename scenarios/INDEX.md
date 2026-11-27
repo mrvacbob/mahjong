@@ -92,7 +92,7 @@
 | `no_pao_suukantsu` | mahjongsoul | Feeding the 4th kan for Suukantsu does not trigger Pao | `engine.md §4.2`, `rules.md §1, §4.32` | verified |
 | `no_pao_suukantsu_tenhou` | tenhou | Tenhou Suukantsu fed by daiminkan has no pao and splits tsumo payment normally | `engine.md §4.2, rules.md §1, §4.32` | verified |
 | `open_kan_chained_kan_discard_ron` | both | Open kan -> rinshan -> added kan -> discard -> ron (owed kan dora ordering) | `engine.md §4.2`, `rules.md §4.17, §5.4, §5.10` | **unverified** (`rules.md §5.4, §5.10`) |
-| `open_kan_discard_all_pass_dora` | both | Post-open-kan discard with all-pass reveals owed kan dora before the next draw | `engine.md §4.2, rules.md §4.17` | verified |
+| `open_kan_discard_all_pass_dora` | both | Post-open-kan discard with all-pass reveals owed kan dora before the next draw | `engine.md §4.2, rules.md §4.17, §5.4` | **unverified** (`rules.md §5 item 4`) |
 | `open_kan_discard_called_dora` | both | Post-open-kan discard called by pon reveals the owed kan dora | `engine.md §4.2, rules.md §4.17, §5.4` | **unverified** (`rules.md §5 item 4`) |
 | `open_kan_discard_riichi_ron_ura` | both | Post-open-kan riichi ron counts the second ura indicator on Tenhou but not Mahjong Soul default | `engine.md §4.2, rules.md §1, §4.17, §5.4` | **unverified** (`rules.md §5 item 4`) |
 | `open_kan_discard_ron_dora` | both | Post-open-kan discard ron: Tenhou counts kan dora, Majsoul default does not | `engine.md §4.2`, `rules.md §1, §4.17, §5.4` | **unverified** (`rules.md §5.4`) |

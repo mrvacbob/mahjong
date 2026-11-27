@@ -1,6 +1,6 @@
 # Seat 0 closes 1m, 9m and 1p, then feeds seat 1 the fourth 9p.
 # Seat 1 discards its replacement 5z. Seat 2 submits pon and nobody rons.
-# Tenhou reveals 7z at the discard. Mahjong Soul's default waits for the
+# Tenhou reveals 7z before the discard. Mahjong Soul's default waits for the
 # ron window to pass; the proposed order still places 7z before suukaikan.
 # The abort overrides the pon, moves zero points or sticks and repeats East 1
 # with honba increasing from 0 to 1.
@@ -56,4 +56,4 @@ scores: 25000 25000 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(3z), tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7z), ryukyoku(suukaikan), end_kyoku
+events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(3z), tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7z), dahai(1), ryukyoku(suukaikan), end_kyoku

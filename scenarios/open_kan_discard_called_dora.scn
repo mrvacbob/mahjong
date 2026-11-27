@@ -2,7 +2,8 @@
 # (engine.md §4.2 Kan transactions, rules.md §4.17, §5 item 4).
 # Seat 0 discards 5z -> Seat 1 calls daiminkan on 5z (owes kan dora 7p -> dora 8p).
 # Seat 1 draws rinshan 6z and discards 6z -> Seat 2 calls pon:66z and discards 9m!
-# Owed kan dora (7p -> dora 8p) is revealed (between dahai(1) and pon(2)) and active for Seat 2's win.
+# Tenhou reveals the owed kan dora (7p -> dora 8p) before dahai(1).
+# The Mahjong Soul default reveals it after the no-ron window, before pon(2). Both count it for Seat 2's win.
 # Seat 3 draws and discards 7s -> Seat 2 rons 7s with yakuhai_hatsu (1) + dora:2 (88p) = 3 han 30 fu = 3900!
 
 [meta]
@@ -59,4 +60,4 @@ scores: 25000 25000 28900 21100
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7p), pon(2), dahai(2), tsumo(3), dahai(3), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7p), dahai(1), pon(2), dahai(2), tsumo(3), dahai(3), hora(2), end_kyoku

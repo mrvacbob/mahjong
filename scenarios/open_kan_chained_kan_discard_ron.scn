@@ -10,7 +10,7 @@
 #   Hand: 234m 678m 234p 56s 88p + ron 7s
 #   - Mahjong Soul (default): kan dora #1 (1p -> 2p, +1) IS active; kan dora #2 (7p -> 8p) is NOT:
 #     pinfu (1) + tanyao (1) + dora:1 (2p) = 3 han 30 fu -> 3900 from Seat 1.
-#   - Tenhou: BOTH kan dora #1 (2p, +1) and kan dora #2 (88p, +2, flipped at discard) ARE active:
+#   - Tenhou: BOTH kan dora #1 (2p, +1) and kan dora #2 (88p, +2, flipped before the discard) ARE active:
 #     pinfu (1) + tanyao (1) + dora:3 = 5 han (Mangan) -> 8000 from Seat 1.
 
 [meta]
@@ -70,4 +70,4 @@ scores: 25000 17000 33000 25000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dahai(1), dora(7p), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dora(7p), dahai(1), hora(2), end_kyoku

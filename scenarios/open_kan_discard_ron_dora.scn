@@ -6,7 +6,7 @@
 #   Hand: 234m 678m 234p 56s 88p + ron 7s
 #   - Mahjong Soul (default, unverified): owed kan dora flips only AFTER window passes ->
 #     pinfu (1) + tanyao (1) = 2 han 30 fu -> 2000 from Seat 1.
-#   - Tenhou: owed kan dora flips AT discard (before window) ->
+#   - Tenhou: owed kan dora flips immediately before the discard ->
 #     pinfu (1) + tanyao (1) + dora:2 (88p) = 4 han 30 fu (no kiriage!) -> 7700 from Seat 1.
 
 [meta]
@@ -59,4 +59,4 @@ scores: 25000 17300 32700 25000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), dora(7p), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7p), dahai(1), hora(2), end_kyoku
