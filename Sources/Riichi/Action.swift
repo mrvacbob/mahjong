@@ -37,6 +37,34 @@ public enum Action: Hashable, Sendable, CustomStringConvertible {
         case .pass: "pass"
         }
     }
+
+    /// Parses `description`.
+    public init?(_ text: Substring) {
+        let parts = text.split(separator: ":", maxSplits: 1)
+        let arg = parts.count == 2 ? parts[1] : nil
+        switch (parts.first ?? "", arg) {
+        case ("riichi", nil): self = .riichi
+        case ("tsumo", nil): self = .tsumo
+        case ("kyuushu", nil): self = .kyuushu
+        case ("ron", nil): self = .ron
+        case ("daiminkan", nil): self = .daiminkan
+        case ("pass", nil): self = .pass
+        case ("discard", let a?), ("tsumogiri", let a?):
+            guard let t = Tile(a) else { return nil }
+            self = .discard(t, tsumogiri: parts[0] == "tsumogiri")
+        case ("ankan", let a?):
+            guard let t = Tile(a), !t.isRed else { return nil }
+            self = .ankan(t.kind)
+        case ("kakan", let a?):
+            guard let t = Tile(a) else { return nil }
+            self = .kakan(t)
+        case ("pon", let a?), ("chi", let a?):
+            guard let ts = parseTiles(a), ts.count == 2 else { return nil }
+            let (x, y) = ts[0] < ts[1] ? (ts[0], ts[1]) : (ts[1], ts[0])
+            self = parts[0] == "pon" ? .pon(x, y) : .chi(x, y)
+        default: return nil
+        }
+    }
 }
 
 /// How the seat to act came to have the turn.
@@ -87,6 +115,13 @@ public struct Answers: Sendable, Hashable {
     private var a0, a1, a2, a3: Action?
 
     public init() {}
+
+    /// Every seat answering `ron` (to list ron winners in turn order).
+    static let allRon: Answers = {
+        var a = Answers()
+        for s in Seat.all { a[s] = .ron }
+        return a
+    }()
 
     public subscript(seat: Seat) -> Action? {
         get {

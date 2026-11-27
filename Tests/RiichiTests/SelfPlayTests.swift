@@ -243,9 +243,10 @@ func checkInvariants(_ s: RoundState, total: Int) throws {
         inPlay += s.melds(of: seat).flatMap(\.tiles)
         inPlay += s.pond(of: seat).filter { !$0.calledAway }.map(\.tile)
     }
-    if case .robbing(let k) = s.phase, k.kind == .added { inPlay.append(k.tile) }
-    // A robbed added kan's tile is the winning tile, held by no one.
-    if let r = s.result, let w = r.wins.first, w.robbedKan == .added { inPlay.append(w.tile) }
+    // An announced kan changes nothing until it commits: its tiles are still in the
+    // declarer's hand (checked above). A robbed kan's tile (added or closed) is the
+    // winning tile, held by no one; the declarer keeps the rest.
+    if let r = s.result, let w = r.wins.first, w.robbedKan != nil { inPlay.append(w.tile) }
     var used = Array(s.wall.tiles[0..<52])
     used += (0..<s.liveDrawn).map(s.wall.liveDraw)
     used += (0..<s.replacementsDrawn).map(s.wall.replacement)
@@ -291,6 +292,29 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
                           coverage: &coverage, check: i % 8 == 0, decisions: &d)
         }
         print("coverage \(bot) \(ruleset) over \(rounds) rounds: \(coverage)")
+    }
+
+    /// The `Rules` fields are independent: random combinations of every Boolean
+    /// field (and of the double-wind fu) keep the invariants (Gemini's review of B).
+    @Test func mixedRules() throws {
+        var rng = TestRNG(state: 99)
+        var coverage = Coverage()
+        for combo in 0..<12 {
+            var r = combo % 2 == 0 ? Rules.mahjongSoul : Rules.tenhou
+            func flip() -> Bool { rng.chance(50) }
+            r.doubleYakuman = flip(); r.tenhouAnyWinningTile = flip(); r.kuitan = flip()
+            r.doubleWindPairFu = flip() ? 2 : 4
+            r.tripleRonAborts = flip(); r.honbaToEveryRonWinner = flip(); r.kokushiRobsClosedKan = flip()
+            r.openKanDoraBeforeRon = flip(); r.paoCoversWholeHand = flip(); r.riichiOnFifthCopyWait = flip()
+            r.fifthCopyTenpaiAtDraw = flip(); r.fourWindsRiichiStickPaid = flip()
+            r.temporaryFuritenEndsOnCall = flip(); r.temporaryFuritenOnDeclinedTsumo = flip()
+            for i in 0..<250 {
+                var d: [(Seat, Action)] = []
+                try playRound(rules: r, seed: UInt64(combo * 1000 + i), hand: i % 5, bot: .eager, rng: &rng,
+                              coverage: &coverage, check: i % 4 == 0, decisions: &d)
+            }
+        }
+        print("coverage mixed rules: \(coverage)")
     }
 
     /// A round replays exactly from its wall and decisions.

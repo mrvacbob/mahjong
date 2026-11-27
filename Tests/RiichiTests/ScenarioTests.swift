@@ -1,6 +1,7 @@
 // Runs scenarios/*.scn (expanded to JSON by tools/scenario.py --json-dir) through
-// the round engine. Scenarios about game end (endgame_*) wait for package C and are
-// listed as disabled. Disputed scenarios are known issues with a one-line reason;
+// the engine: each scenario's round is the first hand of a `GameState` started at
+// the scenario's position, so the game-flow expectations (endgame_*) are checked
+// against the after-round transition. Disputed scenarios are known issues with a one-line reason;
 // docs/notes/p3-B.md has the working.
 
 import Foundation
@@ -11,21 +12,20 @@ import Testing
 /// passing fails the run (the known issue is not recorded), so this list cannot go
 /// stale silently.
 let disputedScenarios: [String: String] = [
-    "closed_kan_rinshan_tsumo":
-        "all four first discards are 3z (West) with no call: four winds aborts at seat 3's discard",
-    "riichi_furiten_skipped_tsumo_ankan":
-        "all four first discards are 3z (West): four winds aborts; and 23444s 678m 234p 88p also waits on 8p (234s+44s+88p), so ankan 4s changes the waits and is illegal",
-    "kan_one_live_tile_rinshan_not_haitei":
-        "the dealer wins, so honba becomes 1, not 0 (design §5 step 2; the file's own dealer_repeats is true)",
-    "last_tile_houtei_no_calls":
-        "the dealer wins, so honba becomes 1, not 0 (design §5 step 2; the file's own dealer_repeats is true)",
-    "riichi_ankan_waits":
-        "after ankan 6666s, 23m 999p 33345s + 1m reads only 33s+345s: two concealed triplets, no sanankou (4 han 50 fu)",
-    // Second batch, not yet reviewed.
-    "nagashi_mangan_dealer":
-        "expects ryukyoku(nagashi_mangan); a nagashi is an exhaustive draw (design §4.3), as reviewed nagashi_mangan_tenpai_dealer expects ryukyoku(exhaustive)",
-    "nagashi_mangan_multiple_winners":
-        "expects ryukyoku(nagashi_mangan); a nagashi is an exhaustive draw (design §4.3), as reviewed nagashi_mangan_tenpai_dealer expects ryukyoku(exhaustive)",
+    "declined_tsumo_outside_riichi.tenhou":
+        "seat 0 holds 44s and is asked for pon:44s on seat 1's 4s (a furiten seat still appears for calls, design §4.1), so assert_not_asked fails and the window needs an answer",
+    "open_kan_chained_kan_discard_ron.tenhou":
+        "Tenhou flips an owed kan indicator immediately before the discard (manual: 「後めくり（打牌または続く嶺上の直前）」; libriichi's order too), so dora comes before dahai, not after",
+    "open_kan_discard_all_pass_dora.tenhou":
+        "Tenhou flips an owed kan indicator immediately before the discard (manual: 「後めくり（打牌または続く嶺上の直前）」; libriichi's order too), so dora comes before dahai, not after",
+    "open_kan_discard_called_dora.tenhou":
+        "Tenhou flips an owed kan indicator immediately before the discard (manual: 「後めくり（打牌または続く嶺上の直前）」; libriichi's order too), so dora comes before dahai, not after",
+    "open_kan_discard_riichi_ron_ura.tenhou":
+        "Tenhou flips an owed kan indicator immediately before the discard (manual: 「後めくり（打牌または続く嶺上の直前）」; libriichi's order too), so dora comes before dahai, not after",
+    "open_kan_discard_ron_dora.tenhou":
+        "Tenhou flips an owed kan indicator immediately before the discard (manual: 「後めくり（打牌または続く嶺上の直前）」; libriichi's order too), so dora comes before dahai, not after",
+    "suukaikan_open_kan_owed_dora.tenhou":
+        "Tenhou flips an owed kan indicator immediately before the discard (manual: 「後めくり（打牌または続く嶺上の直前）」; libriichi's order too), so dora comes before dahai, not after",
 ]
 
 enum ScenarioFiles {
@@ -37,8 +37,6 @@ enum ScenarioFiles {
         let files = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
         return files.filter { $0.hasSuffix(".scn") }.map { String($0.dropLast(4)) }.sorted()
     }()
-    static let roundNames = names.filter { !$0.hasPrefix("endgame_") }
-    static let gameEndNames = names.filter { $0.hasPrefix("endgame_") }
 
     /// Every scenario expanded once per test process.
     static let jsonDir: Result<URL, ScenarioFailure> = {
@@ -66,7 +64,7 @@ struct ScenarioFailure: Error, CustomStringConvertible {
 }
 
 @Suite struct ScenarioTests {
-    @Test(arguments: ScenarioFiles.roundNames) func scenario(_ name: String) throws {
+    @Test(arguments: ScenarioFiles.names) func scenario(_ name: String) throws {
         let json = try ScenarioFiles.load(name)
         if let error = json["error"] as? String {
             if let reason = disputedScenarios[name] {
@@ -91,64 +89,11 @@ struct ScenarioFailure: Error, CustomStringConvertible {
         }
     }
 
-    /// The disputed scenarios with the correction docs/notes/p3-B.md proposes, so
-    /// that what they were written to test is still tested.
-    @Test func correctedDisputedScenarios() throws {
-        func run(_ json: [String: Any]) -> [String] {
-            let runs = json["runs"] as! [String: Any]
-            return runs.flatMap { ScenarioRunner(json: json, ruleset: $0.key, spec: $0.value as! [String: Any]).run() }
-        }
-        /// Seat 3's first draw (wall 55, a 3z) swapped with a later honor that is not
-        /// 3z, so the first go-around is not four winds.
-        func breakFourWinds(_ name: String) throws -> [String: Any] {
-            var json = try ScenarioFiles.load(name)
-            var wall = json["wall"] as! [String]
-            #expect(wall[52..<56] == ["3z", "3z", "3z", "3z"])
-            let j = try #require((70..<122).first { wall[$0].hasSuffix("z") && wall[$0] != "3z" && wall[$0] != "5z" })
-            wall.swapAt(55, j)
-            json["wall"] = wall
-            // Seat 3's tsumogiri no longer names 3z.
-            var runs = json["runs"] as! [String: Any]
-            for (k, v) in runs {
-                var run = v as! [String: Any]
-                var steps = run["steps"] as! [[String: Any]]
-                if let i = steps.firstIndex(where: { $0["seat"] as? Int == 3 && $0["tile"] as? String == "3z" }) {
-                    steps[i]["tile"] = nil
-                }
-                run["steps"] = steps
-                runs[k] = run
-            }
-            json["runs"] = runs
-            return json
-        }
-        for name in ["closed_kan_rinshan_tsumo"] {
-            let problems = run(try breakFourWinds(name))
-            #expect(problems.isEmpty, "\(name) corrected: \(problems)")
-        }
-        // riichi_ankan_waits: double riichi + tsumo + rinshan, 4 han 50 fu (mangan).
-        var json = try ScenarioFiles.load("riichi_ankan_waits")
-        var runs = json["runs"] as! [String: Any]
-        var ms = runs["mahjongsoul"] as! [String: Any]
-        var expect = ms["expect"] as! [String: Any]
-        expect["wins"] = ["1": ["han": 4, "fu": 50, "yaku": ["double_riichi", "rinshan", "tsumo"]]]
-        expect["deltas"] = [-5000, 9000, -2000, -2000]
-        expect["scores"] = [20000, 34000, 23000, 23000]
-        ms["expect"] = expect
-        runs["mahjongsoul"] = ms
-        json["runs"] = runs
-        let problems = run(json)
-        #expect(problems.isEmpty, "riichi_ankan_waits corrected: \(problems)")
-    }
-
-    @Test(.disabled("game end is package C (GameState)"), arguments: ScenarioFiles.gameEndNames)
-    func gameEndScenario(_ name: String) {}
-
-    @Test func everyScenarioIsRunOrListedAsSkipped() {
+    @Test func everyDisputeNamesAScenario() {
         #expect(!ScenarioFiles.names.isEmpty)
-        #expect(ScenarioFiles.roundNames.count + ScenarioFiles.gameEndNames.count == ScenarioFiles.names.count)
         for name in disputedScenarios.keys {
             let base = name.split(separator: ".").first.map(String.init) ?? name
-            #expect(ScenarioFiles.roundNames.contains(base), "disputed scenario \(name) does not exist")
+            #expect(ScenarioFiles.names.contains(base), "disputed scenario \(name) does not exist")
         }
     }
 }
@@ -166,15 +111,20 @@ struct ScenarioRunner {
 
     func run() -> [String] {
         var problems: [String] = []
-        let rules: Rules = self.rules ?? (ruleset == "tenhou" ? .tenhou : .mahjongSoul)
+        var rules: Rules = self.rules ?? (ruleset == "tenhou" ? .tenhou : .mahjongSoul)
         let round = json["round"] as! [String: Any]
         guard let wall = Wall(tiles: tiles(json["wall"])) else { return ["bad wall"] }
         let wind = Wind(letter: Substring(round["wind"] as! String))!
+        if let length = round["game_length"] as? String { rules.length = length == "east" ? .east : .south }
+        let position = GamePosition(roundWind: wind, kyoku: round["round"] as! Int,
+                                    honba: round["honba"] as! Int, sticks: round["sticks"] as! Int,
+                                    scores: round["scores"] as? [Int] ?? [25_000, 25_000, 25_000, 25_000])
+        guard position.dealer.index == round["dealer"] as! Int else {
+            return ["dealer \(round["dealer"]!) is not seat kyoku − 1 (\(position.dealer))"]
+        }
         var events: [Event] = []
-        var state = RoundState(
-            rules: rules, wall: wall, roundWind: wind, kyoku: round["round"] as! Int,
-            honba: round["honba"] as! Int, sticks: round["sticks"] as! Int,
-            dealer: Seat(round["dealer"] as! Int), scores: round["scores"] as? [Int], events: &events)
+        var state = GameState(rules: rules, seed: 0, position: position, wall: wall, startGame: false,
+                              events: &events)
         let steps = spec["steps"] as? [[String: Any]] ?? []
 
         for (n, step) in steps.enumerated() {
@@ -189,10 +139,20 @@ struct ScenarioRunner {
                 return problems
             }
         }
-        guard let result = state.result else {
+        guard let (result, transition) = state.lastRound else {
             return problems + ["round did not end; phase \(state.phase), legal \(legalSummary(state))"]
         }
-        problems += check(spec["expect"] as? [String: Any] ?? [:], result, events, state)
+        // This hand's events, and end_game if the game ended with it.
+        let end = events.firstIndex(of: .endKyoku)!
+        var mine = Array(events[...end])
+        // end_game is compared only where the scenario's event list names it (round
+        // scenarios with unusual scores can end the game without saying so).
+        let expect = spec["expect"] as? [String: Any] ?? [:]
+        let named = ((expect["events"] as? [String] ?? []) + (expect["events_order"] as? [String] ?? []))
+            .contains("end_game")
+        if named, end + 1 < events.count, case .endGame = events[end + 1] { mine.append(events[end + 1]) }
+        problems += check(spec["expect"] as? [String: Any] ?? [:], result, mine, position)
+        problems += checkGame(spec["expect"] as? [String: Any] ?? [:], transition, state)
         return problems
     }
 
@@ -202,15 +162,23 @@ struct ScenarioRunner {
             .replacingOccurrences(of: "\n", with: "")
     }
 
-    func legalSummary(_ s: RoundState) -> String {
-        Seat.all.compactMap { seat in
+    func legalSummary(_ g: GameState) -> String {
+        let s = g.round
+        return Seat.all.compactMap { seat in
             let a = s.legalActions(for: seat)
             return a.isEmpty ? nil : "\(seat): \(a.map(\.description).joined(separator: " "))"
         }.joined(separator: "; ")
     }
 
-    func perform(_ step: [String: Any], _ state: inout RoundState, _ events: inout [Event]) throws {
+    func perform(_ step: [String: Any], _ state: inout GameState, _ events: inout [Event]) throws {
         let seat = (step["seat"] as? Int).map(Seat.init)
+        // Steps act on the scenario's hand only. Once it is over nothing is legal in it.
+        if state.lastRound != nil {
+            switch step["type"] as! String {
+            case "assert_illegal", "assert_not_asked": return
+            default: throw ScenarioFailure("the hand is over (the game is at \(state.position))")
+            }
+        }
         switch step["type"] as! String {
         case "turn":
             let seat = seat!
@@ -219,7 +187,7 @@ struct ScenarioRunner {
             case "discard":
                 let tsumogiri = step["tsumogiri"] as? Bool ?? false
                 if tsumogiri {
-                    guard let d = state.drawnTile(of: seat) else { throw ScenarioFailure("no drawn tile to tsumogiri") }
+                    guard let d = state.round.drawnTile(of: seat) else { throw ScenarioFailure("no drawn tile to tsumogiri") }
                     if let t = tile(step["tile"]), t != d {
                         throw ScenarioFailure("tsumogiri \(t) but the drawn tile is \(d)")
                     }
@@ -256,8 +224,8 @@ struct ScenarioRunner {
             try state.resolve(answers, events: &events)
         case "auto_tsumogiri":
             for _ in 0..<(step["count"] as! Int) {
-                if state.result != nil { break }
-                guard case .turn(let s, _) = state.phase, let d = state.drawnTile(of: s) else {
+                if state.lastRound != nil { break }
+                guard case .turn(let s, _) = state.phase, let d = state.round.drawnTile(of: s) else {
                     throw ScenarioFailure("auto_tsumogiri: no seat with a drawn tile (phase \(state.phase))")
                 }
                 try state.apply(.discard(d, tsumogiri: true), by: s, events: &events)
@@ -277,7 +245,7 @@ struct ScenarioRunner {
             }
         case "assert_furiten":
             let want = step["expected"] as! Bool
-            if state.isFuriten(seat!) != want {
+            if state.round.isFuriten(seat!) != want {
                 throw ScenarioFailure("seat \(seat!) furiten is \(!want), expected \(want)")
             }
         case "assert_not_asked":
@@ -317,7 +285,7 @@ struct ScenarioRunner {
         }
     }
 
-    func check(_ expect: [String: Any], _ r: RoundResult, _ events: [Event], _ state: RoundState) -> [String] {
+    func check(_ expect: [String: Any], _ r: RoundResult, _ events: [Event], _ position: GamePosition) -> [String] {
         var p: [String] = []
         func eq<T: Equatable>(_ what: String, _ got: T, _ want: T?) {
             if let want, got != want { p.append("\(what): got \(got), expected \(want)") }
@@ -365,7 +333,7 @@ struct ScenarioRunner {
         eq("deltas", r.deltas, expect["deltas"] as? [Int])
         eq("scores", r.scores, expect["scores"] as? [Int])
         eq("sticks", r.sticks, expect["sticks"] as? Int)
-        eq("honba", r.nextHonba(after: state.honba), expect["honba"] as? Int)
+        eq("honba", r.nextHonba(after: position.honba), expect["honba"] as? Int)
         eq("dealer_repeats", r.dealerRepeats, expect["dealer_repeats"] as? Bool)
 
         let texts = events.map(\.text)
@@ -384,9 +352,34 @@ struct ScenarioRunner {
                 p.append("events_order: \(want[i]) (item \(i + 1)) not found in order; got \(texts.joined(separator: ", "))")
             }
         }
-        for key in ["game_ended", "next_wind", "next_round", "next_dealer", "final_scores",
-                    "final_ranks", "adjusted_scores"] where expect[key] != nil {
-            p.append("expects \(key), which is game flow (package C): not checked")
+        return p
+    }
+
+    /// The after-round transition: game end, the next hand, the final result.
+    func checkGame(_ expect: [String: Any], _ transition: GameTransition, _ g: GameState) -> [String] {
+        var p: [String] = []
+        func eq<T: Equatable>(_ what: String, _ got: T, _ want: T?) {
+            if let want, got != want { p.append("\(what): got \(got), expected \(want) (transition \(transition))") }
+        }
+        eq("game_ended", g.isOver, expect["game_ended"] as? Bool)
+        if g.isOver {
+            for key in ["next_wind", "next_round", "next_dealer"] where expect[key] != nil {
+                p.append("expects \(key) but the game ended (transition \(transition))")
+            }
+        } else {
+            let letters = [Wind.east: "E", .south: "S", .west: "W", .north: "N"]
+            eq("next_wind", letters[g.position.roundWind]!, expect["next_wind"] as? String)
+            eq("next_round", g.position.kyoku, expect["next_round"] as? Int)
+            eq("next_dealer", g.position.dealer.index, expect["next_dealer"] as? Int)
+        }
+        if let r = g.result {
+            eq("final_scores", r.scores, expect["final_scores"] as? [Int])
+            eq("final_ranks", r.ranks.map(\.index), expect["final_ranks"] as? [Int])
+            eq("adjusted_scores", r.adjusted, expect["adjusted_scores"] as? [Int])
+        } else {
+            for key in ["final_scores", "final_ranks", "adjusted_scores"] where expect[key] != nil {
+                p.append("expects \(key) but the game did not end (transition \(transition))")
+            }
         }
         return p
     }

@@ -91,6 +91,10 @@ public struct Rules: Sendable, Hashable {
     /// Off for both: Tenhou's manual and Mahjong Soul's published rules end it at the
     /// seat's next draw only (design §4.1).
     public var temporaryFuritenEndsOnCall: Bool
+    /// A seat not in riichi that could win on its own draw and does anything else is
+    /// temporarily furiten until its next live-wall draw (design §4.2; Tenhou's
+    /// manual: 「和了放棄…後は同巡フリテン」). Unverified for Mahjong Soul: default off.
+    public var temporaryFuritenOnDeclinedTsumo: Bool
 
     public init(
         startingPoints: Int, returnPoints: Int, uma: [Int], targetPoints: Int,
@@ -99,7 +103,7 @@ public struct Rules: Sendable, Hashable {
         tripleRonAborts: Bool, honbaToEveryRonWinner: Bool, kokushiRobsClosedKan: Bool,
         openKanDoraBeforeRon: Bool, paoCoversWholeHand: Bool, riichiOnFifthCopyWait: Bool,
         fifthCopyTenpaiAtDraw: Bool, fourWindsRiichiStickPaid: Bool,
-        temporaryFuritenEndsOnCall: Bool
+        temporaryFuritenEndsOnCall: Bool, temporaryFuritenOnDeclinedTsumo: Bool
     ) {
         precondition(uma.count == 4, "uma has one entry per rank")
         self.startingPoints = startingPoints
@@ -122,6 +126,7 @@ public struct Rules: Sendable, Hashable {
         self.fifthCopyTenpaiAtDraw = fifthCopyTenpaiAtDraw
         self.fourWindsRiichiStickPaid = fourWindsRiichiStickPaid
         self.temporaryFuritenEndsOnCall = temporaryFuritenEndsOnCall
+        self.temporaryFuritenOnDeclinedTsumo = temporaryFuritenOnDeclinedTsumo
     }
 
     /// The bonus to first place: what the four seats put in above `startingPoints`
@@ -139,7 +144,7 @@ extension Rules {
         tripleRonAborts: false, honbaToEveryRonWinner: false, kokushiRobsClosedKan: true,
         openKanDoraBeforeRon: false, paoCoversWholeHand: false, riichiOnFifthCopyWait: false,
         fifthCopyTenpaiAtDraw: false, fourWindsRiichiStickPaid: false,
-        temporaryFuritenEndsOnCall: false)
+        temporaryFuritenEndsOnCall: false, temporaryFuritenOnDeclinedTsumo: false)
 
     /// Tenhou four-player ranked, hanchan, red fives on.
     public static let tenhou = Rules(
@@ -150,5 +155,5 @@ extension Rules {
         tripleRonAborts: true, honbaToEveryRonWinner: false, kokushiRobsClosedKan: false,
         openKanDoraBeforeRon: true, paoCoversWholeHand: true, riichiOnFifthCopyWait: false,
         fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: false,
-        temporaryFuritenEndsOnCall: false)
+        temporaryFuritenEndsOnCall: false, temporaryFuritenOnDeclinedTsumo: true)
 }

@@ -1,5 +1,5 @@
-// Unmasked round events, one per mjai message (docs/design/engine.md §6). The mjai
-// JSON codec and the masked per-seat view are package D; this is the Swift value.
+// Unmasked events, one per mjai message (docs/design/engine.md §6). The mjai JSON
+// codec is in RiichiMjai; the masked per-seat form is `MaskedEvent` (View.swift).
 
 public enum AbortReason: String, Hashable, Sendable {
     case kyuushu, suufonRenda = "suufon_renda", suuchaRiichi = "suucha_riichi"
@@ -21,6 +21,9 @@ public enum DrawReason: Hashable, Sendable, CustomStringConvertible {
 }
 
 public enum Event: Hashable, Sendable {
+    /// The game starts (`GameState`). Names and the recipient's seat are added by
+    /// whoever sends it.
+    case startGame
     /// `tehais` in seat order, each sorted.
     case startKyoku(bakaze: Wind, kyoku: Int, honba: Int, kyotaku: Int, oya: Seat,
                     doraMarker: Tile, scores: [Int], tehais: [[Tile]])
@@ -46,6 +49,8 @@ public enum Event: Hashable, Sendable {
     case ryukyoku(reason: DrawReason, deltas: [Int], tenpais: [Bool], tehais: [[Tile]],
                   scores: [Int])
     case endKyoku
+    /// The game is over: final scores, leftover sticks awarded (`GameState`).
+    case endGame(scores: [Int])
 
     /// The mjai message type.
     public var type: String {
@@ -64,6 +69,8 @@ public enum Event: Hashable, Sendable {
         case .hora: "hora"
         case .ryukyoku: "ryukyoku"
         case .endKyoku: "end_kyoku"
+        case .startGame: "start_game"
+        case .endGame: "end_game"
         }
     }
 

@@ -159,7 +159,6 @@ func answer(_ q: Request) throws(BadInput) -> String {
 
 /// `mj bench-round [ROUNDS] [tenhou]` (not part of the line protocol): rounds per
 /// second of uniform random play in process, without and with event collection.
-@available(macOS 13, *)
 func benchRounds(_ args: [String]) {
     let rounds = args.first.flatMap { Int($0) } ?? 20_000
     let rules: Rules = args.contains("tenhou") ? .tenhou : .mahjongSoul
@@ -212,13 +211,31 @@ func benchRounds(_ args: [String]) {
     }
 }
 
-let benchmarking = CommandLine.arguments.count > 1 && CommandLine.arguments[1] == "bench-round"
-if benchmarking {
-    if #available(macOS 13, *) { benchRounds(Array(CommandLine.arguments.dropFirst(2))) }
-    else { print("bench-round needs macOS 13") }
+import Foundation
+
+let args = CommandLine.arguments
+let command = args.count > 1 ? args[1] : nil
+func run(_ body: () throws -> Int32) -> Never {
+    do { exit(try body()) } catch {
+        FileHandle.standardError.write(Data("mj \(command ?? ""): \(error)\n".utf8))
+        exit(2)
+    }
+}
+signal(SIGPIPE, SIG_IGN)
+switch command {
+case "bench-round":
+    benchRounds(Array(args.dropFirst(2)))
+    exit(0)
+case "selfplay": run { try selfplay(Array(args.dropFirst(2))) }
+case "replay": run { try replay(Array(args.dropFirst(2))) }
+case "check-log": run { try checkLogCommand(Array(args.dropFirst(2))) }
+case nil: break
+default:
+    FileHandle.standardError.write(Data("usage: mj [selfplay|replay|check-log|bench-round] ... (no argument: line protocol on stdin)\n".utf8))
+    exit(2)
 }
 
-while !benchmarking, let line = readLine() {
+while let line = readLine() {
     if line.isEmpty { continue }
     guard let q = Request(line) else {
         print("\(line.split(separator: " ").first ?? "?") error=bad_request")

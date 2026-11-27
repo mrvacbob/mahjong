@@ -85,10 +85,8 @@ struct PlayerState: Sendable {
 struct Emitter {
     var on: Bool
     var events: [Event]
-
-    @inline(__always) mutating func callAsFunction(_ e: @autoclosure () -> Event) {
-        if on { events.append(e()) }
-    }
+    /// Called after each event with the state as of that event (tools only).
+    var observe: ((RoundState, Event) -> Void)? = nil
 }
 
 /// Where a winning tile came from.
@@ -134,8 +132,8 @@ public struct RoundState: Sendable {
     /// `dealer` defaults to seat `kyoku − 1`, `scores` to `rules.startingPoints`.
     public init(rules: Rules, wall: Wall, roundWind: Wind = .east, kyoku: Int = 1,
                 honba: Int = 0, sticks: Int = 0, dealer: Seat? = nil, scores: [Int]? = nil,
-                events: inout [Event]) {
-        var e = Emitter(on: true, events: events)
+                events: inout [Event], observe: ((RoundState, Event) -> Void)? = nil) {
+        var e = Emitter(on: true, events: events, observe: observe)
         events = []
         self.init(rules: rules, wall: wall, roundWind: roundWind, kyoku: kyoku, honba: honba,
                   sticks: sticks, dealer: dealer, scores: scores, emitter: &e)
@@ -174,10 +172,19 @@ public struct RoundState: Sendable {
             return p
         }
         let tehais = players.map(\.hand)
-        e(.startKyoku(bakaze: roundWind, kyoku: kyoku, honba: honba, kyotaku: sticks,
+        emit(.startKyoku(bakaze: roundWind, kyoku: kyoku, honba: honba, kyotaku: sticks,
                       oya: self.dealer, doraMarker: wall.doraIndicator(0), scores: scores,
-                      tehais: tehais))
+                      tehais: tehais), &e)
         drawLive(self.dealer, &e)
+    }
+
+    /// Appends an event to the caller's buffer (building nothing if there is none)
+    /// and shows the observer, if any, the state as of this event.
+    @inline(__always) func emit(_ ev: @autoclosure () -> Event, _ e: inout Emitter) {
+        guard e.on else { return }
+        let event = ev()
+        e.events.append(event)
+        e.observe?(self, event)
     }
 
     // MARK: queries
@@ -202,6 +209,12 @@ public struct RoundState: Sendable {
     }
     /// Furiten of any sort: own discard, temporary or riichi.
     public func isFuriten(_ seat: Seat) -> Bool { players[seat.index].isFuriten }
+    /// The three sorts separately: a wait in the seat's own pond, temporary (until
+    /// its next live draw), riichi (for the rest of the hand).
+    public func furitenParts(of seat: Seat) -> (ownDiscard: Bool, temporary: Bool, riichi: Bool) {
+        let p = players[seat.index]
+        return (p.waits & p.pondKinds != 0, p.temporaryFuriten, p.riichiFuriten)
+    }
 
     /// Seats that must answer the open window, ascending.
     public var seatsToAnswer: [Seat] {
@@ -212,8 +225,11 @@ public struct RoundState: Sendable {
 
     /// The turn player's action. Throws, leaving the state unchanged, unless the
     /// action is in `legalActions(for: seat)`.
-    public mutating func apply(_ action: Action, by seat: Seat, events: inout [Event]) throws(RoundError) {
-        var e = Emitter(on: true, events: events)
+    /// `observe`, if given, is shown the state as of each event as it is emitted
+    /// (tools that need per-event snapshots; the engine itself never calls out).
+    public mutating func apply(_ action: Action, by seat: Seat, events: inout [Event],
+                               observe: ((RoundState, Event) -> Void)? = nil) throws(RoundError) {
+        var e = Emitter(on: true, events: events, observe: observe)
         events = []
         defer { events = e.events }
         try apply(action, by: seat, &e)
@@ -226,8 +242,9 @@ public struct RoundState: Sendable {
 
     /// Answers to the open window: one per seat in `seatsToAnswer`, from its
     /// `legalActions`; other seats `nil` (or `.pass`).
-    public mutating func resolve(_ answers: Answers, events: inout [Event]) throws(RoundError) {
-        var e = Emitter(on: true, events: events)
+    public mutating func resolve(_ answers: Answers, events: inout [Event],
+                                 observe: ((RoundState, Event) -> Void)? = nil) throws(RoundError) {
+        var e = Emitter(on: true, events: events, observe: observe)
         events = []
         defer { events = e.events }
         try resolve(answers, &e)
@@ -256,13 +273,17 @@ public struct RoundState: Sendable {
         guard isLegalTurnAction(action, seat: seat, start: start) else { throw .illegal(seat, action) }
         let i = seat.index
         switch action {
+        case .tsumo, .kyuushu: break
+        default: declineWinningDraw(seat, start)
+        }
+        switch action {
         case .discard(let t, let tsumogiri):
             discard(seat, t, tsumogiri: tsumogiri, riichi: start == .riichiDeclared, &e)
         case .riichi:
             players[i].riichi = .declared
             players[i].doubleRiichi = !anyCallMade && players[i].pond.isEmpty
             phase = .turn(seat, .riichiDeclared)
-            e(.reach(actor: seat))
+            emit(.reach(actor: seat), &e)
         case .tsumo:
             settle(winners: [seat], tile: players[i].drawn!, from: seat, source: .draw(start), &e)
         case .ankan(let k):
@@ -307,7 +328,7 @@ public struct RoundState: Sendable {
         players[seat.index].drawn = t
         players[seat.index].temporaryFuriten = false
         phase = .turn(seat, .draw)
-        e(.tsumo(actor: seat, tile: t))
+        emit(.tsumo(actor: seat, tile: t), &e)
     }
 
     mutating func drawReplacement(_ seat: Seat, _ e: inout Emitter) {
@@ -315,12 +336,12 @@ public struct RoundState: Sendable {
         replacementsDrawn += 1
         players[seat.index].drawn = t
         phase = .turn(seat, .replacementDraw)
-        e(.tsumo(actor: seat, tile: t))
+        emit(.tsumo(actor: seat, tile: t), &e)
     }
 
     mutating func revealIndicator(_ e: inout Emitter) {
         doraShown += 1
-        e(.dora(marker: wall.doraIndicator(doraShown - 1)))
+        emit(.dora(marker: wall.doraIndicator(doraShown - 1)), &e)
     }
 
     mutating func revealOwed(_ e: inout Emitter) {
@@ -330,12 +351,19 @@ public struct RoundState: Sendable {
         }
     }
 
-    /// A riichi seat that drew a winning tile and did not take it is furiten for
-    /// the rest of the hand.
-    mutating func skipWinningDraw(_ seat: Seat) {
+    /// The turn seat does something other than `tsumo` with a drawn tile. A riichi
+    /// seat whose drawn tile was a winning kind is furiten for the rest of the hand
+    /// (whether or not it had a yaku: in riichi it always does). Under
+    /// `Rules.temporaryFuritenOnDeclinedTsumo`, any other seat that could have
+    /// declared `tsumo` is temporarily furiten until its next live-wall draw; a
+    /// replacement draw after a kan does not clear it (design §4.2).
+    mutating func declineWinningDraw(_ seat: Seat, _ start: TurnStart) {
         let i = seat.index
-        if players[i].riichi == .accepted, let d = players[i].drawn, players[i].waits & bit(d.kind) != 0 {
-            players[i].riichiFuriten = true
+        guard start == .draw || start == .replacementDraw, let d = players[i].drawn else { return }
+        if players[i].riichi == .accepted {
+            if players[i].waits & bit(d.kind) != 0 { players[i].riichiFuriten = true }
+        } else if rules.temporaryFuritenOnDeclinedTsumo && canTsumo(seat, start) {
+            players[i].temporaryFuriten = true
         }
     }
 
@@ -343,7 +371,9 @@ public struct RoundState: Sendable {
 
     mutating func discard(_ seat: Seat, _ t: Tile, tsumogiri: Bool, riichi: Bool, _ e: inout Emitter) {
         let i = seat.index
-        skipWinningDraw(seat)
+        // Tenhou: an owed indicator is flipped immediately before the discard
+        // (「後めくり（打牌または続く嶺上の直前）」), so a ron on it counts it.
+        if rules.openKanDoraBeforeRon { revealOwed(&e) }
         if players[i].riichi == .accepted { players[i].ippatsu = false }
         if tsumogiri {
             players[i].drawn = nil  // the hand is unchanged, and so are its waits
@@ -358,8 +388,7 @@ public struct RoundState: Sendable {
         players[i].pondKinds |= bit(t.kind)
         if !t.kind.isYaochu { players[i].nagashi = false }
         if riichi { players[i].riichi = .pending }
-        e(.dahai(actor: seat, tile: t, tsumogiri: tsumogiri))
-        if rules.openKanDoraBeforeRon { revealOwed(&e) }
+        emit(.dahai(actor: seat, tile: t, tsumogiri: tsumogiri), &e)
 
         let d = Discard(seat: seat, tile: t, tsumogiri: tsumogiri, riichi: riichi)
         let o = discardOffers(d)
@@ -391,7 +420,7 @@ public struct RoundState: Sendable {
         players[i].ippatsu = true
         scores[i] -= 1000
         sticks += 1
-        e(.reachAccepted(actor: seat, scores: scores))
+        emit(.reachAccepted(actor: seat, scores: scores), &e)
     }
 
     func isFourWinds(_ d: Discard) -> Bool {
@@ -412,6 +441,11 @@ public struct RoundState: Sendable {
             return settle(winners: winners, tile: d.tile, from: d.seat, source: .discard, &e)
         }
         markFuriten(d.tile.kind, except: d.seat, closedKan: false)
+        // Mahjong Soul: an open or added kan's owed indicator, once no ron is made and
+        // before anything else (a four-kan abort included). Under Tenhou it was shown
+        // at the discard. (A riichi or four winds cannot fall on such a discard: both
+        // need a closed table or hand.)
+        revealOwed(&e)
         if isFourWinds(d) {                                                     // row 2
             if d.riichi && rules.fourWindsRiichiStickPaid { acceptRiichi(d.seat, &e) }
             return abort(.suufonRenda, &e)
@@ -423,7 +457,6 @@ public struct RoundState: Sendable {
         if d.riichi && players.allSatisfy({ $0.riichi == .accepted }) {         // row 5
             return abort(.suuchaRiichi, &e)
         }
-        revealOwed(&e)  // Mahjong Soul: the open kan's indicator, after the window
         let callers = (1...3).map { d.seat.advanced(by: $0) }
         if let s = callers.first(where: {
             switch answers[$0] { case .pon, .daiminkan: true; default: false }
@@ -465,22 +498,25 @@ public struct RoundState: Sendable {
         for s in 0..<4 { players[s].ippatsu = false }
         if rules.temporaryFuritenEndsOnCall { players[i].temporaryFuriten = false }
         checkPao(caller, meld)
-        switch meld.kind {
-        case .chi: e(.chi(actor: caller, target: d.seat, tile: d.tile, consumed: meld.consumed))
-        case .pon: e(.pon(actor: caller, target: d.seat, tile: d.tile, consumed: meld.consumed))
-        default: e(.daiminkan(actor: caller, target: d.seat, tile: d.tile, consumed: meld.consumed))
-        }
+        // The state is updated before the event, so that the event shows it settled.
         if meld.kind == .daiminkan {
             players[i].refresh()
             kanCount += 1
             players[i].kans += 1
-            revealOwed(&e)
-            doraOwed = true
-            drawReplacement(caller, &e)
         } else {
             players[i].counts = Counts(players[i].hand)
             players[i].waits = 0  // 14 − 3k tiles: no waits until the discard
             phase = .turn(caller, .call)
+        }
+        switch meld.kind {
+        case .chi: emit(.chi(actor: caller, target: d.seat, tile: d.tile, consumed: meld.consumed), &e)
+        case .pon: emit(.pon(actor: caller, target: d.seat, tile: d.tile, consumed: meld.consumed), &e)
+        default: emit(.daiminkan(actor: caller, target: d.seat, tile: d.tile, consumed: meld.consumed), &e)
+        }
+        if meld.kind == .daiminkan {
+            revealOwed(&e)
+            doraOwed = true
+            drawReplacement(caller, &e)
         }
     }
 
@@ -499,21 +535,17 @@ public struct RoundState: Sendable {
 
     // MARK: kans
 
+    // A closed or added kan is a transaction: announced (the `ankan`/`kakan` event and
+    // the robbing window) with nothing changed, then committed or robbed. Until the
+    // window closes the declarer's hand, drawn tile, melds and cached waits are as
+    // they were before the announcement.
+
     mutating func announceClosedKan(_ seat: Seat, _ k: Kind, _ e: inout Emitter) {
-        let i = seat.index
-        skipWinningDraw(seat)
+        let p = players[seat.index]
         revealOwed(&e)  // design §4.2: open kan then closed kan shows the owed one first
-        var tiles = players[i].hand.filter { $0.kind == k }
-        for t in tiles { players[i].remove(t) }
-        if let d = players[i].drawn {
-            if d.kind == k { tiles.append(d) } else { players[i].insert(d) }
-        }
-        players[i].drawn = nil
-        let meld = TableMeld.ankan(tiles)!
-        players[i].melds.append(meld)
-        players[i].analysisMelds.append(meld.meld)
-        players[i].refresh()
-        e(.ankan(actor: seat, consumed: meld.tiles))
+        var tiles = p.hand.filter { $0.kind == k }
+        if let d = p.drawn, d.kind == k { tiles.append(d) }
+        emit(.ankan(actor: seat, consumed: tiles.sorted()), &e)
         let pk = PendingKan(seat: seat, tile: Tile(k), kind: .closed)
         let o = kanOffers(pk)
         if o.contains(where: { !$0.isEmpty }) {
@@ -525,18 +557,8 @@ public struct RoundState: Sendable {
     }
 
     mutating func announceAddedKan(_ seat: Seat, _ t: Tile, _ e: inout Emitter) {
-        let i = seat.index
-        skipWinningDraw(seat)
-        if players[i].drawn == t {
-            players[i].drawn = nil
-        } else {
-            players[i].remove(t)
-            if let d = players[i].drawn { players[i].insert(d) }
-            players[i].drawn = nil
-        }
-        players[i].refresh()
-        let m = players[i].melds.first { $0.kind == .pon && $0.tiles[0].kind == t.kind }!
-        e(.kakan(actor: seat, tile: t, consumed: m.tiles))
+        let m = players[seat.index].melds.first { $0.kind == .pon && $0.tiles[0].kind == t.kind }!
+        emit(.kakan(actor: seat, tile: t, consumed: m.tiles), &e)
         let pk = PendingKan(seat: seat, tile: t, kind: .added)
         let o = kanOffers(pk)
         if o.contains(where: { !$0.isEmpty }) {
@@ -547,10 +569,27 @@ public struct RoundState: Sendable {
         }
     }
 
+    /// Takes `t` out of the seat's concealed tiles (the drawn tile if it is `t`);
+    /// the drawn tile, if any is left, joins the hand.
+    mutating func take(_ t: Tile, from seat: Seat) {
+        let i = seat.index
+        if players[i].drawn == t {
+            players[i].drawn = nil
+        } else {
+            players[i].remove(t)
+            if let d = players[i].drawn { players[i].insert(d) }
+            players[i].drawn = nil
+        }
+    }
+
     mutating func closeKanWindow(_ pk: PendingKan, _ answers: Answers, _ e: inout Emitter) {
         let winners = rons(answers, from: pk.seat)
         if !winners.isEmpty {
+            // Three rons abort with the kan never made: every tile stays where it was.
             if winners.count == 3 && rules.tripleRonAborts { return abort(.sanchahou, &e) }
+            // The robbed tile is the winning tile; the declarer keeps the rest.
+            take(pk.tile, from: pk.seat)
+            players[pk.seat.index].refresh()
             return settle(winners: winners, tile: pk.tile, from: pk.seat, source: .robbing(pk.kind), &e)
         }
         commitKan(pk, &e)
@@ -565,12 +604,25 @@ public struct RoundState: Sendable {
         for s in 0..<4 { players[s].ippatsu = false }
         switch pk.kind {
         case .closed:
+            let k = pk.tile.kind
+            var tiles = players[i].hand.filter { $0.kind == k }
+            for t in tiles { players[i].remove(t) }
+            if let d = players[i].drawn {
+                if d.kind == k { tiles.append(d) } else { players[i].insert(d) }
+            }
+            players[i].drawn = nil
+            let meld = TableMeld.ankan(tiles)!
+            players[i].melds.append(meld)
+            players[i].analysisMelds.append(meld.meld)
+            players[i].refresh()
             revealIndicator(&e)
         case .added:
+            take(pk.tile, from: pk.seat)
             let j = players[i].melds.firstIndex { $0.kind == .pon && $0.tiles[0].kind == pk.tile.kind }!
             let kan = players[i].melds[j].adding(pk.tile)!
             players[i].melds[j] = kan
             players[i].analysisMelds[j] = kan.meld
+            players[i].refresh()
             revealOwed(&e)
             doraOwed = true
         }
@@ -584,12 +636,12 @@ public struct RoundState: Sendable {
         phase = .ended(RoundResult(outcome: outcome, deltas: deltas, scores: scores, sticks: sticks,
                                    dealer: dealer, dealerRepeats: dealerRepeats))
         offers = []
-        e(.endKyoku)
+        emit(.endKyoku, &e)
     }
 
     mutating func abort(_ reason: AbortReason, _ e: inout Emitter) {
-        e(.ryukyoku(reason: .abort(reason), deltas: [0, 0, 0, 0],
-                    tenpais: [false, false, false, false], tehais: players.map(\.hand), scores: scores))
+        emit(.ryukyoku(reason: .abort(reason), deltas: [0, 0, 0, 0],
+                    tenpais: [false, false, false, false], tehais: players.map(\.hand), scores: scores), &e)
         end(.abortiveDraw(reason), dealerRepeats: true, &e)
     }
 
@@ -611,8 +663,8 @@ public struct RoundState: Sendable {
             }
         }
         for s in 0..<4 { scores[s] += deltas[s] }
-        e(.ryukyoku(reason: .exhaustive, deltas: deltas, tenpais: Seat.all.map(tenpai.contains),
-                    tehais: players.map(\.hand), scores: scores))
+        emit(.ryukyoku(reason: .exhaustive, deltas: deltas, tenpais: Seat.all.map(tenpai.contains),
+                    tehais: players.map(\.hand), scores: scores), &e)
         end(.exhaustiveDraw(tenpai: tenpai, nagashi: nagashi), dealerRepeats: tenpai.contains(dealer), &e)
     }
 
@@ -629,6 +681,28 @@ public struct RoundState: Sendable {
 
     /// Scores `seat` winning on `tile`, or nil if it is not a win with a yaku.
     func scoreWin(_ seat: Seat, _ tile: Tile, source: WinSource, honba: Int) -> Scored? {
+        try? score(winRequest(seat, tile, source: source, honba: honba), rules: rules)
+    }
+
+    /// The `score` question for the win `seat` may declare now (its `tsumo`, or a
+    /// `ron` on the open window's tile), with the honba it would be paid; nil if it
+    /// has no such option. For tools (the Mercury cross-check dump).
+    public func winRequest(for seat: Seat) -> ScoreRequest? {
+        switch phase {
+        case .turn(let s, let start) where s == seat && canTsumo(seat, start):
+            return winRequest(seat, players[seat.index].drawn!, source: .draw(start), honba: honba)
+        case .reactions(let d) where legalActions(for: seat).contains(.ron):
+            let first = rons(Answers.allRon, from: d.seat).first { legalActions(for: $0).contains(.ron) }
+            return winRequest(seat, d.tile, source: .discard, honba: first == seat ? honba : 0)
+        case .robbing(let k) where legalActions(for: seat).contains(.ron):
+            let first = rons(Answers.allRon, from: k.seat).first { legalActions(for: $0).contains(.ron) }
+            return winRequest(seat, k.tile, source: .robbing(k.kind), honba: first == seat ? honba : 0)
+        default:
+            return nil
+        }
+    }
+
+    func winRequest(_ seat: Seat, _ tile: Tile, source: WinSource, honba: Int) -> ScoreRequest {
         let p = players[seat.index]
         var flags: Set<Flag> = []
         if p.riichi == .accepted { flags.insert(p.doubleRiichi ? .double_riichi : .riichi) }
@@ -652,11 +726,10 @@ public struct RoundState: Sendable {
         let context = WinContext(seat: seat.wind(dealer: dealer), round: roundWind, tsumo: tsumo,
                                  flags: flags)
         let inRiichi = p.riichi == .accepted
-        let req = ScoreRequest(hand: p.hand, melds: p.analysisMelds, win: tile, context: context,
-                               dora: doraIndicators,
-                               ura: inRiichi ? (0..<doraShown).map(wall.uraIndicator) : [],
-                               honba: honba)
-        return try? score(req, rules: rules)
+        return ScoreRequest(hand: p.hand, melds: p.analysisMelds, win: tile, context: context,
+                            dora: doraIndicators,
+                            ura: inRiichi ? (0..<doraShown).map(wall.uraIndicator) : [],
+                            honba: honba)
     }
 
     mutating func settle(winners: [Seat], tile: Tile, from: Seat, source: WinSource, _ e: inout Emitter) {
@@ -717,8 +790,8 @@ public struct RoundState: Sendable {
                           uraIndicators: ura, deltas: deltas, liable: liable,
                           robbedKan: { if case .robbing(let k) = source { k } else { nil } }())
             wins.append(win)
-            e(.hora(actor: w, target: from, tile: tile, deltas: deltas, uraMarkers: ura,
-                    horaTehais: players[w.index].hand, scored: scored, scores: scores))
+            emit(.hora(actor: w, target: from, tile: tile, deltas: deltas, uraMarkers: ura,
+                    horaTehais: players[w.index].hand, scored: scored, scores: scores), &e)
         }
         end(.wins(wins), dealerRepeats: repeats, &e)
     }
