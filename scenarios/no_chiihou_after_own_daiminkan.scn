@@ -1,0 +1,60 @@
+# A non-dealer calling daiminkan on the dealer's first discard and winning on the
+# replacement draw scores rinshan kaihou, NOT chiihou: any call (including the
+# caller's own) ends the first unbroken go-around.
+# Seat 0 (dealer, East) draws 9p and discards 1m.
+# Seat 1 (South) calls daiminkan on 1m, draws rinshan 4s, and wins by tsumo.
+# Scoring for Seat 1 (non-dealer, South):
+#   Hand: 345p 678s 234s 88p + k1111m, tsumo on 4s (ryanmen).
+#   Yaku: rinshan (1 han). No chiihou. Dora indicators 2z -> 3z (0 dora);
+#   kan dora 3z -> 4z is not revealed before immediate rinshan tsumo after open kan.
+#   Fu: 20 base + 2 tsumo + 16 open terminal kan (k1111m) = 38 -> 40 fu.
+#   Base 40 * 2^(1+2) = 320.
+#   Non-dealer tsumo: non-dealers pay 320 -> 400 each (seats 2 and 3);
+#   dealer pays 2 * 320 = 640 -> 700 (seat 0). Total +1500 for seat 1.
+#   Dealer does not repeat; game advances to East 2.
+
+[meta]
+name: no_chiihou_after_own_daiminkan
+title: Rinshan tsumo after own first-turn daiminkan scores rinshan, not chiihou
+rules: both
+source: engine.md §4.2, rules.md §2.2, §4.25, docs/notes/p3-closeout.md
+
+[round]
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 147m 169p 159s 1247z
+hand 1: 111m 34588p 23678s
+hand 2: 479m 169p 159s 1247z
+hand 3: 258m 269p 159s 1247z
+dora: 2z 3z
+rinshan: 4s
+draws: 9p
+
+[steps]
+0 discard 1m
+window: 1=daiminkan
+assert_legal 1: tsumo
+1 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 1
+win 1: han=1 fu=40 yaku=rinshan
+deltas: -700 1500 -400 -400
+scores: 24300 26500 24600 24600
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 1
+win 1: han=1 fu=40 yaku=rinshan
+deltas: -700 1500 -400 -400
+scores: 24300 26500 24600 24600
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), hora(1), end_kyoku

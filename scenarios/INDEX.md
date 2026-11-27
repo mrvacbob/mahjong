@@ -1,6 +1,6 @@
 # Scenario Index
 
-134 hand-worked scenario tests (`scenarios/*.scn`), validated and expanded to JSON by `tools/scenario.py`.
+138 hand-worked scenario tests (`scenarios/*.scn`), validated and expanded to JSON by `tools/scenario.py`.
 
 | Scenario | Rules | What it pins down | Source rule | Status |
 | :--- | :---: | :--- | :--- | :---: |
@@ -22,7 +22,9 @@
 | `closed_kan_rinshan_tsumo` | mahjongsoul | Closed kan flips kan dora immediately for rinshan tsumo and cancels own ippatsu | `engine.md §4.2`, `rules.md §4.17, §4.26` | verified |
 | `closed_kan_robbed_kokushi` | both | Robbing closed kan is Kokushi-only on Majsoul and forbidden on Tenhou | `engine.md §4.2`, `rules.md §1, §4.16` | verified |
 | `dead_end_call` | mahjongsoul | Chi that would leave only kuikae-forbidden tiles is illegal | `engine.md §4.2`, `rules.md §4.13` | verified |
-| `declined_tsumo_outside_riichi` | both | Declining tsumo by closing a wait-preserving kan gives temporary furiten only under the Tenhou default | `engine.md §4.2` | **unverified** (`rules.md §5.12`) |
+| `declined_tsumo_by_discard_own_furiten` | both | Declining a tsumo by discard always creates own-discard furiten | `engine.md §4.1, §4.2, rules.md §4.27, §5.13, docs/notes/p3-closeout.md` | verified |
+| `declined_tsumo_kakan_ron_same_tile` | both | Declining tsumo by added kan leaves no temporary furiten and allows ron on the same tile | `engine.md §4.2, rules.md §4.17, §5.4, §5.13, docs/notes/p3-closeout.md` | verified |
+| `declined_tsumo_outside_riichi` | both | Declining a tsumo by a kan leaves no temporary furiten on either client (real logs: Tenhou 4 rons in 6 chances) | `engine.md §4.2, rules.md §5.13, docs/notes/p3-closeout.md` | verified |
 | `double_ron_tenhou` | tenhou | Tenhou double ron gives sticks and honba only to closest CCW winner and repeats dealer | `engine.md §4.1 row 1, §4.2, rules.md §1, §4.21` | verified |
 | `double_ron_with_sticks_and_honba` | mahjongsoul | Double ron gives sticks & honba only to closest CCW winner; dealer repeats | `engine.md §4.1 row 1, §4.2`, `rules.md §1, §4.21, §5.2`, real-log campaign, `docs/notes/p3-reallogs.md` | verified |
 | `double_wind_pair_4_fu` | mahjongsoul | Double-wind pair awards 4 fu pushing closed ron from 40 fu to 50 fu | `rules.md §1, §3.1, §4.11` | verified |
@@ -84,6 +86,7 @@
 | `nagashi_mangan_multiple_winners` | mahjongsoul | Multiple qualifying Nagashi Mangan seats are all paid at exhaustive draw | `engine.md §4.2, rules.md §1, §4.30` | verified |
 | `nagashi_mangan_tenpai_dealer` | mahjongsoul | Nagashi Mangan replaces tenpai payments without breaking dealer tenpai renchan | `engine.md §4.2`, `rules.md §1, §4.30` | verified |
 | `natural_yakuman_ignores_dora` | mahjongsoul | Natural Yakuman scores 1x Yakuman and ignores all regular yaku and dora | `rules.md §4.34` | verified |
+| `no_chiihou_after_own_daiminkan` | both | Rinshan tsumo after own first-turn daiminkan scores rinshan, not chiihou | `engine.md §4.2, rules.md §2.2, §4.25, docs/notes/p3-closeout.md` | verified |
 | `no_kiriage_3han60fu_and_4han30fu_ron` | both | No kiriage mangan for dealer 3 han 60 fu (11600) and non-dealer 4 han 30 fu (7700) ron | `rules.md §1, §3.2, §4.20` | verified |
 | `no_kiriage_3han60fu_dealer_tsumo` | both | Dealer 3 han 60 fu tsumo pays 3900 all | `rules.md §1, §3.2, §4.20` | verified |
 | `no_kiriage_3han60fu_nondealer_tsumo` | both | Nondealer 3 han 60 fu tsumo pays 2000 / 3900 | `rules.md §1, §3.2, §4.20` | verified |
@@ -114,6 +117,7 @@
 | `pao_tsumo_daisangen` | mahjongsoul | Pao tsumo on Daisangen makes liable seat pay 100% + honba | `engine.md §4.2`, `rules.md §1, §4.31` | verified |
 | `pao_tsumo_daisangen_tenhou` | tenhou | Pon-established Daisangen tsumo charges the liable seat the entire hand and honba | `engine.md §4.2, rules.md §1, §4.31` | verified |
 | `pinfu_exclusions` | mahjongsoul | Pinfu is excluded by a value pair and by a nobetan tanki wait | `rules.md §4.5` | verified |
+| `riichi_ankan_of_winning_tile` | both | Riichi closed kan of a waited winning tile is legal when structural waits match and sets riichi furiten | `spec/formats.md, engine.md §4.2, rules.md §4.14, §4.28, docs/notes/p3-closeout.md` | **unverified** (`rules.md §5.3`) |
 | `riichi_ankan_okurikan_illegal` | mahjongsoul | Okurikan (closed kan not using the just-drawn tile) is illegal after riichi | `rules.md §1, §4.14` | verified |
 | `riichi_ankan_waits` | mahjongsoul | Riichi ankan compares only wait kinds and forbids wait-changing kan | `engine.md §4.2`, `rules.md §4.14, §5.3` | **unverified** (`rules.md §5.3`) |
 | `riichi_discard_called` | mahjongsoul | Calling a riichi discard emits `reach_accepted` first and cancels ippatsu | `engine.md §4.1 rows 3/6, §4.2, §6`, `rules.md §4.26` | verified |

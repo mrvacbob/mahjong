@@ -1,27 +1,23 @@
 # Seat 0 waits on 1s/4s with 1112344s 555z 789p. After drawing the
 # winning 1s, seat 0 closes it instead of declaring tsumo. The structural
 # waits remain 1s/4s, and 4s is still available. Replacement 7z is outside the wait.
-# Seat 1 discards 4s. Mahjong Soul defaults to allowing ron, while Tenhou's
-# temporary furiten survives rinshan and blocks ron. Seat 0 passes its pon offer.
-# Seat 0's next live draw clears furiten
-# and completes the hand on the last 4s.
+# Seat 1 discards 4s. Declining a tsumo by a kan leaves no temporary furiten on
+# either Mahjong Soul or Tenhou (real-log evidence: Tenhou 4 rons in 6 chances,
+# Mahjong Soul 12 in 14), so seat 0 may ron on both rulesets.
 # Winning sets: 234s, 44s, 555z, 789p and closed kan 1111s.
-# The haku gives one han in both branches; Tenhou also adds menzen tsumo.
-# Indicators 1z/2z point to absent 2z/3z. No honba or sticks are paid.
+# Haku gives 1 han. Indicators 1z/2z point to absent 2z/3z (0 dora).
+# No honba or sticks are paid.
 # The 4s can finish 234s or the pair. For ron, the higher-paying pair
-# reading adds 2 fu: 20 + 10 + 32 + 8 + 2 = 72 -> 80 fu.
-# Base 80 * 2^3 = 640; dealer ron rounds 3840 up to 3900.
-# On tsumo, 20 + 2 + 32 + 8 + 2 = 64 -> 70 fu, as does 62 fu
-# with the ryanmen assignment. Base 70 * 2^4 = 1120;
-# dealer tsumo rounds 2240 up to 2300 each = 6900 total.
-# Either dealer win repeats East 1 at honba 1.
+# reading adds 2 fu: 20 + 10 (menzen ron) + 32 (closed terminal kan) +
+# 8 (closed honor triplet) + 2 (tanki) = 72 -> 80 fu.
+# Base 80 * 2^(1+2) = 640; dealer ron rounds 6 * 640 = 3840 up to 3900.
+# Dealer win repeats East 1 at honba 1.
 
 [meta]
 name: declined_tsumo_outside_riichi
-title: Declining a legal tsumo outside riichi may set temporary furiten
+title: Declining a tsumo by a kan leaves no temporary furiten on either client
 rules: both
-source: engine.md §4.2 Declining a self-drawn win outside riichi
-unverified: engine.md §4.2 (client behavior after declining tsumo outside riichi)
+source: engine.md §4.2, rules.md §5.13, docs/notes/p3-closeout.md
 
 [round]
 scores: 25000 25000 25000 25000
@@ -46,22 +42,9 @@ assert_legal 0: ankan:1s
 0 ankan 1s
 0 tsumogiri 7z
 1 discard 4s
-
-[steps.mahjongsoul]
 assert_furiten 0: false
 assert_legal 0: ron
 window: 0=ron
-
-[steps.tenhou]
-assert_furiten 0: true
-assert_legal 0: pon:44s
-assert_illegal 0: ron
-window: 0=pass
-2 tsumogiri 3z
-3 tsumogiri 3z
-assert_furiten 0: false
-assert_legal 0: tsumo
-0 tsumo
 
 [expect.mahjongsoul]
 outcome: ron
@@ -75,12 +58,12 @@ dealer_repeats: true
 events_order: ankan(0), dora(2z), tsumo(0), dahai(0), dahai(1), hora(0), end_kyoku
 
 [expect.tenhou]
-outcome: tsumo
+outcome: ron
 winners: 0
-win 0: han=2 fu=70 yaku=tsumo,yakuhai_haku
-deltas: 6900 -2300 -2300 -2300
-scores: 31900 22700 22700 22700
+win 0: han=1 fu=80 yaku=yakuhai_haku
+deltas: 3900 -3900 0 0
+scores: 28900 21100 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events_order: ankan(0), dora(2z), tsumo(0), dahai(0), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku
+events_order: ankan(0), dora(2z), tsumo(0), dahai(0), dahai(1), hora(0), end_kyoku
