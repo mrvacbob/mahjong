@@ -2,10 +2,10 @@
 //! Based on state/update.rs (tsumo, dahai, chi, pon, kakan and set_can_chi_from_tile).
 //! History-dependent flags are inputs because the wire format is a snapshot.
 
-use crate::algo::agari::forms;
+use crate::algo::shanten::calc_kokushi;
 use crate::model::{
-    Counts, Meld, Request, Result, counts, kind, notation, one, player_shanten, tile,
-    validate_tiles,
+    Counts, Meld, Request, Result, counts, kind, notation, one, shantens, tile, validate_tiles,
+    wait_copies,
 };
 use crate::tile::Tile;
 use std::collections::BTreeSet;
@@ -66,7 +66,7 @@ impl PlayerState<'_, '_> {
     }
 
     fn can_win(&self, concealed: &Counts, win: Tile, ron: bool, situational: bool) -> bool {
-        if player_shanten(concealed, self.req.groups()) != -1 {
+        if shantens(concealed, self.req.groups()).3 != -1 {
             return false;
         }
         self.riichi
@@ -91,7 +91,9 @@ impl PlayerState<'_, '_> {
             &after,
             draw,
             false,
-            self.req.flag("haitei") || self.req.flag("rinshan") || self.wall == 0,
+            ["haitei", "rinshan", "tenhou", "chiihou"]
+                .into_iter()
+                .any(|flag| self.req.flag(flag)),
         ) {
             self.actions.insert("tsumo".into());
         }
@@ -107,6 +109,7 @@ impl PlayerState<'_, '_> {
         }
 
         let groups = self.req.groups();
+        let owned = counts(self.req.owned(Some(draw)));
         for &t in &hand {
             if !self.riichi || t == draw {
                 self.actions.insert(format!("discard:{}", notation(&[t])));
@@ -114,7 +117,13 @@ impl PlayerState<'_, '_> {
             if !self.riichi && self.req.closed() && self.wall >= 4 {
                 let mut remaining = after;
                 remaining[kind(t)] -= 1;
-                if player_shanten(&remaining, groups) == 0 {
+                let mut owned_after_discard = owned;
+                owned_after_discard[kind(t)] -= 1;
+                if shantens(&remaining, groups).3 == 0
+                    && wait_copies(&remaining, groups, &owned_after_discard, 0)
+                        .next()
+                        .is_some()
+                {
                     self.actions.insert(format!("riichi:{}", notation(&[t])));
                 }
             }
@@ -130,10 +139,10 @@ impl PlayerState<'_, '_> {
             }
         }
         if self.can_kan() {
-            let owned = counts(self.req.owned(None));
             for (i, &n) in after.iter().enumerate() {
                 if n == 4
-                    && (!self.riichi || i == kind(draw) && strict_ankan(&self.concealed, &owned, i))
+                    && (!self.riichi
+                        || i == kind(draw) && preserves_waits(&self.concealed, groups, i))
                 {
                     self.actions
                         .insert(format!("ankan:{}", notation(&[tile(i as u8)])));
@@ -154,18 +163,17 @@ impl PlayerState<'_, '_> {
         let i = kind(discard);
         with_win[i] += 1;
         let chankan = self.req.flag("chankan");
+        let ankan_rob = self.req.flag("ankan_rob");
         self.actions.insert("pass".into());
-        if !self.req.boolean("furiten")?
-            && self.can_win(
-                &with_win,
-                discard,
-                true,
-                chankan || self.req.flag("houtei") || self.wall == 0,
-            )
-        {
+        let winning = if ankan_rob {
+            self.req.melds.is_empty() && calc_kokushi(&with_win) == -1
+        } else {
+            self.can_win(&with_win, discard, true, chankan || self.req.flag("houtei"))
+        };
+        if !self.req.boolean("furiten")? && winning {
             self.actions.insert("ron".into());
         }
-        if chankan || self.riichi || self.wall == 0 || self.req.groups() == 0 {
+        if chankan || ankan_rob || self.riichi || self.wall == 0 || self.req.groups() == 0 {
             return Ok(());
         }
 
@@ -239,43 +247,15 @@ fn kuikae(took: usize, sequence: Option<usize>) -> Vec<usize> {
     forbidden
 }
 
-// Compare the actual divisions, with the original fixed triplet removed.
-// A viable wait must remain viable, and no original alternative may disappear.
-fn strict_ankan(before: &Counts, owned: &Counts, kan: usize) -> bool {
-    let mut found = false;
-    for (wait, &n) in owned.iter().enumerate() {
-        if n == 4 {
-            continue;
-        }
-        let mut original = *before;
-        original[wait] += 1;
-        let (kokushi, chiitoi, original_forms) = forms(&original);
-        if kokushi || chiitoi || wait == kan && !original_forms.is_empty() {
-            return false;
-        }
-        if wait == kan {
-            continue;
-        }
-        let mut remaining = original;
-        remaining[kan] = 0;
-        let (_, _, new_forms) = forms(&remaining);
-        let mut projected = BTreeSet::new();
-        for mut form in original_forms {
-            let Some(pos) = form
-                .iter()
-                .position(|&(id, class)| id as usize == kan && class == 2)
-            else {
-                return false;
-            };
-            form.remove(pos);
-            projected.insert(form);
-        }
-        if !projected.is_empty() {
-            found = true;
-        }
-        if projected != new_forms.into_iter().collect() {
-            return false;
-        }
-    }
-    found
+fn preserves_waits(before: &Counts, groups: u8, kan: usize) -> bool {
+    let mut after = *before;
+    after[kan] = 0;
+    // Structural waits include completions that require an unavailable copy.
+    let completes = |hand: &Counts, groups, kind| {
+        let mut complete = *hand;
+        complete[kind] += 1;
+        shantens(&complete, groups).3 == -1
+    };
+    (0..before.len())
+        .all(|kind| completes(before, groups, kind) == completes(&after, groups - 1, kind))
 }

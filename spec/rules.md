@@ -53,20 +53,20 @@ Primary reference URLs used throughout:
 | `kazoe_yakuman_enabled` | `true` | `true` | `>= 13` han from regular yaku + dora = 1x Yakuman (capped at 1x regardless of han) (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `kiriage_mangan_enabled` | `false` | `false` | 30 fu 4 han (`7700`/`11600`) and 60 fu 3 han (`7700`/`11600`) are NOT rounded up to Mangan (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `natural_double_yakuman` | `true` (4 hands) | `false` (all 1x) | Majsoul 2x hands: `suuankou_tanki`, `kokushi_13_wait`, `junsei_chuuren`, `daisuushii` (`mahjongsoul.com`, `mahjong-item.jp`). Tenhou treats all 4 as 1x (`tenhou.net/man/`). |
-| `yakuman_stacking_enabled` | `true` | `true` | Multiple distinct yakuman sum their multipliers (e.g., Daisangen + Tsuuiisou = 2x; Daisuushii + Tsuuiisou = 3x in Majsoul, 2x in Tenhou) (`mahjongsoul.com`, `tenhou.net/man/`). |
+| `yakuman_stacking_enabled` | `true` | `true` | Multiple distinct yakuman sum their multipliers (e.g., Daisangen + Tsuuiisou = 2x; Daisuushii + Tsuuiisou = 3x in Majsoul, 2x in Tenhou) (`mahjongsoul.com`, `tenhou.net/man/`). No cap is applied: no source for a 6x cap was found, and the largest sum the ranked list can reach is 6x anyway (Daisuushii 2 + Suuankou Tanki 2 + Tsuuiisou 1 + Tenhou or Suukantsu 1), so a cap could never bind. |
 | `renhou_enabled` | `false` | `false` | Not recognized in ranked (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `pao_daisangen` | `true` | `true` | Discarding 3rd dragon melded into open Pon/Daiminkan (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `pao_daisuushii` | `true` | `true` | Discarding 4th wind melded into open Pon/Daiminkan (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `pao_suukantsu` | `false` | `false` | No pao on 4th kan (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `pao_tsumo_split` | `pao_pays_100_percent` | `pao_pays_100_percent` | On tsumo, liable player pays full yakuman + honba (`mahjongsoul.com`, `tenhou.net/man/`). |
-| `pao_ron_split` | `50_50_with_discarder` | `50_50_with_discarder` | On ron by 3rd party, liable player and discarder split yakuman 50/50 (discarder pays honba; if liable player deals in, pays 100%) (`mahjongsoul.com`). |
+| `pao_ron_split` | `50_50_with_discarder` | `50_50_with_discarder` | On ron by 3rd party, liable player and discarder split yakuman 50/50 (the liable player pays the honba, per the ranked rules publication `mahjongsoul.com/news/46/`; if the liable player deals in, pays 100%) (`mahjongsoul.com`). Pao is out of scope for the shootout's `score` op, which answers the ordinary payment. |
 | `pao_composite_yakuman` | `liable_yakuman_only` | `liable_yakuman_only` | In composite yakuman (e.g., Daisangen + Tsuuiisou), pao applies only to the Daisangen portion; other yakuman paid normally (`mahjongsoul.com`). |
 | `riichi_min_points` | `1000` | `1000` | Having exactly `1000` points is allowed (drops to `0`, no tobi) (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `riichi_min_live_wall_tiles` | `4` | `4` | Must have `>= 4` tiles left in live wall (caller has at least 1 draw remaining) (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `riichi_furiten_allowed` | `true` | `true` | Declaring riichi while furiten is legal (`mahjongsoul.com`). |
-| `riichi_karaten_allowed` | `true` | `true` | Declaring riichi with 0 live winning tiles (karaten) is legal (`mahjongsoul.com`). |
+| `riichi_karaten_allowed` | `true` | `true` | Declaring riichi with 0 live winning tiles (karaten) is legal when the missing copies are elsewhere at the table (`mahjongsoul.com`). A wait that exists only as a fifth copy of a kind the hand already holds four of does not count as tenpai for riichi (`spec/formats.md`, `legal`). |
 | `endgame_riichi_sticks` | `awarded_to_first_place` | `awarded_to_first_place` | Unclaimed riichi sticks at game end go to 1st place (`mahjongsoul.com`, `tenhou.net/man/`). |
-| `riichi_ankan_rule` | `same_waits_no_okurikan` | `same_waits_no_okurikan` | Must kan the just-drawn tile (no okurikan) and wait tile set must remain identical; *see Unverified on mentsu-structure-only changes (`mahjongsoul.com`, `tenhou.net/man/`). |
+| `riichi_ankan_rule` | `same_waits_no_okurikan` | `same_waits_no_okurikan` | Must kan the just-drawn tile (no okurikan) and the set of wait kinds must be unchanged. Only the waits are compared: a kan that changes the hand's decomposition or its yaku is allowed (`mahjongsoul.com/news/46/`, `tenhou.net/man/`, riichi.wiki/Kan). |
 | `kan_dora_ankan_timing` | `immediate` | `immediate` | Flipped immediately on declaration (active for rinshan draw) (`mahjongsoul.com`, `w.atwiki.jp/mahjongsoul/`). |
 | `kan_dora_daiminkan_timing` | `after_discard` | `after_discard` | Flipped after discard passes without ron (or right before a subsequent kan); not active on rinshan tsumo (`mahjongsoul.com`, `w.atwiki.jp/mahjongsoul/`). |
 | `kan_dora_shouminkan_timing` | `after_discard` | `after_discard` | Same as daiminkan; not flipped if robbed via chankan or on rinshan tsumo (`mahjongsoul.com`, `w.atwiki.jp/mahjongsoul/`). |
@@ -75,7 +75,7 @@ Primary reference URLs used throughout:
 | `chiitoitsu_25_fu` | `true` | `true` | Chiitoitsu is fixed 25 fu (no rounding to 30) (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `open_pinfu_ron_30_fu` | `true` | `true` | Open hand with 0 extra fu on ron scores 30 fu (not 20 fu) (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `double_wind_pair_fu` | `4` | `4` | Seat wind == round wind pair awards 4 fu (breaks pinfu) (`game8.jp/jantama/`, `tenhou.net/man/`). |
-| `chankan_ankan_kokushi` | `true` | `true` | Robbing an ankan is allowed exclusively for Kokushi Musou (`mahjongsoul.com`, `tenhou.net/man/`). |
+| `chankan_ankan_kokushi` | `true` | `true` | Robbing an ankan is allowed exclusively for Kokushi Musou. In practice only a single-wait kokushi waiting on that kind (holding no copy of it) can do so: a 13-sided wait holds one copy, and four more are in the kan (`mahjongsoul.com`, `tenhou.net/man/`). |
 | `furiten_discard` | `true` | `true` | Cannot ron if any wait tile is in own discards (including called-away discards) (`mahjongsoul.com`). |
 | `furiten_temporary` | `true` | `true` | Passing a ron opportunity forbids ron until own next draw/call (`mahjongsoul.com`). |
 | `furiten_riichi` | `true` | `true` | Passing any winning tile after declaring riichi makes player permanently furiten for the hand (`mahjongsoul.com`). |
@@ -94,7 +94,7 @@ Primary reference URLs used throughout:
 | Japanese | English | Closed | Open | Condition / Notes |
 | :--- | :--- | :---: | :---: | :--- |
 | 立直 (Riichi) | Riichi | 1 | — | Closed tenpai, `>= 1000` pts, `>= 4` live wall tiles; bets 1000 pts. |
-| 一発 (Ippatsu) | Ippatsu | 1 | — | Win within 1 unbroken turn cycle after riichi; broken by any call (incl. ankan). |
+| 一発 (Ippatsu) | Ippatsu | 1 | — | Win within 1 unbroken turn cycle after riichi; broken by any completed call (incl. ankan). An added kan robbed by chankan never completes, so chankan and ippatsu combine. |
 | 門前清自摸和 (Menzen Tsumo) | Fully Concealed Tsumo | 1 | — | Self-draw win with closed hand. |
 | 平和 (Pinfu) | Pinfu | 1 | — | Closed; 4 sequences, non-yakuhai pair, ryanmen wait (0 extra fu). |
 | 断么九 (Tanyao) | All Simples | 1 | 1 | Only 2–8 numbered tiles (Kuitan enabled). |
@@ -126,8 +126,8 @@ Primary reference URLs used throughout:
 
 | Japanese | English | Closed Only? | Majsoul Ranked | Tenhou Ranked | Condition / Notes |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| 天和 (Tenhou) | Blessing of Heaven | Yes (Dealer) | 1x | 1x | Dealer wins on initial 14-tile dealt hand. |
-| 地和 (Chiihou) | Blessing of Earth | Yes (Non-dealer) | 1x | 1x | Non-dealer wins on 1st unbroken draw (no prior calls, incl. ankan). |
+| 天和 (Tenhou) | Blessing of Heaven | Yes (Dealer) | 1x | 1x | Dealer wins on initial 14-tile dealt hand. Any of the 14 tiles may be treated as the winning tile and the best choice is scored, so tenhou with kokushi, suuankou or chuuren always takes the double form (`kokushi_13`, `suuankou_tanki`, `junsei_chuuren`) in Majsoul (`mahjongsoul.com/news/46/`, riichi.wiki/Mahjong_Soul). |
+| 地和 (Chiihou) | Blessing of Earth | Yes (Non-dealer) | 1x | 1x | Non-dealer wins on 1st unbroken draw (no prior calls, incl. ankan). The drawn tile is the winning tile (no free choice as for tenhou). |
 | 国士無双 (Kokushi Musou) | Thirteen Orphans | Yes | 1x | 1x | 1 of each terminal/honor + 1 duplicate (single wait). |
 | 国士無双十三面待ち (Kokushi 13-Wait) | Thirteen Orphans (13-Wait) | Yes | **2x** | 1x | Holding all 13 unique terminals/honors, winning on any of the 13. |
 | 四暗刻 (Suuankou) | Four Concealed Triplets | Yes | 1x | 1x | 4 concealed triplets/ankans; shanpon wait must be won by tsumo. |
@@ -179,7 +179,7 @@ Primary reference URLs used throughout:
 1. **Pinfu + Tsumo**: Fixed **`20` fu** (no +2 tsumo fu).
 2. **Chiitoitsu**: Fixed **`25` fu** (not rounded up to 30).
 3. **Open Pinfu-shape Ron**: Open hand with 0 extra fu won by Ron scores **`30` fu** (minimum 30 fu for open ron).
-4. **Multiple hand decompositions**: Always choose the legal decomposition yielding the **highest total score** (highest han first, then highest fu).
+4. **Multiple hand decompositions**: Yaku from different decompositions never combine. Choose the decomposition with the **highest total payment**. Only on an equal total: a real yakuman beats a kazoe yakuman, then higher han, then higher fu, then the yaku list that sorts first as a string (`spec/formats.md`). Han does not come first: a 3 han 70 fu ron (8000) beats a 4 han 30 fu ron (7700).
 
 ### 3.2 Basic Points & Limit Thresholds
 
@@ -249,7 +249,7 @@ Primary reference URLs used throughout:
 3. **Suuankou Tanki on Ron IS 2x Yakuman**: Holding 4 completed concealed triplets + single tile `5p`, Ron or Tsumo on `5p` scores **Double Yakuman** (2x) in Mahjong Soul (1x in Tenhou).
 4. **Ryanpeikou is NOT Chiitoitsu**: `223344m 556677p 88s` is scored as 4 sequences + 1 pair (**Ryanpeikou**, 3 han, normal fu), NOT Chiitoitsu, and does not stack with Iipeikou or Chiitoitsu.
 5. **Pinfu requires ryanmen wait and non-yakuhai pair**: A closed all-sequence hand with a dragon/seat-wind/round-wind pair, or a kanchan/penchan/tanki wait (including nobetan `2345m` waiting `2m`/`5m`, which is tanki), does **not** score Pinfu.
-6. **Ambiguous wait chooses highest-scoring interpretation**: Closed `1234m 456p 789s 234s 99p`? Example: `23456m` + `234p 567p 88s` waiting on `2m`/`5m` (nobetan vs ryanmen) or `23444m` waiting `2m`/`5m`: if winning on `2m` can be interpreted as ryanmen (`2-34` + `44`) yielding Pinfu, or tanki (`234` + `4-4`? no, `234` + `44` wait `4` is tanki) yielding higher fu without pinfu, pick the legal decomposition with the highest total score.
+6. **Ambiguous wait chooses highest-scoring interpretation**: Closed `2233445m 234p 678s` winning on `5m` by ron reads either as `22m 345m 345m` (the `5m` completes `34m`, a ryanmen: pinfu + iipeikou + tanyao = 3 han 30 fu, `3900` non-dealer) or as `234m 234m 55m` (tanki on `5m`: iipeikou + tanyao, 30 + 2 = 32 -> 40 fu, 2 han 40 fu = `2600`). The pinfu reading pays more and is scored. The other direction also happens: `111222333m 456p 7s` + ron `7s` scores the triplet reading (riichi + sanankou, 3 han 50 fu = `6400`) over the `123m` x3 reading (riichi + iipeikou, 2 han 40 fu = `2600`). (Both checked against the oracle, and the second is `corpus/handwritten.txt` hw87.)
 7. **Pinfu + Tsumo is 20 fu**: Closed Pinfu hand won by Tsumo scores **20 fu** (not 22 -> 30 fu); minimum 2 han (Pinfu + Menzen Tsumo = `400/700` non-dealer, `700 all` dealer).
 8. **Open Pinfu-shape Ron is 30 fu**: Open hand with 4 sequences, non-yakuhai pair, ryanmen wait won by Ron (0 extra fu) scores **30 fu** (`1000` at 1 han non-dealer), never 20 fu.
 9. **Open Pinfu-shape Tsumo is 30 fu**: Same open hand won by Tsumo gets `20 + 2 (tsumo) = 22 -> 30 fu` (`300/500` at 1 han non-dealer).
@@ -257,9 +257,9 @@ Primary reference URLs used throughout:
 11. **Double-wind pair is 4 fu**: East player in East round with `EE` pair gets `+4 fu` for the pair (breaks Pinfu; e.g., open `EE` pair + 3 simple sequences + simple open triplet = `20 + 4 + 2 = 26 -> 30 fu`, or closed ron `20 + 10 + 4 = 34 -> 40 fu`).
 12. **Kuikae after Chi (suji swap forbidden)**: Calling `4m` with `56m` forbids discarding `4m` or `7m` on that turn. Calling `5m` (or `0m`) with `67m` forbids discarding `5m`, `0m`, or `8m`. Calling kanchan `5m` with `46m` forbids `5m`/`0m` only.
 13. **Kuikae after Pon & dead-end call prohibition**: Calling Pon on `5m` forbids discarding `5m` or `0m`. If a call would leave only forbidden tiles in hand (e.g., 4 tiles left `4567m`, calling `4m` with `56m` leaves `47m`), the call itself is **illegal**.
-14. **Riichi Ankan changing waits is illegal**: After riichi with `111234m` (waiting `1m`/`4m`), drawing the 4th `1m` may **not** be declared as Ankan because it removes `1m` (and `4m` if `111` was needed as `123` + `11`) from the waits. Okurikan (kanning a different triplet already in hand) is always illegal after riichi.
+14. **Riichi Ankan: only the waits are compared**: After riichi with `123456m 4445s 111z` (waiting `3s` via `345+44`, `5s` via `444+55`, `6s` via `456+44`), drawing the 4th `4s` may **not** be kanned: after `ankan 4444s` the hand waits only on `5s` (tanki). With `23m 999p 33345666s` (waits `1m`/`4m`; the souzu read `333+456+66` or `33+345+666`), drawing the 4th `6s` **may** be kanned: the `333+456+66` reading disappears, but the waits stay `1m`/`4m`. Okurikan (kanning a quad that does not use the just-drawn tile) is always illegal after riichi.
 15. **Chankan on Shouminkan flips no kan dora**: If Player B robs Player A's added kan (`shouminkan`), Player A draws no rinshan tile, **no kan dora is revealed**, and Player B receives `+1 han` (Chankan).
-16. **Chankan on Ankan is Kokushi-only**: Player A declares Ankan of `1m`. Player B waiting on `1m` for a normal hand (or Suuankou/Chinroutou) **cannot** ron; Player B waiting on `1m` for **Kokushi Musou** (single-wait or 13-wait) **can** ron (and steals the win before rinshan draw).
+16. **Chankan on Ankan is Kokushi-only**: Player A declares Ankan of `1m`. Player B waiting on `1m` for a normal hand (or Suuankou/Chinroutou) **cannot** ron. Player B holding `9m 19p 19s 1234567z` plus a duplicate (single-wait kokushi on `1m`) **can** ron, before the rinshan draw. A 13-sided kokushi wait cannot arise here: it holds one `1m`, and the kan holds the other four.
 17. **Kan dora timing differs between Ankan and Minkan**: On Ankan, the new kan dora indicator flips **immediately** and counts toward a Rinshan Kaihou win. On Daiminkan or Shouminkan, the new kan dora does **not** flip until after the caller discards (so it does **not** count toward a Rinshan Kaihou win).
 18. **Haitei Raoyue and Rinshan Kaihou cannot combine**: Declaring a kan on the last live wall tile (0 live tiles remaining) is illegal, and rinshan draws come from the dead wall, so Haitei + Rinshan is impossible.
 19. **Houtei Raoyui and Chankan cannot combine**: Because no kan is allowed on the last live tile, a chankan can never occur on the houtei discard.
@@ -269,12 +269,12 @@ Primary reference URLs used throughout:
 23. **Suukantsu allows no 5th kan**: If a single player makes 4 kans, the hand continues (no `suukaikan`), but **no player** may declare a 5th kan (dead wall has only 4 replacement tiles).
 24. **Suucha Riichi timing**: The 4th player's riichi discard can still be Ron'd. Only if it passes without Ron does `suucha_riichi` abort the hand (the 4th player's 1,000-point riichi stick remains on the table).
 25. **Any call cancels 1st-turn specials**: An opponent's Chi, Pon, Daiminkan, OR **Ankan** before a player's first draw cancels **Double Riichi**, **Chiihou**, **Kyuushu Kyuuhai**, and **Suufon Renda**.
-26. **Ippatsu cancelled by own or opponent's Ankan**: Any call (Chi, Pon, Daiminkan, Shouminkan, or Ankan)—even the riichi player's own Ankan—immediately cancels **Ippatsu** for all riichi players.
+26. **Ippatsu cancelled by any completed call, including Ankan**: Any completed call (Chi, Pon, Daiminkan, Shouminkan, or Ankan)—even the riichi player's own Ankan—cancels **Ippatsu** for all riichi players. A Shouminkan robbed by Chankan is not completed, so it does **not** cancel Ippatsu: Riichi + Ippatsu + Chankan is a valid combination (riichi.wiki/Ippatsu, riichi.wiki/Chankan; `corpus/handwritten.txt` hw89–hw90).
 27. **Furiten checks ALL waits, including yaku-less waits**: If an open hand waits on `1m` (no yaku) and `4m` (Tanyao) and `1m` is in the player's own discards, the player is **furiten** and cannot Ron `4m` either (must win by Tsumo).
 28. **Temporary vs Riichi Furiten**: Outside riichi, passing a Ron (or being unable to Ron due to no yaku) triggers temporary furiten until your next draw/call. After declaring riichi, passing **any** winning tile (discarded or self-drawn) makes you **permanently furiten** for the rest of the hand.
 29. **Tobi at `< 0`, NOT `0`**: A player with `1000` points may legally declare riichi (dropping to `0`); the game continues. Dropping to `-100` ends the game immediately.
 30. **Nagashi Mangan does not interrupt dealer tenpai renchan**: If non-dealer achieves Nagashi Mangan at exhaustive draw while dealer is tenpai, the non-dealer receives `2000/4000` (replacing tenpai payments), riichi sticks remain on table, `honba += 1`, and **dealer retains seat**. If multiple players achieve Nagashi Mangan, all qualifying players are paid.
-31. **Pao on composite yakuman applies only to the liable yakuman**: If Player A feeds the 3rd dragon for **Daisangen** and the winner also completes **Tsuuiisou** (2x Yakuman total) by Tsumo, Player A pays 100% of the Daisangen yakuman + honba, while the Tsuuiisou yakuman is split normally among all 3 opponents.
+31. **Pao on composite yakuman applies only to the liable yakuman**: If Player A feeds the 3rd dragon for **Daisangen** and the winner also completes **Tsuuiisou** (2x Yakuman total) by Tsumo, Player A pays 100% of the Daisangen yakuman + honba, while the Tsuuiisou yakuman is split normally among all 3 opponents. On a ron by a third party, Player A and the discarder split the Daisangen yakuman 50/50 and Player A pays the honba (ranked rules publication; see `pao_ron_split`).
 32. **No Pao on Suukantsu**: Discarding the tile called for a player's 4th kan (Daiminkan) does **not** trigger Pao in Mahjong Soul or Tenhou.
 33. **Kazoe Yakuman never exceeds 1x**: A non-yakuman hand with 26 han (e.g., 14 han yaku + 12 dora) is still a **single** Kazoe Yakuman (`32000`/`48000`), never a Double Yakuman.
 34. **Natural Yakuman ignores regular yaku & dora**: A natural Yakuman (e.g., Daisangen + 4 dora) scores only the Yakuman value; dora and normal yaku do not add to it.
@@ -288,7 +288,7 @@ Primary reference URLs used throughout:
 
 1. **`riichi.wiki` live text**: `https://riichi.wiki` was unindexed/unreachable via web search during this research pass; all rules were cross-verified via `mahjongsoul.com` mirrors, `tenhou.net/man/`, `w.atwiki.jp/mahjongsoul/`, `mahjong-item.jp`, and `game8.jp`.
 2. **Mahjong Soul Multi-Ron Honba**: Japanese official-rule summaries (`mahjongsoul.com`, `mahjong-item.jp`, `note.com`) state that on Double/Triple Ron **only the closest winner counter-clockwise (`上家取り`)** receives honba (matching Tenhou), whereas several English Reddit threads claim every winner receives honba. Recorded as `closest_ccw` above; verify directly in a Mahjong Soul client replay.
-3. **Riichi Ankan that preserves exact waits but changes mentsu decomposition**: E.g., holding `111222333m 456p 9s` (tanki wait on `9s`) and drawing the 4th `1m`—kanning `1m` preserves the `9s` wait set but destroys the `123 123 123` sequence interpretation (Iipeikou). Both Tenhou and Mahjong Soul documentation state "allowed if wait tiles and count do not change," unlike strict M-League/JPML rules that forbid changing mentsu structure; exact edge-case handling for `111222333m + 1m` in Mahjong Soul should be verified in-client.
+3. **Riichi Ankan that preserves exact waits but changes mentsu decomposition**: *Resolved after the Phase 1 review*: allowed. The ranked rules publication (`mahjongsoul.com/news/46/`), the Tenhou manual and riichi.wiki/Kan all compare only the wait kinds; changes of shape or yaku are allowed (see item 14). Not checked in a client.
 4. **Daiminkan / Shouminkan kan dora flip on Ron of the post-kan discard**: Secondary sources state the kan dora is not active if the post-kan discard is Ron'd (it flips only after the discard passes cleanly or right before a chained kan); verify exact frame/order in Mahjong Soul client logs.
-5. **Chankan on Shouminkan + Ippatsu**: Under standard riichi rules, declaring Shouminkan cancels Ippatsu so a Chankan win does not combine with Ippatsu; not explicitly confirmed in the retrieved Mahjong Soul help excerpts.
+5. **Chankan on Shouminkan + Ippatsu**: *Resolved after the Phase 1 review*: they combine (item 26). The earlier text here had it backwards. Sources: riichi.wiki/Ippatsu and /Chankan, and agreement of all three reviewers; not checked in a client.
 6. **Nagashi Mangan + All-Last Tenpai-Yame edge case**: Exact behavior when All-Last dealer is 1st (`>= 30000`) and tenpai, and a non-dealer's Nagashi Mangan drops the dealer out of 1st or below `30000` (whether tenpai-yame checks post-Nagashi scores) was not confirmed from primary documentation.

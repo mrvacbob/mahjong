@@ -1,6 +1,6 @@
 """Harvest hands from the oracle library's own tests and write them as requests.
 
-    uv run --project /Users/astrange/Projects/mahjong/3p/mahjong --no-sync \
+    uv run --project ../3p/mahjong --no-sync \
         python -B tools/gen/convert_oracle_tests.py
 
 Runs the library's pytest suite in-process with recording wrappers around
@@ -23,7 +23,7 @@ import sys
 sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.dirname(HERE)
-ORACLE = os.environ.get("MJ_ORACLE_PATH", "/Users/astrange/Projects/mahjong/3p/mahjong")
+ORACLE = os.environ.get("MJ_ORACLE_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../3p/mahjong"))
 OUT = os.path.join(HERE, "oracle_test_requests.txt")
 
 import pytest  # noqa: E402

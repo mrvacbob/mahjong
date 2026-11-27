@@ -80,7 +80,8 @@ class Emitter:
         self.op = op
         self.seen = set()
         self.count = 0
-        self.dropped_ambiguous = 0
+        self.tiebreaks = 0
+        self.tenhou_upgrades = 0
         self.rule_sensitive = 0
         self.stats = {}
 
@@ -98,11 +99,13 @@ class Emitter:
         comments = list(comments)
         if self.op == "score":
             out, info = O.score(kv)
-            if info["ambiguous"]:
-                self.dropped_ambiguous += 1
-                print(f"dropped (ambiguous: {info['ambiguous']}): {body}", file=sys.stderr)
-                self.w.n -= 1
-                return None
+            if info["tiebreak"]:
+                self.tiebreaks += 1
+                comments.append(f"tie-break ({info['tiebreak']}); same total: "
+                                + " | ".join(info["alternatives"]))
+            if info["tenhou_upgrade"]:
+                self.tenhou_upgrades += 1
+                comments.append("tenhou: a different choice of winning tile scores more than the supplied one")
             resp = fmt_response(rid, out)
         else:
             resp = O.handle(line)
@@ -320,7 +323,7 @@ def any_built(rng, red_bias=1.0, style=None):
 
 
 def score_case(rng, b, *, by=None, flags_force=(), seat=None, rnd=None, win_pick=None, honba=None,
-               no_random_flags=False):
+               no_random_flags=False, ura_without_riichi=False):
     """-> request pairs, or None if the forced constraints can't hold."""
     conc = b.concealed()
     closed = b.is_closed()
@@ -387,8 +390,12 @@ def score_case(rng, b, *, by=None, flags_force=(), seat=None, rnd=None, win_pick
         return None
     if "ippatsu" in flags and not flags & {"riichi", "double_riichi"}:
         return None
-    if "ippatsu" in flags and "chankan" in flags:
-        return None  # the robbed shouminkan is a call, which ends ippatsu (spec/rules.md)
+    if "ippatsu" in flags and "chankan" in flags and not {"ippatsu", "chankan"} <= set(flags_force):
+        # ippatsu + chankan is a legal combination (formats.md: a robbed kan was never
+        # completed). It is generated only in its own targeted section; the random flag
+        # draw still skips it so that the earlier sections, and their case ids, stay
+        # as they were before the combination was allowed.
+        return None
     # dora from the tiles this player can't see
     pool = Pool(rng)
     pool.add_existing(all_tiles)
@@ -401,6 +408,15 @@ def score_case(rng, b, *, by=None, flags_force=(), seat=None, rnd=None, win_pick
     if flags & {"riichi", "double_riichi"}:
         for _ in range(n_ind):
             ura.append(pool.random_tile())
+    elif ura_without_riichi:
+        # ura indicators pointing at tiles in the hand, which must be ignored
+        for _ in range(n_ind):
+            k = kind(rng.choice(all_tiles))
+            ind = prev_kind(k)
+            if pool.can(ind):
+                ura.append(pool.take(ind))
+        if not ura:
+            return None
     if honba is None:
         honba = rng.choices([0, 1, 2, 3, 4, 5, 8], [62, 16, 9, 6, 3, 3, 1])[0]
     pairs = hm(hand, melds) + [("win", fmt_tile(win)), ("by", by), ("seat", seat), ("round", rnd)]
@@ -414,6 +430,15 @@ def score_case(rng, b, *, by=None, flags_force=(), seat=None, rnd=None, win_pick
         order = ["double_riichi", "riichi", "ippatsu", "haitei", "houtei", "rinshan", "chankan", "tenhou", "chiihou"]
         pairs.append(("flags", ",".join(f for f in order if f in flags)))
     return pairs
+
+
+def prev_kind(k):
+    """The indicator kind whose dora is k."""
+    if k < 27:
+        return k - 1 if k % 9 else k + 8
+    if k < 31:
+        return k - 1 if k > 27 else 30
+    return k - 1 if k > 31 else 33
 
 
 # ---------------------------------------------------------------- oracle-test requests
@@ -772,6 +797,21 @@ def win_picker(name):
             extra = [d for d in range(9) if c[s + d] > base[d]]
             return next(i for i, t in enumerate(conc) if kind(t) == s + extra[0])
         return pick
+    if name == "chuuren_not_extra":
+        def pick(conc):
+            c = counts34(conc)
+            s = kind(conc[0]) // 9 * 9
+            base = [3, 1, 1, 1, 1, 1, 1, 1, 3]
+            extra = [d for d in range(9) if c[s + d] > base[d]]
+            idx = [i for i, t in enumerate(conc) if kind(t) != s + extra[0]]
+            return idx[len(idx) // 2]
+        return pick
+    if name == "triplet":
+        def pick(conc):
+            c = counts34(conc)
+            idx = [i for i, t in enumerate(conc) if c[kind(t)] == 3]
+            return idx[len(idx) // 2] if idx else None
+        return pick
     raise ValueError(name)
 
 
@@ -922,6 +962,69 @@ def gen_score(rng, out):
         e.emit(pairs)
 
     emit_test_requests(e, "score")
+
+    # Sections added after the Phase 1 review (docs/reviews/p1/synthesis.md). They come
+    # last so that the case ids above are unchanged.
+    e.section("targeted: ippatsu with chankan (a robbed added kan was never completed, so ippatsu survives)")
+    got = 0
+    for _ in range(4000):
+        if got >= 20:
+            break
+        b = target_built(rng, "closed")
+        if b is None:
+            continue
+        r = "double_riichi" if rng.random() < 0.3 else "riichi"
+        pairs = score_case(rng, b, flags_force={r, "ippatsu", "chankan"})
+        if pairs is None:
+            continue
+        out_, _ = O.score(parse_request(fmt_request("x", "score", pairs))[2])
+        names = [y.split(":")[0] for y in dict(out_).get("yaku", "").split(",") if y]
+        if "ippatsu" not in names or "chankan" not in names:
+            continue
+        if e.emit(pairs) is not None:
+            got += 1
+    if got < 20:
+        print(f"warning: only {got} ippatsu+chankan cases", file=sys.stderr)
+
+    e.section("ura indicators without riichi or double_riichi: ignored (the indicators point at tiles in the hand)")
+    got = 0
+    for _ in range(4000):
+        if got >= 20:
+            break
+        b, _ = any_built(rng)
+        pairs = score_case(rng, b, no_random_flags=True, ura_without_riichi=True)
+        if pairs is None:
+            continue
+        out_, _ = O.score(parse_request(fmt_request("x", "score", pairs))[2])
+        if "error" in dict(out_) and rng.random() < 0.8:
+            continue
+        if e.emit(pairs) is not None:
+            got += 1
+
+    e.section("tenhou scores the best choice of winning tile; chiihou keeps the supplied one (same hands)")
+    for style, picker, n in (("chuuren", "chuuren_not_extra", 6), ("kokushi", "kokushi_single", 6),
+                             ("suuankou", "triplet", 6)):
+        got = 0
+        for _ in range(4000):
+            if got >= n:
+                break
+            b = style_build(rng, style)
+            if b is None or b.melds:
+                continue
+            pk = win_picker(picker)
+            wi = pk(b.concealed())
+            if wi is None:
+                continue
+            pick_fixed = lambda conc, wi=wi: wi  # noqa: E731
+            honba = rng.choices([0, 1, 2], [70, 20, 10])[0]
+            t = score_case(rng, b, flags_force={"tenhou"}, win_pick=pick_fixed, honba=honba, rnd="E")
+            c = score_case(rng, b, flags_force={"chiihou"}, win_pick=pick_fixed, honba=honba, rnd="E")
+            if t is None or c is None:
+                continue
+            a1 = e.emit(t)
+            a2 = e.emit(c)
+            if a1 is not None and a2 is not None:
+                got += 1
     e.write()
     return e
 
@@ -943,7 +1046,7 @@ def main():
         e = fn(rng, args.out)
         extra = ""
         if name == "score":
-            extra = f", dropped {e.dropped_ambiguous} ambiguous"
+            extra = f", {e.tiebreaks} decided past total by the tie-break, {e.tenhou_upgrades} tenhou upgrades"
         extra += f", {e.rule_sensitive} rule-sensitive notes"
         print(f"{name}: {e.count} cases{extra}")
         stats = sorted(e.stats.items(), key=lambda kv: (-kv[1], kv[0]))

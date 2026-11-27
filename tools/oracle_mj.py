@@ -15,7 +15,7 @@ import os
 import sys
 from functools import lru_cache
 
-ORACLE_PATH = os.environ.get("MJ_ORACLE_PATH", "/Users/astrange/Projects/mahjong/3p/mahjong")
+ORACLE_PATH = os.environ.get("MJ_ORACLE_PATH", os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../3p/mahjong"))
 sys.dont_write_bytecode = True  # never write into the oracle checkout
 sys.path.insert(0, ORACLE_PATH)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -420,9 +420,95 @@ def _render(hand_yaku, han, fu, cost, is_open, is_dealer, is_tsumo):
     ]
 
 
+def _priority(c):
+    """Spec tie-break (formats.md, score): highest total, then a real yakuman over a
+    kazoe one, then higher han, then higher fu, then the yaku list that sorts first
+    (applied by the caller). A yakuman answer prints no han or fu, so between two
+    yakuman interpretations only total and the yaku list count."""
+    if c["yakuman"]:
+        return (c["total"], True, 0, 0)
+    return (c["total"], False, c["han"], c["fu"])
+
+
+def _interpretations(hand, win, melds, dora, ura, flags, seat, rnd, honba, by):
+    """Score one (hand, winning tile) assignment. -> (candidates, library error or None).
+    Each candidate is one interpretation the library ranked, already rendered."""
+    ids = _Ids()
+    concealed_ids = [ids.get(t) for t in hand]
+    win_id = ids.get(win)
+    lib_melds = _lib_melds(melds, ids)
+    all_ids = concealed_ids + [win_id] + [i for m in lib_melds for i in m.tiles]
+    ind = _Ids()
+    dora_ids = [ind.get(t) for t in dora]
+    ind = _Ids()
+    ura_ids = [ind.get(t) for t in ura]
+
+    options = OptionalRules(
+        has_open_tanyao=True,
+        has_aka_dora=True,
+        has_double_yakuman=RULES["double_yakuman"],
+        kazoe_limit=HandConstants.KAZOE_LIMITED,
+        kiriage=False,
+        fu_for_open_pinfu=True,
+        fu_for_pinfu_tsumo=False,
+        # No yakuman cap (spec/rules.md). The largest sum the ranked yakuman list can
+        # reach is 6x, so the library's 6x cap would never bind either way.
+        limit_to_sextuple_yakuman=False,
+    )
+    config = HandConfig(
+        is_tsumo=by == "tsumo",
+        is_riichi="riichi" in flags or "double_riichi" in flags,
+        is_daburu_riichi="double_riichi" in flags,
+        is_ippatsu="ippatsu" in flags,
+        is_rinshan="rinshan" in flags,
+        is_chankan="chankan" in flags,
+        is_haitei="haitei" in flags,
+        is_houtei="houtei" in flags,
+        is_tenhou="tenhou" in flags,
+        is_chiihou="chiihou" in flags,
+        player_wind=EAST + WINDS.index(seat),
+        round_wind=EAST + WINDS.index(rnd),
+        tsumi_number=honba,
+        options=options,
+    )
+    _seen_hands.clear()
+    res = HandCalculator.estimate_hand_value(
+        all_ids, win_id, melds=lib_melds, dora_indicators=dora_ids, config=config, ura_dora_indicators=ura_ids
+    )
+    seen = list(_seen_hands.values())
+    _seen_hands.clear()
+    is_open = any(m.opened for m in lib_melds)
+    is_dealer = seat == "E"
+    cands = []
+    for h in seen:
+        if h["error"] is not None or not h["cost"]:
+            continue
+        out = _render(h["hand_yaku"], h["han"], h["fu"], h["cost"], is_open, is_dealer, by == "tsumo")
+        cands.append({
+            "out": out,
+            "total": h["cost"]["total"],
+            "yakuman": any(y.is_yakuman for y in h["hand_yaku"]),
+            "han": h["han"],
+            "fu": h["fu"],
+            "yaku": dict(out)["yaku"],
+        })
+    if not cands and not res.error:
+        # the library found a hand without recording it through _hand_priority
+        out = _render(res.yaku, res.han, res.fu, res.cost, is_open, is_dealer, by == "tsumo")
+        cands.append({"out": out, "total": res.cost["total"], "yakuman": any(y.is_yakuman for y in res.yaku),
+                      "han": res.han, "fu": res.fu, "yaku": dict(out)["yaku"]})
+    return cands, res.error
+
+
 def score(kv):
-    """Returns (response pairs, info dict). info['ambiguous'] is set when the spec's
-    tie-break (total, then han, then fu) leaves interpretations that print differently."""
+    """Returns (response pairs, info dict).
+
+    The answer is chosen by the spec's full tie-break (see _priority), not by the
+    library's own choice. info['tiebreak'] names the rule that decided between
+    interpretations with the same total (None when the total alone decided);
+    info['alternatives'] lists the losing interpretations at that total.
+    With `tenhou`, every distinct tile of hand+win is tried as the winning tile
+    (formats.md: score the best choice); `chiihou` keeps the supplied tile."""
     hand, melds = _hand_and_melds(kv, 0)
     if "win" not in kv:
         raise FormatError("missing win")
@@ -447,77 +533,52 @@ def score(kv):
         raise FormatError(f"unknown keys {sorted(unknown)}")
     validate_tiles(hand + [win] + meld_tiles(melds))
 
-    ids = _Ids()
-    concealed_ids = [ids.get(t) for t in hand]
-    win_id = ids.get(win)
-    lib_melds = _lib_melds(melds, ids)
-    all_ids = concealed_ids + [win_id] + [i for m in lib_melds for i in m.tiles]
-    ind = _Ids()
-    dora_ids = [ind.get(t) for t in dora]
-    ind = _Ids()
-    ura_ids = [ind.get(t) for t in ura]
+    if "tenhou" in flags:
+        tiles14 = hand + [win]
+        choices = []
+        for t in sorted(set(tiles14)):
+            rest = list(tiles14)
+            rest.remove(t)
+            choices.append((rest, t))
+    else:
+        choices = [(hand, win)]
 
-    options = OptionalRules(
-        has_open_tanyao=True,
-        has_aka_dora=True,
-        has_double_yakuman=RULES["double_yakuman"],
-        kazoe_limit=HandConstants.KAZOE_LIMITED,
-        kiriage=False,
-        fu_for_open_pinfu=True,
-        fu_for_pinfu_tsumo=False,
-    )
-    config = HandConfig(
-        is_tsumo=by == "tsumo",
-        is_riichi="riichi" in flags or "double_riichi" in flags,
-        is_daburu_riichi="double_riichi" in flags,
-        is_ippatsu="ippatsu" in flags,
-        is_rinshan="rinshan" in flags,
-        is_chankan="chankan" in flags,
-        is_haitei="haitei" in flags,
-        is_houtei="houtei" in flags,
-        is_tenhou="tenhou" in flags,
-        is_chiihou="chiihou" in flags,
-        player_wind=EAST + WINDS.index(seat),
-        round_wind=EAST + WINDS.index(rnd),
-        tsumi_number=honba,
-        options=options,
-    )
-    _seen_hands.clear()
-    res = HandCalculator.estimate_hand_value(
-        all_ids, win_id, melds=lib_melds, dora_indicators=dora_ids, config=config, ura_dora_indicators=ura_ids
-    )
-    seen = list(_seen_hands.values())
-    _seen_hands.clear()
-    info = {"ambiguous": None}
-    is_open = any(m.opened for m in lib_melds)
-    if res.error:
-        if res.error == HandCalculator.ERR_HAND_NOT_WINNING:
+    cands = []
+    first_error = None
+    for h, w in choices:
+        cs, err = _interpretations(h, w, melds, dora, ura, flags, seat, rnd, honba, by)
+        cands.extend(cs)
+        if err and first_error is None:
+            first_error = err
+    info = {"tiebreak": None, "alternatives": [], "tenhou_upgrade": False}
+    if not cands:
+        if first_error == HandCalculator.ERR_HAND_NOT_WINNING:
             return [("error", "not_agari")], info
-        if res.error == HandCalculator.ERR_NO_YAKU:
+        if first_error == HandCalculator.ERR_NO_YAKU:
             return [("error", "no_yaku")], info
-        return [("error", res.error)], info
-    is_dealer = seat == "E"
-    out = _render(res.yaku, res.han, res.fu, res.cost, is_open, is_dealer, by == "tsumo")
+        return [("error", first_error or "internal")], info
 
-    # tie analysis over all interpretations the library ranked
-    valid = [h for h in seen if h["error"] is None and h["cost"]]
-    if valid:
-        top_total = max(h["cost"]["total"] for h in valid)
-        cands = [h for h in valid if h["cost"]["total"] == top_total]
-        kinds_ = {any(y.is_yakuman for y in h["hand_yaku"]) for h in cands}
-        if len(kinds_) > 1:
-            info["ambiguous"] = "equal total for yakuman and non-yakuman interpretations"
+    best = max(_priority(c) for c in cands)
+    tops = [c for c in cands if _priority(c) == best]
+    tops.sort(key=lambda c: c["yaku"])
+    chosen = tops[0]
+    out = chosen["out"]
+
+    same_total = [c for c in cands if c["total"] == chosen["total"]]
+    others = {fmt_response("", c["out"]).strip() for c in same_total} - {fmt_response("", out).strip()}
+    if others:
+        info["alternatives"] = sorted(others)
+        levels = [("real yakuman over kazoe", 1), ("higher han", 2), ("higher fu", 3)]
+        for label, i in levels:
+            if len({_priority(c)[i] for c in same_total}) > 1:
+                info["tiebreak"] = label
+                break
         else:
-            best = max((h["han"], h["fu"]) for h in cands)
-            tops = [h for h in cands if (h["han"], h["fu"]) == best]
-            renders = {
-                tuple(_render(h["hand_yaku"], h["han"], h["fu"], h["cost"], is_open, is_dealer, by == "tsumo"))
-                for h in tops
-            }
-            if len(renders) > 1:
-                info["ambiguous"] = "tied interpretations list different yaku"
-            elif tuple(out) not in renders:
-                info["ambiguous"] = "library choice differs from spec tie-break"
+            info["tiebreak"] = "yaku list sorting first"
+    if "tenhou" in flags:
+        base, _ = _interpretations(hand, win, melds, dora, ura, flags, seat, rnd, honba, by)
+        if base and max(c["total"] for c in base) < chosen["total"]:
+            info["tenhou_upgrade"] = True
     return out, info
 
 

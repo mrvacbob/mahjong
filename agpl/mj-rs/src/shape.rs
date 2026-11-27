@@ -1,7 +1,7 @@
 use crate::{algo::shanten, model::Counts};
 
 pub fn standard(tiles: &Counts, groups: u8) -> i8 {
-    if tiles.contains(&4) {
+    if tiles.iter().any(|&n| n >= 4) {
         // Libriichi's lookup assumes a fifth copy cannot complete a shape.
         // For the wire-format shanten, count incomplete shapes structurally.
         // The waits operation applies its separate availability filter.

@@ -14,7 +14,7 @@
 # tools/oracle_mj.py goes with the hand derivation (RULES["pure_shanten"] = True: its
 # own standard-shanten search, checked against the library on every hand without a
 # four-of-a-kind), so oracle_mj passes these cases and the library itself does not.
-# libriichi (corpus/rs/ mj-rs) agrees with the hand derivation. Generated cases where
+# libriichi (agpl/mj-rs/ mj-rs) agrees with the hand derivation. Generated cases where
 # this choice matters carry a '# rule-sensitive (oracle library's own 4-copy shanten)'
 # note in corpus/shanten.txt and corpus/waits.txt (16 and 14 cases).
 

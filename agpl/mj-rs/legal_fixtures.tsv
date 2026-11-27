@@ -1,0 +1,51 @@
+# label	request fields	required actions	forbidden actions
+red and plain chi	hand=405m123p789s1234z discard=6m from=kamicha	chi:40m chi:45m pass	ron
+red chi canonical	hand=06m123p789s12345z discard=4m from=kamicha	chi:06m pass	
+non-kamicha	hand=06m123p789s12345z discard=4m from=shimocha	pass	chi:06m
+red pon choices	hand=055m123p789s1234z discard=5m from=toimen	pon:05m pon:55m kan:5m	
+chi kuikae	hand=467m123p789s11z melds=c406m called=c406m took=4m	discard:6m discard:1z	discard:4m discard:7m
+chi kuikae red	hand=40m123p789s123z melds=c567m called=c567m took=7m	discard:0m	discard:4m
+pon kuikae	hand=0m123p789s1234z melds=p555m called=p555m took=5m	discard:1p discard:1z	discard:0m
+chi with safe discard	hand=2456m melds=p111z,p222z,p333z discard=3m from=kamicha	pass chi:24m	
+chi all kuikae	hand=4567m melds=p111z,p222z,p333z discard=4m from=kamicha	pass	chi:56m
+riichi choices	hand=234456m23p678s22z draw=4p wall=4	riichi:4p riichi:2p tsumo	
+riichi too late	hand=234456m23p678s22z draw=4p wall=3	discard:4p tsumo	riichi:4p riichi:2p
+riichi no fourth copy	hand=123789m123p123s1z draw=1m riichi=1	discard:1m	ankan:1m discard:2m
+riichi legal ankan	hand=111789m123p123s1z draw=1m riichi=1	discard:1m ankan:1m	discard:2p
+riichi ankan changes waits	hand=123456m4445s111z draw=4s riichi=1	discard:4s	ankan:4s
+riichi ankan changes forms	hand=23m999p33345666s draw=6s riichi=1	discard:6s ankan:6s	
+kakan red	hand=0m123p789s112z melds=p555m draw=3z	kakan:0m discard:0m	kakan:5m
+kyuushu	hand=1279m19p19s12345z draw=6z first=1	kyuushu discard:6z	
+kyuushu off first	hand=1279m19p19s12345z draw=6z first=0	discard:6z	kyuushu
+furiten ron	hand=234456m23p678s22z discard=4p from=toimen furiten=1	pass	ron
+furiten tsumo allowed	hand=234456m23p678s22z draw=4p furiten=1	tsumo	
+ron no yaku	hand=23m456p789s33z melds=c123m discard=1m from=toimen dora=9m	pass	ron
+tsumo no yaku	hand=23m456p789s33z melds=c123m draw=1m dora=9m	discard:1m	tsumo
+haitei	hand=23m456p789s33z melds=c123m draw=1m flags=haitei wall=0	tsumo	
+houtei	hand=23m456p789s33z melds=c123m discard=1m from=toimen flags=houtei wall=0	ron pass	
+rinshan	hand=23m456p789s33z melds=k1111z draw=1m flags=rinshan kans=1 seat=S round=S	tsumo	
+chankan	hand=23m456p789s33z melds=c123s discard=1m from=kamicha flags=chankan	ron pass	chi:23m
+wall zero refuses calls	hand=055m123p789s1234z discard=5m from=kamicha wall=0 flags=houtei	pass	pon:05m pon:55m kan:5m
+wall zero refuses chi	hand=06m123p789s12345z discard=4m from=kamicha wall=0 flags=houtei	pass	chi:06m
+four kan limit response	hand=055m123p789s1234z discard=5m from=toimen kans=4	pass pon:05m pon:55m	kan:5m
+four kan limit draw	hand=111789m123p123s1z draw=1m kans=4	discard:1m	ankan:1m
+four kan limit kakan	hand=0m123p789s112z melds=p555m draw=3z kans=4	discard:0m	kakan:0m
+ankan robbery kokushi	hand=9m19p19s12345677z discard=1m from=kamicha flags=ankan_rob	pass ron	
+ankan robbery ordinary hand	hand=23m456p789s33z melds=c123s discard=1m from=kamicha flags=ankan_rob	pass	ron chi:23m
+ankan robbery furiten	hand=9m19p19s12345677z discard=1m from=kamicha flags=ankan_rob furiten=1	pass	ron
+riichi okurikan	hand=1111234m123p123s draw=2z riichi=1	discard:2z	ankan:1m
+riichi tsumo	hand=234456m23p678s22z draw=4p riichi=1	discard:4p tsumo	discard:2p riichi:4p
+riichi ron	hand=234456m68p678s33z discard=7p from=kamicha riichi=1	pass ron	chi:68p
+last draw refuses ankan	hand=111789m123p123s1z draw=1m wall=0 flags=haitei	discard:1m	ankan:1m
+last draw refuses kakan	hand=0m123p789s112z melds=p555m draw=3z wall=0 flags=haitei	discard:0m	kakan:0m
+kyuushu eight kinds	hand=12279m129p129s12z draw=2m first=1	discard:2m	kyuushu
+kyuushu nine kinds	hand=12279m129p129s12z draw=3z first=1	kyuushu discard:3z	
+penchan chi	hand=1234m456p789s123z discard=3m from=kamicha	chi:12m pass	
+penchan after chi	hand=34m456p789s123z melds=c123m called=c123m took=3m	discard:4m	discard:3m
+post chi with closed and open kans	hand=34m123z melds=a1111p,k9999s,c123m called=c123m took=3m kans=2	discard:4m discard:1z discard:2z discard:3z	discard:3m
+post pon with added kan	hand=5m123p578s1z melds=s1111m,p055s called=p055s took=5s kans=1	discard:5m discard:1z	discard:5s
+daiminkan	hand=111789m123p123s1z discard=1m from=toimen	kan:1m pon:11m pass	
+riichi fifth copy only	hand=234567789m1111z draw=2p	discard:2p	riichi:2p
+tenhou draw	hand=9m19p19s12345677z draw=1m first=1 flags=tenhou	tsumo kyuushu	
+chiihou draw	hand=9m19p19s12345677z draw=1m seat=S first=1 flags=chiihou	tsumo kyuushu	
+riichi wait exhausted by meld	hand=35m123p789s22z melds=a4444m draw=9p kans=1	discard:9p	riichi:9p

@@ -1,7 +1,7 @@
 # Brief: Phase 1 fixes — Rust reference and replay-derived legal corpus
 
-Repo /Users/astrange/Projects/mahjong/my_mahjong. No git commands. Write only under
-`corpus/rs/` and `corpus/legal.txt`. Read `docs/reviews/p1/synthesis.md` and the
+Repo .. No git commands. Write only under
+`agpl/mj-rs/` and `corpus/legal.txt`. Read `docs/reviews/p1/synthesis.md` and the
 revised `spec/formats.md` (draft 2; the body is authoritative) first; the three
 reviews in `docs/reviews/p1/` have the detail and derivations.
 
@@ -26,7 +26,7 @@ reviews in `docs/reviews/p1/` have the detail and derivations.
    daiminkan, furiten blocking ron.
 3. Another agent is writing `corpus/legal_handwritten.txt` (complete action sets
    derived by hand, without your binary). When it exists, run it through `mj-rs`
-   and write every disagreement to `corpus/rs/DISAGREEMENTS.md` with your judgment.
+   and write every disagreement to `agpl/mj-rs/DISAGREEMENTS.md` with your judgment.
    Do not edit that file's cases. Also rerun against the other corpus files (the
    other agent is regenerating score.txt for the tenhou and chankan+ippatsu
    changes) and replace the stale content of DISAGREEMENTS.md.

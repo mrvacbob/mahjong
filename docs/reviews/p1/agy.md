@@ -1,7 +1,7 @@
 # Phase 1 Gate Review — `agy`
 
 Reviewer: `agy`  
-Scope: `spec/rules.md`, `spec/formats.md`, `corpus/legal.txt`, `corpus/score.txt`, `corpus/disputed.txt`, `tools/harness.py`, `tools/oracle_mj.py`, and `corpus/rs/src/{main,model,state,chi_candidates,scoring}.rs`.
+Scope: `spec/rules.md`, `spec/formats.md`, `corpus/legal.txt`, `corpus/score.txt`, `corpus/disputed.txt`, `tools/harness.py`, `tools/oracle_mj.py`, and `agpl/mj-rs/src/{main,model,state,chi_candidates,scoring}.rs`.
 
 ---
 
@@ -10,22 +10,22 @@ Scope: `spec/rules.md`, `spec/formats.md`, `corpus/legal.txt`, `corpus/score.txt
 ### Critical
 
 #### 1. `legal` `riichi:<tile>` contradicts `formats.md` on 4-copy self-karaten tenpai
-- **File / Case ID:** `spec/formats.md` (line 167, Decision 4 lines 197–205); `corpus/legal.txt` (`legal0157`, `legal0158`, `legal0159`); `corpus/rs/src/state.rs` (line 117) & `corpus/rs/src/model.rs` (lines 271–277).
-- **What's wrong:** `spec/formats.md` Decision 4 defines `std` shanten as pure shanten ignoring tile availability, explicitly stating that a hand waiting only on a 5th copy (e.g. `234567789m1111z`) is tenpai (`std=0`). Line 167 then defines `riichi:<tile>` as `"discarding this tile leaves tenpai, wall>=4"`. However, in `legal0157` (`hand=111789m123p123s1z draw=1m kans=4`), discarding `1z` leaves `1111789m123p123s` (pure `std=0`, waiting only on a 5th `1m`), yet the expected output omits `riichi:1z` (same for `legal0158` omitting `riichi:1z`, `legal0159` omitting `riichi:1z`). This happens because `corpus/rs/src/model.rs` uses pure `shape::standard` for `shanten`/`waits`, but `state.rs` uses libriichi's Tenhou-penalized `player_shanten` (`shanten::calc_normal`, which returns `1`) for `legal`. Any implementer who reuses their spec-compliant `shanten` function for `legal` `riichi:` will fail `legal0157`–`legal0159`.
+- **File / Case ID:** `spec/formats.md` (line 167, Decision 4 lines 197–205); `corpus/legal.txt` (`legal0157`, `legal0158`, `legal0159`); `agpl/mj-rs/src/state.rs` (line 117) & `agpl/mj-rs/src/model.rs` (lines 271–277).
+- **What's wrong:** `spec/formats.md` Decision 4 defines `std` shanten as pure shanten ignoring tile availability, explicitly stating that a hand waiting only on a 5th copy (e.g. `234567789m1111z`) is tenpai (`std=0`). Line 167 then defines `riichi:<tile>` as `"discarding this tile leaves tenpai, wall>=4"`. However, in `legal0157` (`hand=111789m123p123s1z draw=1m kans=4`), discarding `1z` leaves `1111789m123p123s` (pure `std=0`, waiting only on a 5th `1m`), yet the expected output omits `riichi:1z` (same for `legal0158` omitting `riichi:1z`, `legal0159` omitting `riichi:1z`). This happens because `agpl/mj-rs/src/model.rs` uses pure `shape::standard` for `shanten`/`waits`, but `state.rs` uses libriichi's Tenhou-penalized `player_shanten` (`shanten::calc_normal`, which returns `1`) for `legal`. Any implementer who reuses their spec-compliant `shanten` function for `legal` `riichi:` will fail `legal0157`–`legal0159`.
 - **Proposed fix:** In Mahjong Soul and Tenhou, declaring riichi with a pure 5th-copy self-karaten wait is illegal (at least one wait tile must have a live copy outside your own hand/melds). Update `spec/formats.md` line 167 to state explicitly: `"discarding this tile leaves tenpai with at least one wait tile not already held in all four copies (i.e. waits count > 0)"`. Keep `legal0157`–`legal0159` as expected, and add a note in the Decisions log.
 
 #### 2. `formats.md` omits that `flags=chankan` suppresses `chi`, `pon`, and `kan` in `legal`
-- **File / Case ID:** `spec/formats.md` (lines 159–160, 173–175); `corpus/legal.txt` (`legal0133`–`legal0138`); `corpus/rs/src/state.rs` (line 168).
+- **File / Case ID:** `spec/formats.md` (lines 159–160, 173–175); `corpus/legal.txt` (`legal0133`–`legal0138`); `agpl/mj-rs/src/state.rs` (line 168).
 - **What's wrong:** `spec/formats.md` defines `chi`, `pon`, and `kan` in `legal` with conditions `"Not in riichi. wall>=1"` (plus `from=kamicha` for `chi`), and never states that `flags=chankan` suppresses calls. In `legal0133` (`hand=23m456p789s33z melds=c123s discard=1m from=kamicha flags=chankan`), `from=kamicha`, `wall=70`, `riichi=0`, and `23m` can form a sequence with `1m`, so a literal implementation of `formats.md` emits `chi:23m,pass,ron`, failing the expected `pass,ron` (same for `legal0134`–`legal0138`).
 - **Proposed fix:** Add explicitly to `spec/formats.md` under `legal`: `"When flags=chankan is set, the tile is an opponent's added kan (not a discard), so only ron and pass are legal; chi, pon, and kan are forbidden."`
 
 #### 3. Chankan + Ippatsu is wrongly forbidden in `spec/rules.md` and excluded from `corpus/score.txt`
 - **File / Case ID:** `spec/rules.md` (item 26 line 272; Unverified item 5 line 293); `spec/formats.md` (Decision 10 lines 226–227); `corpus/score.txt`.
 - **What's wrong:** `spec/rules.md` claims that declaring shouminkan cancels Ippatsu so Chankan cannot combine with Ippatsu, and `formats.md` Decision 10 excludes `ippatsu+chankan` from generated cases. Under **Mahjong Soul ranked rules** (as well as Tenhou, M-League, and standard riichi mahjong), **Chankan and Ippatsu DO stack** (`立直・一発・槍槓`). A call only cancels Ippatsu if the call *completes*; when robbed via Chankan, the kakan is interrupted and never completes (the same reason no kan dora flips, which `rules.md` item 15 already states).
-- **Proposed fix:** Fix `spec/rules.md` item 26 to clarify that only *completed* calls cancel Ippatsu and that Chankan on a shouminkan combines with Ippatsu; remove Unverified item 5. Remove `ippatsu+chankan` from `formats.md` Decision 10's impossible combinations, and add `score` corpus cases with `flags=riichi,ippatsu,chankan` and `flags=double_riichi,ippatsu,chankan`. (Both `tools/oracle_mj.py` and `corpus/rs/src/scoring.rs` already score this combination.)
+- **Proposed fix:** Fix `spec/rules.md` item 26 to clarify that only *completed* calls cancel Ippatsu and that Chankan on a shouminkan combines with Ippatsu; remove Unverified item 5. Remove `ippatsu+chankan` from `formats.md` Decision 10's impossible combinations, and add `score` corpus cases with `flags=riichi,ippatsu,chankan` and `flags=double_riichi,ippatsu,chankan`. (Both `tools/oracle_mj.py` and `agpl/mj-rs/src/scoring.rs` already score this combination.)
 
 #### 4. Riichi `ankan` rule in `formats.md` and `legal0073`–`legal0078` does not match Mahjong Soul (and is underspecified)
-- **File / Case ID:** `spec/formats.md` (line 169); `spec/rules.md` (line 69, item 14 line 260, Unverified item 3 line 291); `corpus/legal.txt` (`legal0073`–`legal0078`); `corpus/rs/src/state.rs` (lines 244–281).
+- **File / Case ID:** `spec/formats.md` (line 169); `spec/rules.md` (line 69, item 14 line 260, Unverified item 3 line 291); `corpus/legal.txt` (`legal0073`–`legal0078`); `agpl/mj-rs/src/state.rs` (lines 244–281).
 - **What's wrong:** Two compounding issues:
   1. **Ruleset mismatch:** `formats.md` line 169 requires that a riichi ankan `"changes neither waits nor hand interpretation"`, and `legal0073`–`legal0078` (e.g. `legal0073`: `hand=23m999p33345666s draw=6s riichi=1` -> `actions=discard:6s`) forbid `ankan:6s` even though waits remain `{1m, 4m}` before and after (`33345666s` has decompositions `333+456+66` and `33+345+666`; after `ankan:6s`, `33345s` = `33+345` still waits `{1m, 4m}`). Both **Mahjong Soul** and **Tenhou** explicitly allow riichi ankan whenever the wait tile set does not change, even if mentsu structure/hand interpretation changes (`「リーチ後、待ち牌の種類と枚数が変わる暗槓、および送り槓は不可とします。上記以外の牌姿が変わる暗槓は可とします。」`). The `"neither waits nor hand interpretation"` rule is M-League/JPML/WRC, not Mahjong Soul.
   2. **Ambiguity:** Even if the stricter rule were intended, `"changes neither waits nor hand interpretation"` is too vague for independent implementers. `state.rs`'s `strict_ankan` checks that for every live wait tile, every pre-ankan winning form contains `(kan, triplet)` and removing that triplet produces the exact set of post-ankan forms (and also returns `false` if a riichi hand is karaten on all waits). Another implementer might reasonably check only whether the highest-scoring yaku/fu changes, or whether wait type (ryanmen/tanki/shanpon) changes.
@@ -36,7 +36,7 @@ Scope: `spec/rules.md`, `spec/formats.md`, `corpus/legal.txt`, `corpus/score.txt
 ### High
 
 #### 5. `legal` `wall=0` implicitly granting `haitei`/`houtei` is unspecified in `formats.md`
-- **File / Case ID:** `spec/formats.md` (lines 155, 159–160, 168, 172); `corpus/rs/src/state.rs` (lines 94, 163).
+- **File / Case ID:** `spec/formats.md` (lines 155, 159–160, 168, 172); `agpl/mj-rs/src/state.rs` (lines 94, 163).
 - **What's wrong:** `state.rs` grants a situational yaku whenever `self.wall == 0`, even if `flags=haitei` or `flags=houtei` is omitted. `formats.md` says `"In the draw case, flags may carry rinshan or haitei; in the discard case, houtei or chankan"` without stating whether `wall=0` alone implies `haitei`/`houtei`. Also note that a `rinshan` draw after a kan at `wall=1` leaves `wall=0` and is *not* `haitei` (it is `rinshan`).
 - **Proposed fix:** State explicitly in `formats.md` that situational yaku in `legal` come from `flags=` (and never silently from `wall=0`), and ensure every corpus case representing a haitei draw or houtei discard passes `flags=haitei`/`flags=houtei` alongside `wall=0`.
 
@@ -91,7 +91,7 @@ Scope: `spec/rules.md`, `spec/formats.md`, `corpus/legal.txt`, `corpus/score.txt
 - **Proposed fix:** Clarify in lines 167 and 170 that `0` and `5` are distinct (e.g. both `riichi:0m` and `riichi:5m` if both are held and discarding a 5m leaves tenpai; `kakan:0m` vs `kakan:5m`).
 
 #### 13. `rules.md` omits Mahjong Soul's 6x yakuman cap (mentioned in `formats.md` Decision 3)
-- **File / Case ID:** `spec/rules.md` (line 56, 193); `spec/formats.md` (Decision 3 line 194); `corpus/rs/src/scoring.rs` (line 87).
+- **File / Case ID:** `spec/rules.md` (line 56, 193); `spec/formats.md` (Decision 3 line 194); `agpl/mj-rs/src/scoring.rs` (line 87).
 - **What's wrong:** `formats.md` Decision 3 mentions `"6x yakuman cap"`, while `rules.md` states unbounded `8000 * N` and `scoring.rs` has no cap. Under Mahjong Soul ranked rules (without local yakuman), 6x is the theoretical maximum (`daisuushii:2 + suuankou_tanki:2 + tsuuiisou:1 + tenhou/chiihou/suukantsu:1`), so this has no practical effect on valid hands, but the docs should be consistent.
 - **Proposed fix:** Note in `spec/rules.md` line 56 that Mahjong Soul caps stacked yakuman at 6x (which is also the theoretical maximum without local yakuman).
 
@@ -231,8 +231,8 @@ Summarized from Findings 1, 2, 4, 5, 7, 8, 10, 11, 12, 14 above:
 
 ## What Was Not Checked
 
-- **Did not execute `tools/harness.py` or `corpus/rs/target/release/mj-rs`**: Shell execution in this environment failed with a sandbox configuration error (`readonly /Users/astrange/Projects/emu/smcdis/*: globs not supported`). All code and corpus checks were done by static inspection and hand derivation.
-- **Did not exhaustively inspect all corpus cases**: Checked 26 `legal` cases (out of 3,000) and 26 `score` cases (out of 5,143), plus the full implementations of `corpus/rs/src/{main,model,state,chi_candidates,scoring}.rs` and `tools/oracle_mj.py`.
+- **Did not execute `tools/harness.py` or `agpl/mj-rs/target/release/mj-rs`**: Shell execution in this environment failed with a sandbox configuration error (`readonly <local path> globs not supported`). All code and corpus checks were done by static inspection and hand derivation.
+- **Did not exhaustively inspect all corpus cases**: Checked 26 `legal` cases (out of 3,000) and 26 `score` cases (out of 5,143), plus the full implementations of `agpl/mj-rs/src/{main,model,state,chi_candidates,scoring}.rs` and `tools/oracle_mj.py`.
 - **Did not hand-check `corpus/agari.txt`, `corpus/shanten.txt`, or `corpus/waits.txt`** beyond their first 100 lines and `corpus/disputed.txt`.
-- **Did not inspect `tools/gen/generate.py`, `tools/mjfmt.py`, `corpus/rs/src/algo/*`, or `3p/`**.
+- **Did not inspect `tools/gen/generate.py`, `tools/mjfmt.py`, `agpl/mj-rs/src/algo/*`, or `3p/`**.
 - **Did not verify in-client Mahjong Soul replays** for the non-slice game-flow rules in `spec/rules.md` Section 5 (multi-ron honba `上家取り` vs all-winners, post-kan ron kan-dora timing, Nagashi Mangan + All-Last tenpai-yame, or whether Mahjong Soul upgrades `tenhou` into `kokushi_13`/`suuankou_tanki`/`junsei_chuuren`).

@@ -1,7 +1,6 @@
 """Generate a seeded corpus from an mjai replay and checked edge cases."""
 import argparse
-from collections import Counter
-from itertools import permutations
+from collections import Counter, defaultdict, deque
 import json
 from pathlib import Path
 import random
@@ -12,7 +11,8 @@ HERE = Path(__file__).resolve().parent
 WINDS = "ESWN"
 SUITS = "mpsz"
 SEED = 0x4D4A
-TARGET = 3000
+REPLAY_LIMIT = 600
+FROM = ('', 'kamicha', 'toimen', 'shimocha')
 
 
 def tile(mjai):
@@ -35,29 +35,6 @@ def notation(values):
 def split_tiles(value):
     return [digit + suit for digits, suit in re.findall(r"([0-9]+)([mpsz])", value)
             for digit in digits]
-
-
-def permute_fields(fields, mapping):
-    def group(value):
-        return notation(t.translate(mapping) for t in split_tiles(value))
-
-    def meld(value):
-        return value[0] + group(value[1:])
-
-    result = fields.copy()
-    for key in ("hand", "dora", "draw", "discard", "took"):
-        if key in result:
-            result[key] = group(result[key])
-    if result.get("melds", "-") != "-":
-        result["melds"] = ",".join(meld(m) for m in result["melds"].split(","))
-    if "called" in result:
-        result["called"] = meld(result["called"])
-    return result
-
-
-def permute_action(action, mapping):
-    verb, sep, value = action.partition(":")
-    return verb + sep + (notation(t.translate(mapping) for t in split_tiles(value)) if sep else "")
 
 
 def request(op, fields):
@@ -92,7 +69,7 @@ def replay(log, binary):
             accepted = [False] * 4
             dora = [tile(row["dora_marker"])]
             wall, kans = 70, 0
-            interrupted, rinshan = False, False
+            interrupted, rinshan, after_rinshan = False, False, False
             oya = row["oya"]
             round_wind = row["bakaze"]
             continue
@@ -137,7 +114,7 @@ def replay(log, binary):
                 fields["flags"] = "rinshan"
             elif wall == 0:
                 fields["flags"] = "haitei"
-            rinshan = False
+            after_rinshan, rinshan = rinshan, False
             if not interrupted and not rivers[actor]:
                 fields["first"] = "1"
             following = upcoming[0]
@@ -171,8 +148,8 @@ def replay(log, binary):
                             required.append(verb + ":" + notation(map(tile, following["consumed"])))
                         elif verb == "daiminkan":
                             required.append("kan:" + discarded.replace("0", "5"))
-                fields = {"discard": discarded, "from": ("", "kamicha", "toimen", "shimocha")[(seat - actor) % 4]}
-                if wall == 0:
+                fields = {"discard": discarded, "from": FROM[(seat - actor) % 4]}
+                if wall == 0 and not after_rinshan:
                     fields["flags"] = "houtei"
                 snapshot(seat, fields, required)
         elif event in calls:
@@ -189,26 +166,30 @@ def replay(log, binary):
             else:
                 snapshot(actor, {"called": meld, "took": took},
                          ["discard:" + tile(upcoming[0]["pai"])])
-        elif event == "ankan":
+        else:  # ankan or kakan
             consumed = list(map(tile, row["consumed"]))
-            for paid in consumed:
-                hands[actor].remove(paid)
-            melds[actor].append("a" + notation(consumed))
-            interrupted = rinshan = True
-            kans += 1
-        elif event == "kakan":
-            added = tile(row["pai"])
-            hands[actor].remove(added)
-            old = "p" + notation(map(tile, row["consumed"]))
-            melds[actor][melds[actor].index(old)] = "s" + notation([added, *split_tiles(old[1:])])
-            interrupted = rinshan = True
-            kans += 1
+            robbed = [event for event in upcoming if event["type"] == "hora"]
+            if event == "ankan":
+                incoming = tile(robbed[0]["pai"]) if robbed and "pai" in robbed[0] else consumed[0]
+                flag = "ankan_rob"
+            else:
+                incoming = tile(row["pai"])
+                flag = "chankan"
             for seat in range(4):
                 if seat != actor:
-                    snapshot(seat, {"discard": added, "flags": "chankan",
-                                    "from": ("", "kamicha", "toimen", "shimocha")[(seat - actor) % 4]},
-                             ["ron" for following in upcoming
-                               if following["type"] == "hora" and following["actor"] == seat])
+                    snapshot(seat, {"discard": incoming, "flags": flag,
+                                    "from": FROM[(seat - actor) % 4]},
+                             ["pass", *["ron" for win in robbed if win["actor"] == seat]])
+            if event == "ankan":
+                for paid in consumed:
+                    hands[actor].remove(paid)
+                melds[actor].append("a" + notation(consumed))
+            else:
+                hands[actor].remove(incoming)
+                old = "p" + notation(consumed)
+                melds[actor][melds[actor].index(old)] = "s" + notation([incoming, *consumed])
+            interrupted = rinshan = True
+            kans += 1
 
     # First pass obtains the underlying winning shape and yaku before furiten.
     candidates = run(binary, [request("legal", fields) for fields, *_ in snapshots])
@@ -237,6 +218,38 @@ def replay(log, binary):
     return result
 
 
+def select_replay(binary, original, fixtures):
+    unique = {}
+    for fields, required in original:
+        entry = request("legal", fields)
+        if entry not in fixtures:
+            unique.setdefault(entry, (fields, set()))[1].update(required)
+    results = run(binary, list(unique))
+    buckets = defaultdict(list)
+    for (entry, (fields, required)), out in zip(unique.items(), results, strict=True):
+        actions = out["actions"].split(",")
+        if required.difference(actions):
+            raise RuntimeError(f"{entry}: recorded actions {sorted(required)} missing from {actions}")
+        verbs = tuple(sorted({action.split(":")[0] for action in actions}))
+        event = next(key for key in ("draw", "discard", "called") if key in fields)
+        situation = (event, verbs, fields.get("flags"), fields.get("riichi"),
+                     fields.get("furiten"), fields.get("first"), fields.get("from"),
+                     fields["melds"] != "-")
+        buckets[situation].append((entry, required))
+
+    # Round-robin across situations keeps rare actions and contexts in the sample.
+    rng = random.Random(SEED)
+    queues = deque()
+    for bucket in sorted(buckets.values(), key=len):
+        rng.shuffle(bucket)
+        queues.append(deque(bucket))
+    for _ in range(min(REPLAY_LIMIT, len(unique))):
+        queue = queues.popleft()
+        yield queue.popleft()
+        if queue:
+            queues.append(queue)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", type=Path, default=HERE / "target/release/mj-rs")
@@ -244,46 +257,24 @@ def main():
     parser.add_argument("--output", type=Path, default=HERE.parent / "legal.txt")
     args = parser.parse_args()
     original = replay(args.log, args.binary)
-    fixtures = []
+    cases = {}
     for line in (HERE / "legal_fixtures.tsv").read_text().splitlines():
         if not line or line.startswith("#"):
             continue
         label, fields, yes, no = line.split("\t")
-        fixtures.append((label, dict(piece.split("=") for piece in fields.split()), yes.split(), no.split()))
+        entry = request("legal", dict(piece.split("=") for piece in fields.split()))
+        if entry in cases:
+            raise RuntimeError(f"Duplicate directed case: {entry}")
+        cases[entry] = (label, set(yes.split()), set(no.split()))
 
-    maps = [str.maketrans("mps", "".join(p)) for p in permutations("mps")]
-    cases = {}
-
-    def insert(label, fields, yes, no=()):
-        entry = request("legal", fields)
-        if entry not in cases:
-            cases[entry] = (label, set(yes), set(no))
-        else:
-            _, required, forbidden = cases[entry]
-            required.update(yes)
-            forbidden.update(no)
-
-    for label, fields, yes, no in fixtures:
-        for mapping in maps:
-            insert(label, permute_fields(fields, mapping),
-                   [permute_action(a, mapping) for a in yes],
-                   [permute_action(a, mapping) for a in no])
     fixture_count = len(cases)
-    for fields, yes in original:
-        insert("replay", fields, yes)
-    variants = [(permute_fields(fields, mapping), [permute_action(a, mapping) for a in yes])
-                for fields, yes in original for mapping in maps[1:]]
-    random.Random(SEED).shuffle(variants)
-    for fields, yes in variants:
-        if len(cases) == TARGET:
-            break
-        insert("suit-permuted replay", fields, yes)
-    if len(cases) != TARGET:
-        raise RuntimeError(f"Expected {TARGET} unique cases, got {len(cases)}")
-
+    for entry, required in select_replay(args.binary, original, cases):
+        cases[entry] = ("replay", required, set())
+    replay_count = len(cases) - fixture_count
     results = run(args.binary, list(cases))
-    lines = [f"# {TARGET} seeded legal cases from the Akochan mjai replay and directed fixtures",
-             f"# Seed {SEED:#x}; {fixture_count} directed cases with checked required and forbidden actions"]
+    lines = [f"# {replay_count} unique Akochan mjai replay snapshots and {fixture_count} directed cases",
+             f"# Seed {SEED:#x}; replay sampled across action sets and decision contexts",
+             "# Expected action sets come from mj-rs, checked against replay moves or fixture constraints."]
     tally = Counter()
     for i, ((entry, (label, required, forbidden)), out) in enumerate(zip(cases.items(), results, strict=True), 1):
         actions = out["actions"].split(",")

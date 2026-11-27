@@ -272,8 +272,20 @@ pub fn shantens(counts: &Counts, groups: u8) -> (i8, Option<i8>, Option<i8>, i8)
     shanten_breakdown(counts, groups, crate::shape::standard(counts, groups))
 }
 
-pub fn player_shanten(counts: &Counts, groups: u8) -> i8 {
-    shanten_breakdown(counts, groups, shanten::calc_normal(counts, groups)).3
+pub fn wait_copies<'a>(
+    hand: &'a Counts,
+    groups: u8,
+    owned: &'a Counts,
+    shanten: i8,
+) -> impl Iterator<Item = (usize, u8)> + 'a {
+    owned.iter().enumerate().filter_map(move |(i, &n)| {
+        if n == 4 {
+            return None;
+        }
+        let mut after = *hand;
+        after[i] += 1;
+        (shantens(&after, groups).3 < shanten).then_some((i, 4 - n))
+    })
 }
 
 fn shanten_breakdown(

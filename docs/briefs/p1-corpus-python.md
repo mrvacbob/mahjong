@@ -1,8 +1,8 @@
 # Brief: harness + corpus from the Python oracle
 
-Repo: /Users/astrange/Projects/mahjong/my_mahjong (branch `shootout`). Do not run git
+Repo: . (branch `shootout`). Do not run git
 commands. Write only under `tools/`, `corpus/`, and the "Decisions log" section of
-`spec/formats.md`. Another agent is working in `corpus/rs/`; leave it alone.
+`spec/formats.md`. Another agent is working in `agpl/mj-rs/`; leave it alone.
 
 Read `spec/formats.md` first. It defines the text format and the five ops.
 `spec/rules.md` (Mahjong Soul ranked rules) is being researched in parallel and may
@@ -10,7 +10,7 @@ not exist yet; assume standard ari-ari rules with three red fives, kazoe yakuman
 no kiriage mangan, no double yakuman, 2-fu double-wind pair... and list every such
 assumption you had to make in the Decisions log so it can be checked later.
 
-Oracle: the Python library at /Users/astrange/Projects/mahjong/3p/mahjong (read-only;
+Oracle: the Python library at ../3p/mahjong (read-only;
 run things with `uv run --project <that path> python ...`; its tests pass). Read its
 source to learn its conventions and its known deviations.
 

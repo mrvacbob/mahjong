@@ -6,7 +6,7 @@
 
 ### 1. Riichi ankan may change the decomposition
 
-**Files and cases:** `spec/formats.md` legal, `spec/rules.md` §1 and §5.3, `corpus/legal.txt` legal0073–0078, `corpus/rs/src/state.rs` and `legal_fixtures.tsv`.
+**Files and cases:** `spec/formats.md` legal, `spec/rules.md` §1 and §5.3, `corpus/legal.txt` legal0073–0078, `agpl/mj-rs/src/state.rs` and `legal_fixtures.tsv`.
 
 **Verdict:** The format's interpretation-preservation requirement is wrong for ranked play. The official ranked rules require identical wait kinds and forbid okurikan. They explicitly allow changes in shape and yaku. The FAQ also mentions wait counts. In this snapshot, comparing normalized wait kinds with a physically possible extra copy in the player's own hand plus melds suffices for these examples. Any external visibility semantics need a separate definition. [Ranked rules](https://mahjongsoul.com/news/46/) · [Mahjong Soul FAQ](https://mahjongsoul.com/faq/)
 
@@ -19,7 +19,7 @@
 
 ### 2. Dealer tenhou chooses the best winning tile
 
-**Files and cases:** `spec/rules.md` §2.2, `spec/formats.md` Decision 12, `corpus/score.txt` sc910, sc918, sc3695, sc5136, `corpus/rs/src/scoring.rs`.
+**Files and cases:** `spec/rules.md` §2.2, `spec/formats.md` Decision 12, `corpus/score.txt` sc910, sc918, sc3695, sc5136, `agpl/mj-rs/src/scoring.rs`.
 
 **Verdict:** The ranked rules explicitly maximize the score over the choice of tsumo tile for tenhou. The current format and Rust evaluator use only the supplied winning tile. Treat `hand+win` as the complete opening hand and score every distinct winning-tile assignment, then apply the normal interpretation selection. Preserve the supplied draw for chiihou unless a source establishes a separate exception. [Ranked rules](https://mahjongsoul.com/news/46/)
 
@@ -34,7 +34,7 @@ Each currently pays 2×. I varied the nominated winning tile using the existing 
 
 ### 3. The legal event format cannot express ankan robbery
 
-**Files and cases:** `spec/formats.md` legal, `spec/rules.md` §4.16, `corpus/legal.txt` legal0133–0138, `corpus/rs/src/state.rs` and `generate_legal.py`.
+**Files and cases:** `spec/formats.md` legal, `spec/rules.md` §4.16, `corpus/legal.txt` legal0133–0138, `agpl/mj-rs/src/state.rs` and `generate_legal.py`.
 
 **Verdict:** The same `discard=… flags=chankan` payload cannot distinguish a kakan, which can be robbed by any qualifying hand, from an ankan, which can be robbed only by kokushi. legal0133 permits ron for 23m on 1m with one open chi and no yaku other than chankan. That is correct for kakan. The identical winning shape must get only pass against ankan. The Rust adapter treats every chankan request as kakan. The replay generator emits response snapshots for kakan and skips them for ankan. Also, §4.16 mentions a 13-sided kokushi robbery, which would require five physical copies of the robbed kind across the two players. A single-wait kokushi can hold zero copies of the robbed kind. [Ranked rules](https://mahjongsoul.com/news/46/) · [Mahjong Soul FAQ](https://mahjongsoul.com/faq/)
 
@@ -52,7 +52,7 @@ Each currently pays 2×. I varied the nominated winning tile using the existing 
 
 ### 5. Pao honba is assigned to the liable seat, and Phase 1 cannot represent pao
 
-**Files:** `spec/rules.md` §1 pao rows and §4.31–32, `spec/formats.md` score, `corpus/rs/NOTES.md`.
+**Files:** `spec/rules.md` §1 pao rows and §4.31–32, `spec/formats.md` score, `agpl/mj-rs/NOTES.md`.
 
 **Verdict:** Daisangen/daisuushii liability, full payment on tsumo, half of the liable component on third-party ron, ordinary settlement of the other yakuman components, and no separate daiminkan or suukantsu liability agree with the ranked publication. The ranked text assigns honba to the liable player, conflicting with the table's claim that a third-party discarder pays honba. I did not verify the exact trigger when the final dragon or wind set is completed by daiminkan or when earlier sets are closed kans. The publication's separate statement about daiminkan liability does not spell out every interaction with dragon/wind pao. [Ranked rules](https://mahjongsoul.com/news/46/)
 
@@ -69,7 +69,7 @@ Each currently pays 2×. I varied the nominated winning tile using the existing 
 
 ### 7. Legal corpus provenance leaves alternative actions unchecked
 
-**Files:** `corpus/rs/generate_legal.py`, `legal_fixtures.tsv`, `DISAGREEMENTS.md`, `NOTES.md`, `tools/harness.py`.
+**Files:** `agpl/mj-rs/generate_legal.py`, `legal_fixtures.tsv`, `DISAGREEMENTS.md`, `NOTES.md`, `tools/harness.py`.
 
 The replay checks establish that the recorded move was offered. They cannot establish that every alternative offered was legal. Even the directed cases assert subsets of required and forbidden actions. The rest of each answer is copied from the same adapter. For example, the legal0043 fixture requires chi:24m, while the adapter adds the independently valid chi:45m. A future extra action on that fixture can become an expected answer without a failed assertion. Also, the generator uses the Rust evaluator's candidate ron and waits to construct furiten, so one defect can affect both the input and the expected action. The furiten pass clears missed wins after a call or a non-riichi draw, while the official ranked text places the temporary-furiten reset at the next own draw. Inspect this when regenerating, especially a skipped ron followed by a chi/pon and another winning discard before the caller's next draw. I did not trace a specific affected replay row. [Ranked rules](https://mahjongsoul.com/news/46/)
 
@@ -79,7 +79,7 @@ Require complete hand-authored action sets for directed cases and have an indepe
 
 ### 8. Kuikae verdict and precise contract
 
-**Files and cases:** `spec/rules.md` §1 and §4.12–13, `spec/formats.md` legal, `corpus/legal.txt` legal0025–0048, `corpus/rs/src/chi_candidates.rs` and `state.rs`.
+**Files and cases:** `spec/rules.md` §1 and §4.12–13, `spec/formats.md` legal, `corpus/legal.txt` legal0025–0048, `agpl/mj-rs/src/chi_candidates.rs` and `state.rs`.
 
 **Verdict:** The checked cases correctly implement the full swap ban. The official ranked text confirms swap-calling is disallowed. I did not find an official example enumerating the post-call action list or a ranked replay demonstrating a dead-end chi. The following exact logic matches the repo's stated rule and the hand derivations. [Ranked rules](https://mahjongsoul.com/news/46/)
 
@@ -91,7 +91,7 @@ Require complete hand-authored action sets for directed cases and have an indepe
 
 ### 9. Specify the domains where implementations can otherwise diverge
 
-**Files:** `spec/formats.md` runner, tiles, shanten, waits, legal and Decisions 3–15, `corpus/disputed.txt`, `corpus/rs/NOTES.md`.
+**Files:** `spec/formats.md` runner, tiles, shanten, waits, legal and Decisions 3–15, `corpus/disputed.txt`, `agpl/mj-rs/NOTES.md`.
 
 - **Structural shanten versus legal tenpai.** Decision 4 deliberately accepts abstract fifth-copy tenpai for shanten. hw15 is structurally tenpai and hw25 correctly has no waits. Legal declaration should reject the fifth-copy-only shape, while allowing karaten caused by tiles elsewhere at the table. For hw25 plus a 9p draw, discarding 9p cannot lead to a legal riichi. The Rust `player_shanten` uses a different routine from `shanten` and excludes that action. Write the legal rule directly so reuse of the structural op produces the correct distinction. Explain that a complete 14-tile hand returns -1 before applying any discard analysis. [Ranked rules](https://mahjongsoul.com/news/46/)
 - **Timing of wall and flags.** State that `wall` is counted after the incoming draw. Rust infers a last-tile yaku from `wall=0` even with no flag. A reader could use only flags and reach a different ron/tsumo answer. Define whether flags are required or derived, and ensure rinshan and robbery are excluded from live-wall inference. State that `kans` counts table-wide completed kans, including the caller's kans. Spell out the treatment of the final rinshan discard and of the fourth kan by multiple players, or bound the action set to snapshots where normal discard responses are still allowed. `kans=4` alone cannot encode kan ownership or a pending abort.

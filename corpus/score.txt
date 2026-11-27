@@ -48,6 +48,7 @@ sc20 score hand=12m666p44056677s melds=- win=3m by=ron seat=W round=S dora=2p ur
 = sc20 yaku=aka:1,iipeikou:1,riichi:1 han=3 fu=40 pay=ron:5200 total=5200
 sc21 score hand=222m3444588p678s melds=- win=4p by=tsumo seat=W round=E dora=4z ura=6m flags=riichi
 = sc21 yaku=riichi:1,tanyao:1,tsumo:1 han=3 fu=40 pay=tsumo:1300/2600 total=5200
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,haitei:1,riichi:1,tsumo:1 han=6 fu=25 pay=tsumo:3000/6000 total=12000
 sc22 score hand=440566m67788s77z melds=- win=6s by=tsumo seat=W round=S dora=5z ura=0p flags=riichi,haitei
 = sc22 yaku=aka:1,haitei:1,riichi:1,ryanpeikou:3,tsumo:1 han=7 fu=30 pay=tsumo:3000/6000 total=12000
 # target: double_riichi
@@ -55,6 +56,7 @@ sc23 score hand=34577p777s44777z melds=- win=4z by=tsumo seat=N round=E dora=8m3
 = sc23 yaku=dora:3,double_riichi:2,sanankou:2,tsumo:1,yakuhai_chun:1,yakuhai_seat:1 han=10 fu=50 pay=tsumo:4000/8000 total=16000
 sc24 score hand=334405m78899s66z melds=- win=7s by=ron seat=S round=S dora=5s ura=7z flags=double_riichi
 = sc24 yaku=aka:1,double_riichi:2,ryanpeikou:3 han=6 fu=40 pay=ron:12000 total=12000
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,dora:2,double_riichi:2,houtei:1,tanyao:1 han=9 fu=25 pay=ron:25500 total=25500
 sc25 score hand=7m056677p556677s melds=- win=7m by=ron seat=E round=S dora=5s ura=2z honba=5 flags=double_riichi,houtei
 = sc25 yaku=aka:1,dora:2,double_riichi:2,houtei:1,ryanpeikou:3,tanyao:1 han=10 fu=40 pay=ron:25500 total=25500
 sc26 score hand=2222346666778s melds=- win=7s by=tsumo seat=W round=S dora=5z ura=9m flags=double_riichi
@@ -104,6 +106,7 @@ sc47 score hand=3366779m88s1122z melds=- win=9m by=ron seat=W round=S dora=2p ur
 = sc47 yaku=chiitoi:2,ippatsu:1,riichi:1 han=4 fu=25 pay=ron:6700 total=6700
 sc48 score hand=12345567m11p678s melds=- win=6m by=ron seat=N round=W dora=8s5z ura=3m8s flags=riichi,ippatsu
 = sc48 yaku=ippatsu:1,pinfu:1,riichi:1,ura:1 han=4 fu=30 pay=ron:7700 total=7700
+# tie-break (higher han); same total: yaku=aka:1,houtei:1,iipeikou:1,ippatsu:1,riichi:1,tanyao:1,ura:3 han=9 fu=40 pay=ron:16000 total=16000
 sc49 score hand=3440m222333444s melds=- win=4m by=ron seat=N round=E dora=9s ura=2s flags=riichi,ippatsu,houtei
 = sc49 yaku=aka:1,houtei:1,ippatsu:1,riichi:1,sanankou:2,tanyao:1,ura:3 han=10 fu=50 pay=ron:16000 total=16000
 sc50 score hand=1234567778899m melds=- win=7m by=tsumo seat=N round=E dora=2z ura=2m flags=riichi,ippatsu
@@ -253,6 +256,7 @@ sc120 score hand=4567m777p406s melds=p055m win=7m by=ron seat=E round=E dora=1z
 = sc120 yaku=aka:2,tanyao:1 han=3 fu=30 pay=ron:5800 total=5800
 sc121 score hand=4068p melds=c678p,p055m,p777p win=8p by=ron seat=E round=S dora=3z honba=5
 = sc121 yaku=aka:2,tanyao:1 han=3 fu=30 pay=ron:7300 total=7300
+# tie-break (higher fu); same total: yaku=aka:2,dora:1,sanankou:2,tanyao:1 han=6 fu=40 pay=ron:12000 total=12000
 sc122 score hand=33340666p05666s melds=- win=6p by=ron seat=N round=E dora=3p
 = sc122 yaku=aka:2,dora:1,sanankou:2,tanyao:1 han=6 fu=50 pay=ron:12000 total=12000
 sc123 score hand=23344678m56667p melds=- win=5m by=ron seat=N round=E dora=6m ura=6s honba=2 flags=riichi
@@ -392,6 +396,7 @@ sc188 score hand=22067p67777s melds=k6666z win=5s by=ron seat=N round=S dora=1p2
 = sc188 yaku=aka:1,dora:2,yakuhai_hatsu:1 han=4 fu=40 pay=ron:8000 total=8000
 sc189 score hand=066778m7s melds=p666z,p555z win=7s by=tsumo seat=E round=S dora=5p
 = sc189 yaku=aka:1,yakuhai_haku:1,yakuhai_hatsu:1 han=3 fu=40 pay=all:2600 total=7800
+# tie-break (higher fu); same total: yaku=dora:4,yakuhai_hatsu:1 han=5 fu=40 pay=ron:12000 total=12000
 sc190 score hand=66p12334444s melds=s6666z win=2s by=ron seat=E round=S dora=3p3s
 = sc190 yaku=dora:4,yakuhai_hatsu:1 han=5 fu=50 pay=ron:12000 total=12000
 sc191 score hand=44m067999p77z melds=p666z win=7z by=ron seat=N round=S dora=7s honba=2
@@ -620,6 +625,7 @@ sc299 score hand=57m678p111678s44z melds=- win=6m by=ron seat=N round=S dora=8p 
 = sc299 yaku=houtei:1,riichi:1 han=2 fu=50 pay=ron:3800 total=3800
 sc300 score hand=1234056677888m melds=- win=9m by=ron seat=S round=E dora=9m ura=2z flags=riichi,ippatsu,houtei
 = sc300 yaku=aka:1,chinitsu:6,dora:1,houtei:1,ippatsu:1,ittsu:2,pinfu:1,riichi:1 han=14 fu=30 pay=ron:32000 total=32000
+# tie-break (higher han); same total: yaku=dora:2,houtei:1,riichi:1,ura:2 han=6 fu=40 pay=ron:12000 total=12000
 sc301 score hand=99m45567p234789s melds=- win=6p by=ron seat=S round=W dora=3p3s ura=15p flags=riichi,houtei
 = sc301 yaku=dora:2,houtei:1,pinfu:1,riichi:1,ura:2 han=7 fu=30 pay=ron:12000 total=12000
 sc302 score hand=45789m11444888p melds=- win=6m by=ron seat=N round=E dora=5z ura=3s flags=riichi,houtei
@@ -915,6 +921,7 @@ sc443 score hand=055m055888p55s55z melds=- win=0s by=ron seat=S round=E dora=3p 
 = sc443 yaku=aka:3,riichi:1,sanankou:2,sanshoku_doukou:2,toitoi:2 han=10 fu=50 pay=ron:16300 total=16300
 sc444 score hand=22067999m999p99s melds=- win=9s by=ron seat=W round=W dora=7z honba=2
 = sc444 yaku=aka:1,sanshoku_doukou:2 han=3 fu=50 pay=ron:7000 total=7000
+# tie-break (higher fu); same total: yaku=aka:3,riichi:1,sanankou:2,sanshoku_doukou:2 han=8 fu=40 pay=ron:24600 total=24600
 sc445 score hand=055m05599p55567s melds=- win=0s by=ron seat=E round=E dora=3s ura=8s honba=2 flags=riichi
 = sc445 yaku=aka:3,riichi:1,sanankou:2,sanshoku_doukou:2 han=8 fu=50 pay=ron:24600 total=24600
 sc446 score hand=44m11444s melds=a4444p,k1111m win=4m by=ron seat=N round=S dora=3m8p4z honba=2
@@ -1177,6 +1184,7 @@ sc571 score hand=5m melds=a1111p,k9999s,c456p,k7777s win=0m by=tsumo seat=S roun
 sc572 score hand=11m88p melds=a9999s,a3333z,a7777p win=8p by=ron seat=N round=S dora=1348p ura=0m5p8s4z flags=riichi
 = sc572 yaku=riichi:1,sanankou:2,sankantsu:2,toitoi:2,ura:4 han=11 fu=120 pay=ron:24000 total=24000
 # target: honitsu
+# tie-break (higher han); same total: yaku=dora:1,honitsu:3,iipeikou:1,tsumo:1 han=6 fu=30 pay=tsumo:3000/6000 total=12000
 sc573 score hand=111222333678s2z melds=- win=2z by=tsumo seat=N round=E dora=6p5s
 = sc573 yaku=dora:1,honitsu:3,sanankou:2,tsumo:1 han=7 fu=40 pay=tsumo:3000/6000 total=12000
 sc574 score hand=34566667s33666z melds=- win=0s by=ron seat=N round=E dora=4p ura=7m honba=5 flags=riichi
@@ -1240,6 +1248,7 @@ sc602 score hand=789m999p1123s melds=p999m win=1s by=tsumo seat=S round=S dora=1
 = sc602 yaku=dora:1,junchan:2 han=3 fu=40 pay=tsumo:1600/2900 total=6100
 sc603 score hand=999m1111223389s melds=- win=7s by=ron seat=W round=S dora=5s ura=5m honba=1 flags=double_riichi
 = sc603 yaku=double_riichi:2,iipeikou:1,junchan:3 han=6 fu=40 pay=ron:12300 total=12300
+# tie-break (higher fu); same total: yaku=junchan:3,sanankou:2 han=5 fu=50 pay=ron:8000 total=8000
 sc604 score hand=11123999m111p11s melds=- win=1m by=ron seat=S round=E dora=3z
 = sc604 yaku=junchan:3,sanankou:2 han=5 fu=60 pay=ron:8000 total=8000
 sc605 score hand=99p11s melds=c123s,c789p,c789s win=1s by=tsumo seat=W round=S dora=5s
@@ -1273,8 +1282,10 @@ sc618 score hand=1167788p112233s melds=- win=6p by=tsumo seat=E round=W dora=9m 
 = sc618 yaku=pinfu:1,riichi:1,ryanpeikou:3,tsumo:1,ura:2 han=8 fu=20 pay=all:8200 total=24600
 sc619 score hand=22m223344p12233s melds=- win=1s by=ron seat=S round=W dora=5s ura=9p honba=4 flags=riichi
 = sc619 yaku=pinfu:1,riichi:1,ryanpeikou:3 han=5 fu=30 pay=ron:9200 total=9200
+# tie-break (higher han); same total: yaku=aka:1,riichi:1,sanankou:2,tanyao:1,tsumo:1 han=6 fu=40 pay=tsumo:3000/6000 total=12000
 sc620 score hand=33334440555p22s melds=- win=4p by=tsumo seat=S round=N dora=6s ura=3m flags=riichi
 = sc620 yaku=aka:1,riichi:1,ryanpeikou:3,tanyao:1,tsumo:1 han=7 fu=30 pay=tsumo:3000/6000 total=12000
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,dora:2,tsumo:1 han=6 fu=25 pay=tsumo:3000/6000 total=12000
 sc621 score hand=11223m056677s55z melds=- win=3m by=tsumo seat=N round=S dora=6s
 = sc621 yaku=aka:1,dora:2,ryanpeikou:3,tsumo:1 han=7 fu=30 pay=tsumo:3000/6000 total=12000
 sc622 score hand=22344m056677p33s melds=- win=3m by=tsumo seat=N round=W dora=2s ura=5p flags=riichi
@@ -1285,6 +1296,7 @@ sc624 score hand=667788p23344s22z melds=- win=2s by=ron seat=S round=E dora=4z
 = sc624 yaku=ryanpeikou:3 han=3 fu=40 pay=ron:5200 total=5200
 sc625 score hand=77889p11223399s melds=- win=9p by=ron seat=E round=S dora=8p
 = sc625 yaku=dora:2,junchan:3,pinfu:1,ryanpeikou:3 han=9 fu=30 pay=ron:24000 total=24000
+# tie-break (higher han); same total: yaku=aka:2,chiitoi:2,tanyao:1,tsumo:1 han=6 fu=25 pay=tsumo:3100/6100 total=12300
 sc626 score hand=3340577p056677s melds=- win=4p by=tsumo seat=W round=E dora=6m honba=1
 = sc626 yaku=aka:2,ryanpeikou:3,tanyao:1,tsumo:1 han=7 fu=30 pay=tsumo:3100/6100 total=12300
 sc627 score hand=11m78899p056677s melds=- win=7p by=tsumo seat=W round=S dora=7z ura=1p honba=1 flags=double_riichi,ippatsu
@@ -1299,6 +1311,7 @@ sc631 score hand=33405556677m33p melds=- win=4m by=ron seat=S round=W dora=8m ur
 = sc631 yaku=aka:1,riichi:1,ryanpeikou:3,tanyao:1 han=6 fu=40 pay=ron:12300 total=12300
 sc632 score hand=66778m22p667788s melds=- win=8m by=tsumo seat=S round=E dora=5m1s ura=4p5z honba=1 flags=riichi
 = sc632 yaku=dora:2,pinfu:1,riichi:1,ryanpeikou:3,tanyao:1,tsumo:1 han=9 fu=20 pay=tsumo:4100/8100 total=16300
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,dora:2,tsumo:1 han=6 fu=25 pay=tsumo:3300/6300 total=12900
 sc633 score hand=112233m33p44066s melds=- win=5s by=tsumo seat=W round=E dora=9m honba=3
 = sc633 yaku=aka:1,dora:2,ryanpeikou:3,tsumo:1 han=7 fu=30 pay=tsumo:3300/6300 total=12900
 sc634 score hand=3333405778899s melds=- win=4s by=tsumo seat=E round=S dora=7m honba=5
@@ -1933,8 +1946,10 @@ sc908 score hand=1s melds=a4444p,a4444m,k1111m,k2222m win=1s by=tsumo seat=N rou
 # target: tenhou
 sc909 score hand=234m345p4467778s melds=- win=7s by=tsumo seat=E round=S dora=3s honba=3 flags=tenhou
 = sc909 yaku=tenhou:1 yakuman=1 pay=all:16300 total=48900
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
 sc910 score hand=199m19p19s123467z melds=- win=5z by=tsumo seat=E round=S dora=3p honba=1 flags=tenhou
-= sc910 yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+= sc910 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
 sc911 score hand=23567m11567p567s melds=- win=4m by=tsumo seat=E round=S dora=4p flags=tenhou
 = sc911 yaku=tenhou:1 yakuman=1 pay=all:16000 total=48000
 sc912 score hand=99m799p11223305s melds=- win=7p by=tsumo seat=E round=E dora=4p flags=tenhou
@@ -1949,8 +1964,10 @@ sc916 score hand=23333488s22444z melds=- win=2z by=tsumo seat=E round=S dora=4m 
 = sc916 yaku=tenhou:1 yakuman=1 pay=all:16000 total=48000
 sc917 score hand=44m33558p224477s melds=- win=8p by=tsumo seat=E round=S dora=9p flags=tenhou
 = sc917 yaku=tenhou:1 yakuman=1 pay=all:16000 total=48000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
 sc918 score hand=44477m333p66s333z melds=- win=6s by=tsumo seat=E round=E dora=3m flags=tenhou
-= sc918 yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+= sc918 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
 sc919 score hand=1235566p444555z melds=- win=0p by=tsumo seat=E round=E dora=5s honba=1 flags=tenhou
 = sc919 yaku=tenhou:1 yakuman=1 pay=all:16100 total=48300
 sc920 score hand=12356778899p44z melds=- win=4p by=tsumo seat=E round=E dora=9s flags=tenhou
@@ -2465,6 +2482,7 @@ sc1168 score hand=123m3z melds=c123s,s3333p,c567m win=3z by=ron seat=W round=W d
 = sc1168 error=no_yaku
 sc1169 score hand=88m05p888s melds=a0555s,c345p win=5p by=tsumo seat=E round=S dora=9m3s honba=1
 = sc1169 yaku=aka:2,sanankou:2,tanyao:1 han=5 fu=50 pay=all:4100 total=12300
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,ippatsu:1,riichi:1 han=9 fu=40 pay=ron:24000 total=24000
 sc1170 score hand=3344056677889s melds=- win=3s by=ron seat=E round=N dora=8p ura=1m flags=riichi,ippatsu
 = sc1170 yaku=aka:1,chinitsu:6,ippatsu:1,pinfu:1,riichi:1 han=10 fu=30 pay=ron:24000 total=24000
 sc1171 score hand=555s4z melds=c067s,c345p,p222s win=4z by=ron seat=N round=E dora=4m honba=1
@@ -3870,6 +3888,7 @@ sc1865 score hand=2m melds=c456p,c067s,c123m,c234m win=2m by=ron seat=E round=E 
 = sc1865 error=no_yaku
 sc1866 score hand=12377p456789s44z melds=- win=4z by=tsumo seat=S round=E dora=2z ura=5z honba=3 flags=riichi
 = sc1866 yaku=riichi:1,tsumo:1 han=2 fu=30 pay=tsumo:800/1300 total=2900
+# tie-break (higher han); same total: yaku=aka:2,iipeikou:1,riichi:1,tanyao:1,tsumo:1 han=6 fu=30 pay=tsumo:3000/6000 total=12000
 sc1867 score hand=344056m3334405s melds=- win=3s by=tsumo seat=W round=W dora=9p ura=5s flags=riichi
 = sc1867 yaku=aka:2,iipeikou:1,pinfu:1,riichi:1,tanyao:1,tsumo:1 han=7 fu=20 pay=tsumo:3000/6000 total=12000
 sc1868 score hand=123m111p7999s melds=c123p win=8s by=tsumo seat=N round=S dora=6m
@@ -4117,6 +4136,7 @@ sc1987 score hand=22440667788p77z melds=- win=5p by=tsumo seat=N round=E dora=4m
 = sc1987 yaku=aka:1,chiitoi:2,honitsu:3,tsumo:1 han=7 fu=25 pay=tsumo:3200/6200 total=12600
 sc1988 score hand=2288m055888p777s melds=- win=2m by=ron seat=N round=W dora=2m honba=8
 = sc1988 yaku=aka:1,sanankou:2,tanyao:1,toitoi:2 han=6 fu=50 pay=ron:14400 total=14400
+# tie-break (higher fu); same total: yaku=aka:1,honitsu:3,iipeikou:1,riichi:1,yakuhai_chun:1,yakuhai_haku:1 han=8 fu=70 pay=ron:24000 total=24000
 sc1989 score hand=3344056s555z melds=a7777z win=6s by=ron seat=E round=S dora=34p ura=2m9p flags=riichi
 = sc1989 yaku=aka:1,honitsu:3,iipeikou:1,riichi:1,yakuhai_chun:1,yakuhai_haku:1 han=8 fu=80 pay=ron:24000 total=24000
 sc1990 score hand=7s melds=c456m,k7777p,p666m,p111z win=7s by=tsumo seat=E round=S dora=5p9s flags=rinshan
@@ -4129,6 +4149,7 @@ sc1993 score hand=11444999p07s melds=a3333p win=6s by=tsumo seat=S round=E dora=
 = sc1993 yaku=aka:1,sanankou:2,tsumo:1 han=4 fu=60 pay=tsumo:2000/4000 total=8000
 sc1994 score hand=344056m566778p1z melds=- win=1z by=ron seat=N round=E dora=3z
 = sc1994 error=no_yaku
+# tie-break (higher han); same total: yaku=chinitsu:6,iipeikou:1,tsumo:1 han=8 fu=30 pay=tsumo:4300/8300 total=16900
 sc1995 score hand=2233445667899s melds=- win=7s by=tsumo seat=S round=S dora=2z honba=3
 = sc1995 yaku=chinitsu:6,iipeikou:1,pinfu:1,tsumo:1 han=9 fu=20 pay=tsumo:4300/8300 total=16900
 sc1996 score hand=99p30s555666777z melds=- win=4s by=tsumo seat=E round=E dora=1p flags=haitei
@@ -4193,6 +4214,7 @@ sc2025 score hand=2m melds=c340p,c234m,c567p,c456p win=2m by=tsumo seat=E round=
 = sc2025 yaku=aka:1,dora:2,tanyao:1 han=4 fu=30 pay=all:3900 total=11700
 sc2026 score hand=7p melds=p444m,p777m,p055p,p666m win=7p by=ron seat=W round=S dora=44p
 = sc2026 yaku=aka:1,dora:6,tanyao:1,toitoi:2 han=10 fu=30 pay=ron:16000 total=16000
+# tie-break (higher han); same total: yaku=aka:1,ippatsu:1,riichi:1,tanyao:1 han=4 fu=40 pay=ron:8000 total=8000
 sc2027 score hand=405667m234p5677s melds=- win=7s by=ron seat=N round=S dora=1z ura=4p flags=riichi,ippatsu
 = sc2027 yaku=aka:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1 han=5 fu=30 pay=ron:8000 total=8000
 sc2028 score hand=78m44567999p222z melds=- win=6m by=tsumo seat=E round=S dora=8m ura=6z honba=1 flags=riichi
@@ -4240,6 +4262,7 @@ sc2048 score hand=11222m66p666s melds=k7777s win=1m by=ron seat=N round=S dora=9
 = sc2048 yaku=toitoi:2 han=2 fu=40 pay=ron:3200 total=3200
 sc2049 score hand=3s melds=c234s,c567s,c406p,c678m win=3s by=ron seat=W round=E dora=5z
 = sc2049 yaku=aka:1,tanyao:1 han=2 fu=30 pay=ron:2000 total=2000
+# tie-break (higher fu); same total: yaku=aka:1,iipeikou:1,pinfu:1,tanyao:1,tsumo:1 han=5 fu=20 pay=tsumo:2000/4000 total=8000
 sc2050 score hand=22567m33344455s melds=- win=0s by=tsumo seat=W round=S dora=2p
 = sc2050 yaku=aka:1,sanankou:2,tanyao:1,tsumo:1 han=5 fu=40 pay=tsumo:2000/4000 total=8000
 sc2051 score hand=340789m2222333s melds=- win=1s by=ron seat=N round=E dora=3z ura=1m honba=4 flags=riichi
@@ -4308,6 +4331,7 @@ sc2082 score hand=3s melds=c789s,c123s,c067s,c789s win=3s by=ron seat=S round=E 
 = sc2082 yaku=aka:1,chinitsu:5,dora:1 han=7 fu=30 pay=ron:12000 total=12000
 sc2083 score hand=678m05567p34067s melds=- win=5s by=ron seat=W round=E dora=6z ura=9s honba=3 flags=riichi,ippatsu
 = sc2083 yaku=aka:2,ippatsu:1,pinfu:1,riichi:1,tanyao:1 han=6 fu=30 pay=ron:12900 total=12900
+# tie-break (higher fu); same total: yaku=aka:1,ippatsu:1,riichi:1,sanankou:2,tanyao:1 han=6 fu=40 pay=ron:12000 total=12000
 sc2084 score hand=4440556m666p666s melds=- win=5m by=ron seat=W round=E dora=9s ura=7m flags=riichi,ippatsu
 = sc2084 yaku=aka:1,ippatsu:1,riichi:1,sanankou:2,tanyao:1 han=6 fu=50 pay=ron:12000 total=12000
 sc2085 score hand=78m11s melds=p333z,c678s,c567m win=9m by=ron seat=W round=E dora=3s
@@ -4385,6 +4409,7 @@ sc2120 score hand=77799m34p789s melds=a7777p win=2p by=tsumo seat=S round=S dora
 = sc2120 yaku=dora:1,riichi:1,tsumo:1 han=3 fu=50 pay=tsumo:1700/3300 total=6700
 sc2121 score hand=667778889p6888s melds=- win=6s by=tsumo seat=W round=S dora=5s
 = sc2121 yaku=dora:2,iipeikou:1,tsumo:1 han=4 fu=30 pay=tsumo:2000/3900 total=7900
+# tie-break (higher han); same total: yaku=chiitoi:2,dora:2,riichi:1,tanyao:1 han=6 fu=25 pay=ron:12000 total=12000
 sc2122 score hand=55677m223344p88s melds=- win=6m by=ron seat=W round=S dora=6m ura=8p flags=riichi
 = sc2122 yaku=dora:2,riichi:1,ryanpeikou:3,tanyao:1 han=7 fu=40 pay=ron:12000 total=12000
 sc2123 score hand=34055667789s11z melds=- win=7s by=ron seat=W round=S dora=1z honba=2
@@ -4526,6 +4551,7 @@ sc2190 score hand=22678p22234s777z melds=- win=2s by=tsumo seat=W round=E dora=6
 = sc2190 yaku=dora:3,tsumo:1,yakuhai_chun:1 han=5 fu=40 pay=tsumo:2300/4300 total=8900
 sc2191 score hand=06m05s melds=c456s,p666z,s8888p win=7m by=ron seat=N round=S dora=1p7s
 = sc2191 yaku=aka:2,yakuhai_hatsu:1 han=3 fu=40 pay=ron:5200 total=5200
+# tie-break (higher fu); same total: yaku=chinitsu:6,double_riichi:2,ippatsu:1,sanankou:2,tanyao:1 han=12 fu=40 pay=ron:36000 total=36000
 sc2192 score hand=2233344445666p melds=- win=3p by=ron seat=E round=S dora=3s ura=1z flags=double_riichi,ippatsu
 = sc2192 yaku=chinitsu:6,double_riichi:2,ippatsu:1,sanankou:2,tanyao:1 han=12 fu=50 pay=ron:36000 total=36000
 sc2193 score hand=22m11s melds=p999p,s6666m,s1111p win=2m by=tsumo seat=E round=S dora=27p1z
@@ -4542,6 +4568,7 @@ sc2198 score hand=678m66688p66s222z melds=- win=8p by=tsumo seat=E round=E dora=
 = sc2198 yaku=sanankou:2,tsumo:1 han=3 fu=40 pay=all:2700 total=8100
 sc2199 score hand=22233778899s33z melds=- win=3s by=tsumo seat=E round=E dora=4p ura=2z honba=3 flags=riichi
 = sc2199 yaku=honitsu:3,iipeikou:1,riichi:1,tsumo:1,ura:2 han=8 fu=30 pay=all:8300 total=24900
+# tie-break (higher fu); same total: yaku=aka:1,honitsu:3,iipeikou:1,riichi:1 han=6 fu=40 pay=ron:12300 total=12300
 sc2200 score hand=12334405999p66z melds=- win=3p by=ron seat=S round=E dora=5p ura=5s honba=1 flags=riichi
 = sc2200 yaku=aka:1,honitsu:3,iipeikou:1,riichi:1 han=6 fu=50 pay=ron:12300 total=12300
 sc2201 score hand=3440778899p melds=c456p win=4p by=tsumo seat=E round=E dora=0s
@@ -4710,6 +4737,7 @@ sc2282 score hand=406m13340789p88s melds=- win=2p by=tsumo seat=E round=S dora=1
 = sc2282 yaku=aka:2,haitei:1,tsumo:1 han=4 fu=30 pay=all:4000 total=12000
 sc2283 score hand=440566m3334567p melds=- win=8p by=tsumo seat=S round=E dora=3z ura=4z honba=1 flags=riichi
 = sc2283 yaku=aka:1,iipeikou:1,pinfu:1,riichi:1,tanyao:1,tsumo:1 han=6 fu=20 pay=tsumo:3100/6100 total=12300
+# tie-break (higher fu); same total: yaku=aka:1,iipeikou:1,pinfu:1,tanyao:1,tsumo:1 han=5 fu=20 pay=all:4300 total=12900
 sc2284 score hand=55m22333344440s melds=- win=2s by=tsumo seat=E round=S dora=1m honba=3
 = sc2284 yaku=aka:1,sanankou:2,tanyao:1,tsumo:1 han=5 fu=40 pay=all:4300 total=12900
 sc2285 score hand=8m123344556p melds=s2222z win=8m by=tsumo seat=E round=E dora=4m2s
@@ -4720,6 +4748,7 @@ sc2287 score hand=333666888p6699s melds=- win=9s by=ron seat=E round=E dora=7z
 = sc2287 yaku=sanankou:2,toitoi:2 han=4 fu=50 pay=ron:12000 total=12000
 sc2288 score hand=11233m445566p99s melds=- win=2m by=ron seat=E round=E dora=3p
 = sc2288 yaku=dora:2,ryanpeikou:3 han=5 fu=40 pay=ron:12000 total=12000
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,riichi:1,tanyao:1 han=9 fu=40 pay=ron:16000 total=16000
 sc2289 score hand=2334440556777p melds=- win=6p by=ron seat=S round=S dora=3s ura=7p flags=riichi
 = sc2289 yaku=aka:1,chinitsu:6,pinfu:1,riichi:1,tanyao:1 han=10 fu=30 pay=ron:16000 total=16000
 sc2290 score hand=888m4446s melds=a9999p,p222z win=6s by=tsumo seat=E round=E dora=7s5z flags=rinshan
@@ -5017,6 +5046,7 @@ sc2435 score hand=19m19p19s1235567z melds=- win=4z by=ron seat=W round=E dora=9p
 = sc2435 yaku=kokushi:1 yakuman=1 pay=ron:32600 total=32600
 sc2436 score hand=11233m778899p55s melds=- win=2m by=tsumo seat=E round=S dora=1s honba=5
 = sc2436 yaku=ryanpeikou:3,tsumo:1 han=4 fu=30 pay=all:4400 total=13200
+# tie-break (higher han); same total: yaku=aka:2,ippatsu:1,riichi:1 han=4 fu=40 pay=ron:12000 total=12000
 sc2437 score hand=456789m40567p05s melds=- win=6p by=ron seat=E round=E dora=7s ura=3s flags=riichi,ippatsu
 = sc2437 yaku=aka:2,ippatsu:1,pinfu:1,riichi:1 han=5 fu=30 pay=ron:12000 total=12000
 sc2438 score hand=3p067s555z melds=p333s,k2222m win=3p by=ron seat=S round=S dora=9m7p honba=4
@@ -5332,6 +5362,7 @@ sc2592 score hand=330588m66p22335s melds=- win=0s by=tsumo seat=S round=E dora=4
 = sc2592 yaku=aka:2,chiitoi:2,dora:2,tanyao:1,tsumo:1 han=8 fu=25 pay=tsumo:4100/8100 total=16300
 sc2593 score hand=05p99s melds=p666m,p111s,p777m win=9s by=ron seat=S round=E dora=3s
 = sc2593 yaku=aka:1,toitoi:2 han=3 fu=40 pay=ron:5200 total=5200
+# tie-break (higher fu); same total: yaku=aka:1,dora:2,tsumo:1,yakuhai_haku:1 han=5 fu=30 pay=tsumo:2000/4000 total=8000
 sc2594 score hand=2344445m340s555z melds=- win=3m by=tsumo seat=S round=E dora=2m
 = sc2594 yaku=aka:1,dora:2,tsumo:1,yakuhai_haku:1 han=5 fu=40 pay=tsumo:2000/4000 total=8000
 sc2595 score hand=7p melds=p333p,c567m,s8888s,s6666s win=7p by=tsumo seat=E round=S dora=1p27z
@@ -5548,6 +5579,7 @@ sc2699 score hand=2z melds=c456m,k4444z,c456m,c789m win=2z by=ron seat=S round=W
 = sc2699 yaku=honitsu:2 han=2 fu=40 pay=ron:2600 total=2600
 sc2700 score hand=555m1155p055888s melds=- win=0p by=ron seat=W round=S dora=4z ura=6s flags=riichi
 = sc2700 yaku=aka:2,riichi:1,sanankou:2,sanshoku_doukou:2,toitoi:2 han=9 fu=50 pay=ron:16000 total=16000
+# tie-break (higher han); same total: yaku=sanankou:2,tanyao:1,tsumo:1 han=4 fu=40 pay=all:4000 total=12000
 sc2701 score hand=222233334444m3s melds=- win=3s by=tsumo seat=E round=E dora=4p
 = sc2701 yaku=ryanpeikou:3,tanyao:1,tsumo:1 han=5 fu=30 pay=all:4000 total=12000
 sc2702 score hand=678m2p melds=c456m,p888m,p666z win=2p by=ron seat=W round=S dora=7p honba=5
@@ -5783,6 +5815,7 @@ sc2816 score hand=57m406999p22244z melds=- win=6m by=ron seat=N round=S dora=7s 
 = sc2816 yaku=aka:1,riichi:1,yakuhai_round:1 han=3 fu=50 pay=ron:6700 total=6700
 sc2817 score hand=067m88p06677s melds=p333m win=8s by=ron seat=S round=E dora=5z
 = sc2817 yaku=aka:2,tanyao:1 han=3 fu=30 pay=ron:3900 total=3900
+# tie-break (higher fu); same total: yaku=honitsu:3,sanankou:2 han=5 fu=50 pay=ron:12000 total=12000
 sc2818 score hand=2333499s333444z melds=- win=3s by=ron seat=E round=E dora=5p
 = sc2818 yaku=honitsu:3,sanankou:2 han=5 fu=60 pay=ron:12000 total=12000
 sc2819 score hand=23678m055s11155z melds=- win=1m by=tsumo seat=S round=E dora=1m ura=2m flags=riichi
@@ -5855,6 +5888,7 @@ sc2852 score hand=777m45p11444555z melds=- win=6p by=ron seat=S round=E dora=4m 
 = sc2852 yaku=houtei:1,sanankou:2,yakuhai_haku:1 han=4 fu=60 pay=ron:8000 total=8000
 sc2853 score hand=2223344055m111s melds=- win=4m by=ron seat=E round=S dora=3z ura=7p flags=riichi
 = sc2853 yaku=aka:1,riichi:1,sanankou:2,toitoi:2 han=6 fu=50 pay=ron:18000 total=18000
+# tie-break (higher han); same total: yaku=aka:1,houtei:1,iipeikou:1,tanyao:1 han=4 fu=40 pay=ron:8300 total=8300
 sc2854 score hand=68m444055666p22s melds=- win=7m by=ron seat=N round=S dora=8m honba=1 flags=houtei
 = sc2854 yaku=aka:1,houtei:1,sanankou:2,tanyao:1 han=5 fu=50 pay=ron:8300 total=8300
 sc2855 score hand=222m067789p2267s melds=- win=8s by=tsumo seat=N round=E dora=2z ura=4m flags=riichi
@@ -5891,6 +5925,7 @@ sc2870 score hand=77s55577z melds=p999s,c789s win=7z by=ron seat=N round=E dora=
 = sc2870 yaku=honitsu:2,yakuhai_chun:1,yakuhai_haku:1 han=4 fu=40 pay=ron:8600 total=8600
 sc2871 score hand=122334m3445p234s melds=- win=4p by=ron seat=E round=S dora=6p ura=4z flags=riichi
 = sc2871 yaku=riichi:1 han=1 fu=40 pay=ron:2000 total=2000
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,riichi:1,tanyao:1 han=9 fu=50 pay=ron:24600 total=24600 | yaku=aka:1,chinitsu:6,riichi:1,tanyao:1 han=9 fu=60 pay=ron:24600 total=24600
 sc2872 score hand=2233440555m melds=a6666m win=2m by=ron seat=E round=N dora=9m3z ura=15p honba=2 flags=riichi
 = sc2872 yaku=aka:1,chinitsu:6,iipeikou:1,riichi:1,tanyao:1 han=10 fu=50 pay=ron:24600 total=24600
 # rule-sensitive (no double yakuman): = yaku=suuankou_tanki:1 yakuman=1 pay=tsumo:8100/16100 total=32300
@@ -5944,12 +5979,14 @@ sc2896 score hand=4567s melds=a8888s,a1111s,p444s win=7s by=ron seat=E round=S d
 = sc2896 yaku=chinitsu:5 han=5 fu=80 pay=ron:12000 total=12000
 sc2897 score hand=12344056678p88s melds=- win=9p by=ron seat=N round=S dora=5z honba=1
 = sc2897 yaku=aka:1,iipeikou:1,ittsu:2,pinfu:1 han=5 fu=30 pay=ron:8300 total=8300
+# tie-break (higher fu); same total: yaku=aka:1,haitei:1,iipeikou:1,pinfu:1,tanyao:1,tsumo:1 han=6 fu=20 pay=all:6100 total=18300
 sc2898 score hand=56m22233344405s melds=- win=4m by=tsumo seat=E round=E dora=3z honba=1 flags=haitei
 = sc2898 yaku=aka:1,haitei:1,sanankou:2,tanyao:1,tsumo:1 han=6 fu=40 pay=all:6100 total=18300
 sc2899 score hand=06789m678p22333z melds=- win=7m by=tsumo seat=W round=E dora=2m honba=3
 = sc2899 yaku=aka:1,tsumo:1,yakuhai_seat:1 han=3 fu=40 pay=tsumo:1600/2900 total=6100
 sc2900 score hand=88m23344057s melds=p777m win=6s by=ron seat=S round=S dora=4z
 = sc2900 yaku=aka:1,tanyao:1 han=2 fu=30 pay=ron:2000 total=2000
+# tie-break (higher han); same total: yaku=aka:1,iipeikou:1,ippatsu:1,riichi:1,tanyao:1,tsumo:1 han=6 fu=30 pay=tsumo:3000/6000 total=12000
 sc2901 score hand=345m55p45566677s melds=- win=0s by=tsumo seat=W round=S dora=4z ura=4z flags=riichi,ippatsu
 = sc2901 yaku=aka:1,iipeikou:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1,tsumo:1 han=7 fu=20 pay=tsumo:3000/6000 total=12000
 sc2902 score hand=234m34405567p44z melds=- win=3p by=ron seat=W round=S dora=8m7z ura=6m7s flags=riichi
@@ -6009,6 +6046,7 @@ sc2928 score hand=345m13340p77789s melds=- win=2p by=tsumo seat=W round=E dora=2
 = sc2928 yaku=aka:1,haitei:1,tsumo:1 han=3 fu=30 pay=tsumo:1100/2100 total=4300
 sc2929 score hand=6m melds=p111p,c123m,c123s,c123p win=6m by=ron seat=S round=E dora=2m honba=1
 = sc2929 yaku=dora:1,sanshoku:1 han=2 fu=30 pay=ron:2300 total=2300
+# tie-break (higher fu); same total: yaku=aka:1,honitsu:3,iipeikou:1,tsumo:1,yakuhai_chun:1 han=7 fu=30 pay=tsumo:3100/6100 total=12300
 sc2930 score hand=3344055789p777z melds=- win=5p by=tsumo seat=S round=E dora=7m honba=1
 = sc2930 yaku=aka:1,honitsu:3,iipeikou:1,tsumo:1,yakuhai_chun:1 han=7 fu=40 pay=tsumo:3100/6100 total=12300
 sc2931 score hand=444m333999p7799s melds=- win=7s by=tsumo seat=E round=E dora=6p ura=2s honba=2 flags=riichi
@@ -6023,10 +6061,12 @@ sc2935 score hand=2266777788899p melds=- win=0p by=tsumo seat=S round=E dora=2s
 = sc2935 yaku=aka:1,chinitsu:6,iipeikou:1,pinfu:1,tsumo:1 han=10 fu=20 pay=tsumo:4000/8000 total=16000
 sc2936 score hand=44406p34066688s melds=- win=8s by=tsumo seat=S round=E dora=4s honba=1
 = sc2936 yaku=aka:2,dora:1,tanyao:1,tsumo:1 han=5 fu=30 pay=tsumo:2100/4100 total=8300
+# tie-break (higher han); same total: yaku=chinitsu:6,riichi:1,tsumo:1 han=8 fu=30 pay=tsumo:4100/8100 total=16300
 sc2937 score hand=1223334456788m melds=- win=8m by=tsumo seat=S round=S dora=6p ura=5z honba=1 flags=riichi
 = sc2937 yaku=chinitsu:6,pinfu:1,riichi:1,tsumo:1 han=9 fu=20 pay=tsumo:4100/8100 total=16300
 sc2938 score hand=4p melds=a4444z,a1111p,c567s,k3333m win=4p by=ron seat=W round=S dora=7m88p6z
 = sc2938 yaku=sankantsu:2 han=2 fu=100 pay=ron:6400 total=6400
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,tanyao:1 han=8 fu=40 pay=ron:16000 total=16000
 sc2939 score hand=2334440566678p melds=- win=6p by=ron seat=S round=W dora=8m
 = sc2939 yaku=aka:1,chinitsu:6,pinfu:1,tanyao:1 han=9 fu=30 pay=ron:16000 total=16000
 sc2940 score hand=33344m44666p melds=a6666m win=4p by=ron seat=S round=S dora=7p5z ura=4m1z flags=riichi
@@ -6096,6 +6136,7 @@ sc2971 score hand=66678m123p678s44z melds=- win=6m by=tsumo seat=E round=S dora=
 = sc2971 yaku=dora:1,double_riichi:2,tsumo:1 han=4 fu=30 pay=all:3900 total=11700
 sc2972 score hand=33m11130678p666z melds=- win=4p by=tsumo seat=E round=E dora=5p
 = sc2972 yaku=aka:1,dora:1,tsumo:1,yakuhai_hatsu:1 han=4 fu=40 pay=all:4000 total=12000
+# tie-break (higher fu); same total: yaku=double_riichi:2,honitsu:3,iipeikou:1,tsumo:1,yakuhai_seat:1 han=8 fu=30 pay=tsumo:4000/8000 total=16000
 sc2973 score hand=3344455699p333z melds=- win=5p by=tsumo seat=W round=E dora=6s ura=1m flags=double_riichi
 = sc2973 yaku=double_riichi:2,honitsu:3,iipeikou:1,tsumo:1,yakuhai_seat:1 han=8 fu=40 pay=tsumo:4000/8000 total=16000
 sc2974 score hand=1110p999s555z melds=s7777m win=5p by=tsumo seat=W round=S dora=6p3z
@@ -6302,6 +6343,7 @@ sc3074 score hand=66m05p333456s melds=p555z win=6m by=ron seat=S round=S dora=9s
 = sc3074 yaku=aka:1,yakuhai_haku:1 han=2 fu=30 pay=ron:2000 total=2000
 sc3075 score hand=2344489p333444z melds=- win=7p by=ron seat=W round=S dora=8s ura=7p flags=riichi,ippatsu
 = sc3075 yaku=honitsu:3,ippatsu:1,riichi:1,ura:1,yakuhai_seat:1 han=7 fu=50 pay=ron:12000 total=12000
+# tie-break (higher han); same total: yaku=aka:1,honitsu:3,riichi:1,ryanpeikou:3,tsumo:1 han=9 fu=30 pay=tsumo:4000/8000 total=16000
 sc3076 score hand=44055566677s22z melds=- win=6s by=tsumo seat=W round=W dora=1m ura=4p flags=riichi
 = sc3076 yaku=aka:1,honitsu:3,pinfu:1,riichi:1,ryanpeikou:3,tsumo:1 han=10 fu=20 pay=tsumo:4000/8000 total=16000
 sc3077 score hand=34588p888s33666z melds=- win=3z by=ron seat=S round=S dora=9s
@@ -6321,6 +6363,7 @@ sc3083 score hand=1233440555677m melds=- win=2m by=tsumo seat=S round=E dora=1z 
 # rule-sensitive (no double yakuman): = yaku=suuankou_tanki:1 yakuman=1 pay=ron:48600 total=48600
 sc3084 score hand=1222333999m444p melds=- win=1m by=ron seat=E round=S dora=8m honba=2
 = sc3084 yaku=suuankou_tanki:2 yakuman=2 pay=ron:96600 total=96600
+# tie-break (higher han); same total: yaku=aka:1,ryanpeikou:3,tanyao:1,tsumo:1 han=6 fu=30 pay=tsumo:3000/6000 total=12000
 sc3085 score hand=4056677p223344s melds=- win=4p by=tsumo seat=N round=E dora=5z
 = sc3085 yaku=aka:1,pinfu:1,ryanpeikou:3,tanyao:1,tsumo:1 han=7 fu=20 pay=tsumo:3000/6000 total=12000
 sc3086 score hand=67m234p11234067s melds=- win=5m by=tsumo seat=S round=E dora=7m4s ura=6p9s flags=double_riichi
@@ -6393,6 +6436,7 @@ sc3119 score hand=7z melds=c678s,c345p,p777s,c234m win=7z by=tsumo seat=E round=
 = sc3119 error=no_yaku
 sc3120 score hand=2p melds=s9999m,s7777z,k2222s,s2222m win=2p by=tsumo seat=N round=S dora=15m48p3z honba=1
 = sc3120 yaku=suukantsu:1 yakuman=1 pay=tsumo:8100/16100 total=32300
+# tie-break (higher fu); same total: yaku=aka:1,chinitsu:6 han=7 fu=40 pay=ron:12000 total=12000
 sc3121 score hand=1111222333406p melds=- win=2p by=ron seat=N round=E dora=5z
 = sc3121 yaku=aka:1,chinitsu:6 han=7 fu=50 pay=ron:12000 total=12000
 sc3122 score hand=12p789s11555z melds=c123m win=3p by=ron seat=E round=E dora=1p honba=2
@@ -6409,6 +6453,7 @@ sc3127 score hand=11166888m66z melds=c678m win=6m by=tsumo seat=W round=E dora=7
 = sc3127 yaku=honitsu:2,sanankou:2 han=4 fu=40 pay=tsumo:2000/4000 total=8000
 sc3128 score hand=456m456p44s22z melds=c123m win=2z by=tsumo seat=E round=S dora=3p
 = sc3128 yaku=dora:1,yakuhai_round:1 han=2 fu=30 pay=all:1000 total=3000
+# tie-break (higher fu); same total: yaku=aka:1,dora:4,honitsu:3,houtei:1,sanankou:2,sankantsu:2,yakuhai_hatsu:1 han=14 fu=110 pay=ron:48300 total=48300
 sc3129 score hand=4066p melds=a2222p,a1111p,a6666z win=6p by=ron seat=E round=E dora=6m9p4s7z honba=1 flags=houtei
 = sc3129 yaku=aka:1,dora:4,honitsu:3,houtei:1,sanankou:2,sankantsu:2,yakuhai_hatsu:1 han=14 fu=120 pay=ron:48300 total=48300
 sc3130 score hand=778899p789s6667z melds=- win=7z by=tsumo seat=E round=E dora=2z
@@ -6427,6 +6472,7 @@ sc3136 score hand=234m666p6777888s melds=- win=7s by=tsumo seat=W round=S dora=6
 = sc3136 yaku=riichi:1,tanyao:1,tsumo:1 han=3 fu=40 pay=tsumo:1300/2600 total=5200
 sc3137 score hand=666m5677888p222s melds=- win=7p by=tsumo seat=E round=E dora=5z
 = sc3137 yaku=sanankou:2,tanyao:1,tsumo:1 han=4 fu=40 pay=all:4000 total=12000
+# tie-break (higher fu); same total: yaku=aka:1,dora:3,iipeikou:1,pinfu:1,tsumo:1 han=7 fu=20 pay=all:6000 total=18000
 sc3138 score hand=3334445588p789s melds=- win=0p by=tsumo seat=E round=E dora=8m3p
 = sc3138 yaku=aka:1,dora:3,sanankou:2,tsumo:1 han=7 fu=40 pay=all:6000 total=18000
 sc3139 score hand=1122333445588p melds=- win=3p by=tsumo seat=N round=E dora=8m3s flags=chiihou
@@ -6639,6 +6685,7 @@ sc3241 score hand=3440567999m melds=a1111m win=8m by=tsumo seat=E round=E dora=9
 # rule-sensitive (no double yakuman): = yaku=suuankou_tanki:1 yakuman=1 pay=tsumo:8000/16000 total=32000
 sc3242 score hand=444666m2224p111z melds=- win=4p by=tsumo seat=S round=N dora=6p ura=3s flags=riichi
 = sc3242 yaku=suuankou_tanki:2 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tie-break (higher fu); same total: yaku=chinitsu:6,dora:4,double_riichi:2,ippatsu:1,tsumo:1,ura:4 han=18 fu=30 pay=tsumo:8100/16100 total=32300
 sc3243 score hand=3444456777899s melds=- win=7s by=tsumo seat=W round=N dora=6s ura=6s honba=1 flags=double_riichi,ippatsu
 = sc3243 yaku=chinitsu:6,dora:4,double_riichi:2,ippatsu:1,tsumo:1,ura:4 han=18 fu=40 pay=tsumo:8100/16100 total=32300
 sc3244 score hand=567m2233405567p melds=- win=4p by=tsumo seat=E round=S dora=4z
@@ -6681,8 +6728,10 @@ sc3262 score hand=444m345p22277s44z melds=- win=4z by=ron seat=N round=E dora=7s
 = sc3262 yaku=yakuhai_seat:1 han=1 fu=50 pay=ron:1600 total=1600
 sc3263 score hand=22p22266s melds=p333s,s0555s win=6s by=tsumo seat=W round=E dora=8m7z flags=rinshan
 = sc3263 yaku=aka:1,rinshan:1,tanyao:1,toitoi:2 han=5 fu=40 pay=tsumo:2000/4000 total=8000
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,honitsu:3 han=6 fu=25 pay=ron:18000 total=18000
 sc3264 score hand=334405778899p7z melds=- win=7z by=ron seat=E round=E dora=8s
 = sc3264 yaku=aka:1,honitsu:3,ryanpeikou:3 han=7 fu=40 pay=ron:18000 total=18000
+# tie-break (higher han); same total: yaku=aka:2,chiitoi:2,riichi:1,tsumo:1 han=6 fu=25 pay=tsumo:3000/6000 total=12000
 sc3265 score hand=440566m1122305p melds=- win=3p by=tsumo seat=N round=E dora=8s ura=3s flags=riichi
 = sc3265 yaku=aka:2,riichi:1,ryanpeikou:3,tsumo:1 han=7 fu=30 pay=tsumo:3000/6000 total=12000
 sc3266 score hand=345p3355s111333z melds=- win=5s by=ron seat=W round=S dora=7p ura=2p flags=riichi,ippatsu
@@ -6900,6 +6949,7 @@ sc3371 score hand=122334m123p23s22z melds=- win=1s by=ron seat=W round=S dora=5p
 = sc3371 yaku=sanshoku:2 han=2 fu=40 pay=ron:2600 total=2600
 sc3372 score hand=12340567789s11z melds=- win=6s by=tsumo seat=E round=S dora=5m ura=4m honba=5 flags=riichi
 = sc3372 yaku=aka:1,honitsu:3,ittsu:2,riichi:1,tsumo:1 han=8 fu=30 pay=all:8500 total=25500
+# tie-break (higher fu); same total: yaku=aka:1,ippatsu:1,riichi:1,sanankou:2,tanyao:1 han=6 fu=40 pay=ron:12000 total=12000
 sc3373 score hand=4440688m777888p melds=- win=4m by=ron seat=W round=E dora=3s ura=1s flags=riichi,ippatsu
 = sc3373 yaku=aka:1,ippatsu:1,riichi:1,sanankou:2,tanyao:1 han=6 fu=50 pay=ron:12000 total=12000
 sc3374 score hand=19m119p19s123457z melds=- win=6z by=ron seat=S round=E dora=4z ura=4m honba=1 flags=riichi,ippatsu
@@ -6972,6 +7022,7 @@ sc3406 score hand=40567m11223344s melds=- win=6m by=tsumo seat=W round=E dora=4z
 = sc3406 yaku=aka:1,haitei:1,iipeikou:1,pinfu:1,tsumo:1 han=5 fu=20 pay=tsumo:2000/4000 total=8000
 sc3407 score hand=3456667m234p666z melds=- win=8m by=ron seat=E round=N dora=9p ura=0m flags=riichi
 = sc3407 yaku=riichi:1,ura:3,yakuhai_hatsu:1 han=5 fu=40 pay=ron:12000 total=12000
+# tie-break (higher han); same total: yaku=chiitoi:2,honitsu:3,tsumo:1 han=6 fu=25 pay=tsumo:3000/6000 total=12000
 sc3408 score hand=11233667788p77z melds=- win=2p by=tsumo seat=S round=S dora=3s
 = sc3408 yaku=honitsu:3,ryanpeikou:3,tsumo:1 han=7 fu=30 pay=tsumo:3000/6000 total=12000
 sc3409 score hand=111m77p66777z melds=c456p win=7p by=tsumo seat=S round=S dora=2z
@@ -7004,6 +7055,7 @@ sc3422 score hand=1111278999p melds=c789p win=3p by=ron seat=N round=W dora=3s h
 = sc3422 yaku=chinitsu:5,junchan:2 han=7 fu=30 pay=ron:12600 total=12600
 sc3423 score hand=123m1122333466s melds=- win=0s by=tsumo seat=E round=S dora=5m
 = sc3423 yaku=aka:1,iipeikou:1,pinfu:1,tsumo:1 han=4 fu=20 pay=all:2600 total=7800
+# tie-break (higher han); same total: yaku=aka:2,iipeikou:1,riichi:1,tanyao:1,tsumo:1 han=6 fu=30 pay=all:6000 total=18000
 sc3424 score hand=056677m3444056p melds=- win=4p by=tsumo seat=E round=E dora=1s ura=8m flags=riichi
 = sc3424 yaku=aka:2,iipeikou:1,pinfu:1,riichi:1,tanyao:1,tsumo:1 han=7 fu=20 pay=all:6000 total=18000
 sc3425 score hand=8p222z melds=a9999m,c678m,c678s win=8p by=ron seat=S round=S dora=4p5z
@@ -7060,6 +7112,7 @@ sc3450 score hand=4s melds=a7777m,a1111s,a2222m,s0555s win=4s by=tsumo seat=E ro
 = sc3450 yaku=suukantsu:1 yakuman=1 pay=all:16300 total=48900
 sc3451 score hand=111333s5556677z melds=- win=6z by=ron seat=S round=S dora=7s ura=3p honba=5 flags=riichi
 = sc3451 yaku=honitsu:3,riichi:1,sanankou:2,shousangen:2,toitoi:2,yakuhai_haku:1,yakuhai_hatsu:1 han=12 fu=60 pay=ron:25500 total=25500
+# tie-break (higher han); same total: yaku=chiitoi:2,double_riichi:2,honitsu:3,tsumo:1 han=8 fu=25 pay=tsumo:4000/8000 total=16000
 sc3452 score hand=22334477899m66z melds=- win=8m by=tsumo seat=W round=E dora=2p ura=2p flags=double_riichi
 = sc3452 yaku=double_riichi:2,honitsu:3,ryanpeikou:3,tsumo:1 han=9 fu=30 pay=tsumo:4000/8000 total=16000
 sc3453 score hand=777m07p11s melds=k8888p,p777z win=6p by=ron seat=N round=E dora=0m57s
@@ -7163,6 +7216,7 @@ sc3501 score hand=666m111888p33s11z melds=- win=3s by=tsumo seat=E round=S dora=
 = sc3501 yaku=suuankou:1 yakuman=1 pay=all:16500 total=49500
 sc3502 score hand=11m11123p123789s melds=- win=1p by=ron seat=E round=S dora=33p ura=46p flags=riichi,ippatsu
 = sc3502 yaku=ippatsu:1,junchan:3,riichi:1 han=5 fu=40 pay=ron:12000 total=12000
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,ryanpeikou:3,tanyao:1 han=11 fu=40 pay=ron:24000 total=24000
 sc3503 score hand=4444055666677m melds=- win=5m by=ron seat=N round=E dora=3p1s
 = sc3503 yaku=aka:1,chinitsu:6,pinfu:1,ryanpeikou:3,tanyao:1 han=12 fu=30 pay=ron:24000 total=24000
 sc3504 score hand=666m7s melds=a7777z,p333s,p055s win=7s by=ron seat=N round=E dora=23p
@@ -7217,6 +7271,7 @@ sc3528 score hand=23456p23445688s melds=- win=4p by=ron seat=W round=N dora=7p u
 = sc3528 yaku=pinfu:1,riichi:1,tanyao:1 han=3 fu=30 pay=ron:5100 total=5100
 sc3529 score hand=2233448m1177s11z melds=- win=8m by=ron seat=E round=E dora=5p ura=2z flags=riichi,houtei
 = sc3529 yaku=chiitoi:2,houtei:1,riichi:1 han=4 fu=25 pay=ron:9600 total=9600
+# tie-break (higher fu); same total: yaku=aka:1,chinitsu:6,riichi:1 han=8 fu=40 pay=ron:24000 total=24000
 sc3530 score hand=1112344405556m melds=- win=4m by=ron seat=E round=S dora=7p ura=1s flags=riichi
 = sc3530 yaku=aka:1,chinitsu:6,riichi:1 han=8 fu=50 pay=ron:24000 total=24000
 sc3531 score hand=4p melds=p666s,p055m,c678p,s3333z win=4p by=ron seat=W round=E dora=34p
@@ -7269,6 +7324,7 @@ sc3554 score hand=45678m66p123678s melds=- win=6m by=tsumo seat=S round=E dora=1
 = sc3554 yaku=pinfu:1,tsumo:1 han=2 fu=20 pay=tsumo:400/700 total=1500
 sc3555 score hand=89m55777z melds=p666z,c789m win=7m by=ron seat=E round=E dora=8p honba=1
 = sc3555 yaku=chanta:1,honitsu:2,shousangen:2,yakuhai_chun:1,yakuhai_hatsu:1 han=7 fu=40 pay=ron:18300 total=18300
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,iipeikou:1 han=8 fu=40 pay=ron:16000 total=16000
 sc3556 score hand=1222333440678p melds=- win=5p by=ron seat=W round=E dora=1s
 = sc3556 yaku=aka:1,chinitsu:6,iipeikou:1,pinfu:1 han=9 fu=30 pay=ron:16000 total=16000
 sc3557 score hand=234m22p33444056s melds=- win=2s by=tsumo seat=S round=E dora=6z
@@ -7456,6 +7512,7 @@ sc3647 score hand=123m123p1235s melds=a7777p win=0s by=ron seat=N round=E dora=2
 = sc3647 yaku=aka:1,dora:2,riichi:1,sanshoku:2,ura:1 han=7 fu=50 pay=ron:12900 total=12900
 sc3648 score hand=789m789s3355566z melds=- win=3z by=tsumo seat=N round=E dora=6p
 = sc3648 yaku=chanta:2,tsumo:1,yakuhai_haku:1 han=4 fu=40 pay=tsumo:2000/4000 total=8000
+# tie-break (higher fu); same total: yaku=chinitsu:6,riichi:1,tsumo:1 han=8 fu=30 pay=all:8000 total=24000
 sc3649 score hand=2223333477789p melds=- win=7p by=tsumo seat=E round=E dora=5p ura=2s flags=riichi
 = sc3649 yaku=chinitsu:6,riichi:1,tsumo:1 han=8 fu=40 pay=all:8000 total=24000
 sc3650 score hand=0567m567s melds=c067p,p444p win=5m by=ron seat=S round=S dora=1m honba=3
@@ -7548,8 +7605,10 @@ sc3693 score hand=4m melds=p333s,k0555p,c340m,s8888m win=4m by=ron seat=E round=
 = sc3693 yaku=aka:2,tanyao:1 han=3 fu=40 pay=ron:7700 total=7700
 sc3694 score hand=9m melds=p111s,p111m,p999s,p111p win=9m by=ron seat=S round=E dora=2z
 = sc3694 yaku=chinroutou:1 yakuman=1 pay=ron:32000 total=32000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
 sc3695 score hand=11p33377888s111z melds=- win=1p by=tsumo seat=E round=E dora=4s honba=1 flags=tenhou
-= sc3695 yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+= sc3695 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
 sc3696 score hand=30m345p12344456s melds=- win=4m by=tsumo seat=S round=S dora=5p7s ura=7m3p honba=3 flags=riichi
 = sc3696 yaku=aka:1,riichi:1,tsumo:1,ura:1 han=4 fu=30 pay=tsumo:2300/4200 total=8800
 sc3697 score hand=340m6888p111406s melds=- win=7p by=tsumo seat=S round=E dora=7s
@@ -7595,6 +7654,7 @@ sc3716 score hand=2m melds=c067m,p222p,c067s,p777s win=2m by=tsumo seat=N round=
 = sc3716 yaku=aka:2,tanyao:1 han=3 fu=30 pay=tsumo:1000/2000 total=4000
 sc3717 score hand=222234456m4477s melds=- win=7s by=ron seat=W round=S dora=8s ura=2z flags=riichi
 = sc3717 yaku=riichi:1,tanyao:1 han=2 fu=40 pay=ron:2600 total=2600
+# tie-break (higher fu); same total: yaku=dora:4,honitsu:3 han=7 fu=40 pay=ron:18900 total=18900
 sc3718 score hand=12222345777s22z melds=- win=3s by=ron seat=E round=S dora=1s honba=3
 = sc3718 yaku=dora:4,honitsu:3 han=7 fu=50 pay=ron:18900 total=18900
 sc3719 score hand=2340556789s666z melds=- win=1s by=tsumo seat=N round=E dora=6m1p
@@ -7666,6 +7726,7 @@ sc3751 score hand=456m7p344056888s melds=- win=7p by=tsumo seat=S round=E dora=8
 = sc3751 yaku=aka:1,tanyao:1,tsumo:1 han=3 fu=30 pay=tsumo:1000/2000 total=4000
 sc3752 score hand=777p11177s11z melds=c567s win=1z by=ron seat=E round=S dora=4z honba=1
 = sc3752 yaku=dora:3,yakuhai_seat:1 han=4 fu=40 pay=ron:12300 total=12300
+# tie-break (higher fu); same total: yaku=aka:1,iipeikou:1,riichi:1,tanyao:1,tsumo:1 han=5 fu=30 pay=all:4100 total=12300
 sc3753 score hand=2223344055m444p melds=- win=2m by=tsumo seat=E round=S dora=6p ura=8p honba=1 flags=riichi
 = sc3753 yaku=aka:1,iipeikou:1,riichi:1,tanyao:1,tsumo:1 han=5 fu=40 pay=all:4100 total=12300
 sc3754 score hand=11123m12399p melds=p444z win=1m by=tsumo seat=W round=E dora=3s3z
@@ -7861,6 +7922,7 @@ sc3848 score hand=9m melds=c123m,c123p,c345m,c789s win=9m by=ron seat=S round=S 
 = sc3848 error=no_yaku
 sc3849 score hand=11223456p66s melds=c789p win=3p by=ron seat=E round=S dora=1p honba=1
 = sc3849 yaku=dora:2,ittsu:1 han=3 fu=30 pay=ron:6100 total=6100
+# tie-break (higher fu); same total: yaku=aka:1,iipeikou:1,pinfu:1,riichi:1,tsumo:1 han=5 fu=20 pay=tsumo:2200/4200 total=8600
 sc3850 score hand=1122233399p406s melds=- win=1p by=tsumo seat=W round=W dora=6z ura=2s honba=2 flags=riichi
 = sc3850 yaku=aka:1,riichi:1,sanankou:2,tsumo:1 han=5 fu=40 pay=tsumo:2200/4200 total=8600
 sc3851 score hand=223344567p678s7z melds=- win=7z by=tsumo seat=W round=S dora=1z honba=1
@@ -7980,6 +8042,7 @@ sc3907 score hand=34589s55666777z melds=- win=7s by=ron seat=E round=E dora=6s u
 = sc3907 yaku=dora:1,honitsu:3,riichi:1,shousangen:2,yakuhai_chun:1,yakuhai_hatsu:1 han=9 fu=50 pay=ron:24000 total=24000
 sc3908 score hand=11199m999p11999s melds=- win=9m by=ron seat=S round=E dora=3s honba=8
 = sc3908 yaku=chinroutou:1 yakuman=1 pay=ron:34400 total=34400
+# tie-break (higher han); same total: yaku=dora:1,iipeikou:1,pinfu:1,riichi:1,tanyao:1 han=5 fu=30 pay=ron:8000 total=8000 | yaku=dora:1,iipeikou:1,riichi:1,tanyao:1 han=4 fu=40 pay=ron:8000 total=8000
 sc3909 score hand=345m4555666777p melds=- win=4p by=ron seat=N round=S dora=2m ura=9s flags=riichi
 = sc3909 yaku=dora:1,riichi:1,sanankou:2,tanyao:1 han=5 fu=50 pay=ron:8000 total=8000
 sc3910 score hand=11789m79p789s444z melds=- win=8p by=ron seat=N round=S dora=6z ura=5z honba=1 flags=riichi
@@ -8036,6 +8099,7 @@ sc3935 score hand=340789p5666779s melds=- win=8s by=ron seat=W round=S dora=8m u
 = sc3935 yaku=aka:1,riichi:1,ura:1 han=3 fu=40 pay=ron:5200 total=5200
 sc3936 score hand=340p5567s melds=c234m,c567p win=0s by=ron seat=E round=E dora=6s
 = sc3936 yaku=aka:2,dora:1,tanyao:1 han=4 fu=30 pay=ron:11600 total=11600
+# tie-break (higher fu); same total: yaku=aka:1,sanankou:2,tanyao:1 han=4 fu=40 pay=ron:8000 total=8000
 sc3937 score hand=055m2244456888p melds=- win=4p by=ron seat=N round=S dora=2s
 = sc3937 yaku=aka:1,sanankou:2,tanyao:1 han=4 fu=50 pay=ron:8000 total=8000
 sc3938 score hand=6p melds=c340p,c234m,p222s,p777m win=6p by=tsumo seat=S round=S dora=1p3s
@@ -8066,6 +8130,7 @@ sc3950 score hand=055m666s5z melds=a1111p,c340p win=5z by=tsumo seat=S round=E d
 = sc3950 yaku=aka:2,dora:3,sanankou:2 han=7 fu=70 pay=tsumo:3000/6000 total=12000
 sc3951 score hand=222m3344678s melds=p333p win=3s by=tsumo seat=E round=S dora=8m honba=5
 = sc3951 yaku=tanyao:1 han=1 fu=40 pay=all:1200 total=3600
+# tie-break (higher fu); same total: yaku=honitsu:3,sanankou:2,yakuhai_hatsu:1,yakuhai_seat:1 han=7 fu=50 pay=ron:18600 total=18600
 sc3952 score hand=78889s11122666z melds=- win=8s by=ron seat=E round=S dora=1p3s honba=2
 = sc3952 yaku=honitsu:3,sanankou:2,yakuhai_hatsu:1,yakuhai_seat:1 han=7 fu=60 pay=ron:18600 total=18600
 sc3953 score hand=0678p melds=c789p,c678s,c678m win=5p by=ron seat=E round=S dora=1s
@@ -8212,6 +8277,7 @@ sc4023 score hand=333m67889s55z melds=c234p win=7s by=tsumo seat=S round=S dora=
 = sc4023 error=no_yaku
 sc4024 score hand=11199p789s22z melds=p777z win=9p by=ron seat=N round=E dora=3s4z honba=2
 = sc4024 yaku=chanta:1,yakuhai_chun:1 han=2 fu=40 pay=ron:3200 total=3200
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,dora:2,tanyao:1 han=6 fu=25 pay=ron:12000 total=12000
 sc4025 score hand=4406688p223344s melds=- win=5p by=ron seat=S round=S dora=1s
 = sc4025 yaku=aka:1,dora:2,ryanpeikou:3,tanyao:1 han=7 fu=40 pay=ron:12000 total=12000
 sc4026 score hand=1223445677p melds=p888p win=3p by=ron seat=S round=S dora=7m honba=1
@@ -8246,6 +8312,7 @@ sc4040 score hand=777m406s5666777z melds=- win=5z by=tsumo seat=E round=S dora=5
 = sc4040 yaku=aka:1,dora:3,sanankou:2,shousangen:2,tsumo:1,yakuhai_chun:1,yakuhai_hatsu:1 han=11 fu=50 pay=all:12100 total=36300
 sc4041 score hand=3407778889m melds=p333m win=8m by=ron seat=E round=S dora=1p3s
 = sc4041 yaku=aka:1,chinitsu:5 han=6 fu=30 pay=ron:18000 total=18000
+# tie-break (higher fu); same total: yaku=chanta:1,rinshan:1,yakuhai_round:1 han=3 fu=70 pay=tsumo:2200/4200 total=8600
 sc4042 score hand=123m7899s melds=a1111z,k1111p win=9s by=tsumo seat=S round=E dora=23p1s honba=2 flags=rinshan
 = sc4042 yaku=chanta:1,rinshan:1,yakuhai_round:1 han=3 fu=80 pay=tsumo:2200/4200 total=8600
 sc4043 score hand=222234m4666p333s melds=- win=4p by=ron seat=E round=S dora=8p
@@ -8332,6 +8399,7 @@ sc4082 score hand=12334678m23444s melds=- win=2m by=ron seat=N round=E dora=8p u
 = sc4082 yaku=pinfu:1,riichi:1,ura:1 han=3 fu=30 pay=ron:3900 total=3900
 sc4083 score hand=99m44789999p111s melds=- win=9m by=tsumo seat=S round=S dora=4s honba=1 flags=chiihou
 = sc4083 yaku=chiihou:1 yakuman=1 pay=tsumo:8100/16100 total=32300
+# tie-break (higher fu); same total: yaku=aka:1,sanankou:2,yakuhai_chun:1 han=4 fu=50 pay=ron:8000 total=8000
 sc4084 score hand=999m40666p44777z melds=- win=6p by=ron seat=N round=S dora=4s
 = sc4084 yaku=aka:1,sanankou:2,yakuhai_chun:1 han=4 fu=60 pay=ron:8000 total=8000
 sc4085 score hand=77m789p68s melds=c678m,c678p win=7s by=tsumo seat=S round=W dora=8m
@@ -8356,10 +8424,12 @@ sc4094 score hand=777m4p333z melds=s6666s,c234p win=4p by=tsumo seat=N round=E d
 = sc4094 error=no_yaku
 sc4095 score hand=112233m1378999s melds=- win=2s by=ron seat=W round=E dora=3s ura=3z flags=riichi
 = sc4095 yaku=iipeikou:1,junchan:3,riichi:1 han=5 fu=40 pay=ron:8000 total=8000
+# tie-break (higher fu); same total: yaku=chinitsu:5 han=5 fu=30 pay=ron:12000 total=12000
 sc4096 score hand=1222333366p melds=p444p win=2p by=ron seat=E round=E dora=7m6z
 = sc4096 yaku=chinitsu:5 han=5 fu=40 pay=ron:12000 total=12000
 sc4097 score hand=406m2344677p567s melds=- win=0p by=ron seat=W round=E dora=1p2s ura=7m6z flags=riichi
 = sc4097 yaku=aka:2,dora:1,riichi:1,tanyao:1 han=5 fu=40 pay=ron:8000 total=8000
+# tie-break (higher fu); same total: yaku=aka:1,chinitsu:6,riichi:1,tanyao:1,tsumo:1 han=10 fu=30 pay=tsumo:4000/8000 total=16000
 sc4098 score hand=2222333340567m melds=- win=5m by=tsumo seat=N round=S dora=7s ura=4z flags=riichi
 = sc4098 yaku=aka:1,chinitsu:6,riichi:1,tanyao:1,tsumo:1 han=10 fu=40 pay=tsumo:4000/8000 total=16000
 sc4099 score hand=0s melds=c567s,c789s,c345s,c234s win=5s by=tsumo seat=N round=E dora=2s
@@ -8600,6 +8670,7 @@ sc4216 score hand=22m05678p344556s melds=- win=5p by=ron seat=N round=S dora=7s 
 = sc4216 yaku=aka:1,riichi:1,tanyao:1 han=3 fu=40 pay=ron:5800 total=5800
 sc4217 score hand=789m6p123678s melds=p999p win=6p by=ron seat=E round=S dora=1p honba=1
 = sc4217 error=no_yaku
+# tie-break (higher han); same total: yaku=aka:1,chiitoi:2,double_riichi:2,haitei:1,ippatsu:1,tsumo:1 han=8 fu=25 pay=all:8100 total=24300
 sc4218 score hand=056677m4478899p melds=- win=7p by=tsumo seat=E round=S dora=2m ura=8m honba=1 flags=double_riichi,ippatsu,haitei
 = sc4218 yaku=aka:1,double_riichi:2,haitei:1,ippatsu:1,ryanpeikou:3,tsumo:1 han=9 fu=30 pay=all:8100 total=24300
 sc4219 score hand=3344058m6688p77s melds=- win=8m by=ron seat=E round=E dora=9p ura=0p flags=riichi,ippatsu
@@ -8668,6 +8739,7 @@ sc4250 score hand=111p33s11133z melds=c340s win=3z by=ron seat=S round=E dora=2p
 = sc4250 yaku=aka:1,dora:3,yakuhai_round:1 han=5 fu=40 pay=ron:8000 total=8000
 sc4251 score hand=2m melds=c234p,c234p,p055p,c567p win=2m by=tsumo seat=S round=S dora=1m honba=4
 = sc4251 yaku=aka:1,dora:2,tanyao:1 han=4 fu=30 pay=tsumo:2400/4300 total=9100
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,tanyao:1 han=8 fu=40 pay=ron:16000 total=16000
 sc4252 score hand=2334405566788s melds=- win=4s by=ron seat=N round=N dora=2m
 = sc4252 yaku=aka:1,chinitsu:6,pinfu:1,tanyao:1 han=9 fu=30 pay=ron:16000 total=16000
 sc4253 score hand=44m456888p44466s melds=- win=4m by=ron seat=S round=E dora=2s
@@ -8744,6 +8816,7 @@ sc4288 score hand=345m333p2233334s melds=- win=4s by=ron seat=N round=S dora=9m 
 = sc4288 yaku=iipeikou:1,tanyao:1 han=2 fu=40 pay=ron:4100 total=4100
 sc4289 score hand=46s77z melds=p111s,c567s,p333s win=5s by=ron seat=N round=S dora=8m
 = sc4289 yaku=honitsu:2 han=2 fu=30 pay=ron:2000 total=2000
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,tanyao:1 han=8 fu=40 pay=ron:24000 total=24000
 sc4290 score hand=2334405666778m melds=- win=6m by=ron seat=E round=E dora=5p
 = sc4290 yaku=aka:1,chinitsu:6,pinfu:1,tanyao:1 han=9 fu=30 pay=ron:24000 total=24000
 sc4291 score hand=77p0599s2234466z melds=- win=3z by=tsumo seat=W round=E dora=2s4z
@@ -9056,6 +9129,7 @@ sc4443 score hand=23444m22999p789s melds=- win=2p by=tsumo seat=N round=E dora=0
 = sc4443 yaku=tsumo:1 han=1 fu=40 pay=tsumo:400/700 total=1500
 sc4444 score hand=11888m11223334p melds=- win=2p by=tsumo seat=E round=S dora=0m5p ura=39s flags=riichi,ippatsu
 = sc4444 yaku=iipeikou:1,ippatsu:1,riichi:1,tsumo:1 han=4 fu=30 pay=all:3900 total=11700
+# tie-break (higher han); same total: yaku=aka:2,dora:1,riichi:1 han=4 fu=40 pay=ron:12000 total=12000
 sc4445 score hand=123m2334405p406s melds=- win=5p by=ron seat=E round=E dora=2m ura=8s flags=riichi
 = sc4445 yaku=aka:2,dora:1,pinfu:1,riichi:1 han=5 fu=30 pay=ron:12000 total=12000
 sc4446 score hand=67778p46s melds=c678p,c234s win=5s by=ron seat=N round=E dora=2z
@@ -9733,6 +9807,7 @@ sc4778 score hand=9m melds=s1111z,c340m,c456s,p666s win=9m by=ron seat=E round=S
 = sc4778 yaku=aka:1,dora:8,yakuhai_seat:1 han=10 fu=40 pay=ron:24300 total=24300
 sc4779 score hand=678m3405p888s222z melds=- win=5p by=tsumo seat=S round=E dora=6m
 = sc4779 yaku=aka:1,dora:1,tsumo:1,yakuhai_seat:1 han=4 fu=40 pay=tsumo:2000/4000 total=8000
+# tie-break (higher han); same total: yaku=aka:2,dora:1,riichi:1,tanyao:1,tsumo:1 han=6 fu=30 pay=tsumo:3000/6000 total=12000
 sc4780 score hand=2344056777m340s melds=- win=3m by=tsumo seat=W round=S dora=4s ura=1z flags=riichi
 = sc4780 yaku=aka:2,dora:1,pinfu:1,riichi:1,tanyao:1,tsumo:1 han=7 fu=20 pay=tsumo:3000/6000 total=12000
 sc4781 score hand=789m111789p66s66z melds=- win=6s by=tsumo seat=S round=S dora=8m honba=1
@@ -9779,6 +9854,7 @@ sc4801 score hand=234m44566p11234s melds=- win=0p by=tsumo seat=S round=E dora=4
 = sc4801 yaku=aka:1,iipeikou:1,tsumo:1 han=3 fu=30 pay=tsumo:1000/2000 total=4000
 sc4802 score hand=123456m78p222s11z melds=- win=6p by=ron seat=N round=S dora=4z ura=7s flags=riichi
 = sc4802 yaku=dora:2,riichi:1 han=3 fu=40 pay=ron:5200 total=5200
+# tie-break (higher fu); same total: yaku=aka:1,dora:3,tanyao:1 han=5 fu=30 pay=tsumo:2000/4000 total=8000
 sc4803 score hand=2333444m222p melds=c340p win=3m by=tsumo seat=S round=S dora=1p
 = sc4803 yaku=aka:1,dora:3,tanyao:1 han=5 fu=40 pay=tsumo:2000/4000 total=8000
 sc4804 score hand=4m345p melds=c678s,p888s,c567p win=4m by=tsumo seat=S round=S dora=2z
@@ -9817,6 +9893,7 @@ sc4820 score hand=2205578m melds=c234m,p111m win=9m by=tsumo seat=E round=S dora
 = sc4820 yaku=aka:1,chinitsu:5 han=6 fu=30 pay=all:6100 total=18300
 sc4821 score hand=1199p488s224455z melds=- win=4s by=ron seat=W round=S dora=9p1s honba=2
 = sc4821 yaku=chiitoi:2,dora:2 han=4 fu=25 pay=ron:7000 total=7000
+# tie-break (higher han); same total: yaku=chinitsu:6,sanankou:2,tsumo:1 han=9 fu=40 pay=all:8200 total=24600
 sc4822 score hand=1111222233344s melds=- win=3s by=tsumo seat=E round=W dora=7z honba=2
 = sc4822 yaku=chinitsu:6,ryanpeikou:3,tsumo:1 han=10 fu=30 pay=all:8200 total=24600
 sc4823 score hand=334405m11223s44z melds=- win=3s by=ron seat=S round=E dora=7p ura=6p honba=1 flags=riichi
@@ -10131,6 +10208,7 @@ sc4975 score hand=222m8s melds=k7777z,p111m,p888m win=8s by=ron seat=W round=E d
 = sc4975 yaku=toitoi:2,yakuhai_chun:1 han=3 fu=50 pay=ron:6400 total=6400
 sc4976 score hand=222666m23334p89s melds=- win=7s by=ron seat=S round=E dora=9p flags=chankan
 = sc4976 yaku=chankan:1 han=1 fu=40 pay=ron:1300 total=1300
+# tie-break (higher han); same total: yaku=aka:1,chinitsu:6,iipeikou:1 han=8 fu=40 pay=ron:16000 total=16000
 sc4977 score hand=1112233344056p melds=- win=1p by=ron seat=S round=E dora=6p
 = sc4977 yaku=aka:1,chinitsu:6,iipeikou:1,pinfu:1 han=9 fu=30 pay=ron:16000 total=16000
 sc4978 score hand=3333444566m222z melds=- win=4m by=tsumo seat=W round=E dora=57z ura=8p3s flags=double_riichi
@@ -10199,6 +10277,7 @@ sc4998 score hand=1112345678999m melds=- win=5m by=tsumo seat=E round=E
 sc4999 score hand=2z melds=k1111m,k4444s,k9999p,k3333z win=2z by=tsumo seat=E round=E
 = sc4999 yaku=suukantsu:1 yakuman=1 pay=all:16000 total=48000
 # from tests/hand_calculating/tests_aotenjou.py::test_daisharin
+# tie-break (higher han); same total: yaku=chinitsu:6,ryanpeikou:3,tanyao:1,tsumo:1 han=11 fu=30 pay=all:12000 total=36000
 sc5000 score hand=2233445566788p melds=- win=7p by=tsumo seat=E round=E
 = sc5000 yaku=chinitsu:6,pinfu:1,ryanpeikou:3,tanyao:1,tsumo:1 han=12 fu=20 pay=all:12000 total=36000
 # from tests/hand_calculating/tests_aotenjou.py::test_ryuisou
@@ -10611,7 +10690,7 @@ sc5131 score hand=1112345678999m melds=- win=1m by=ron seat=S round=E
 sc5132 score hand=1112456678p melds=a9999p win=3p by=ron seat=S round=E
 = sc5132 yaku=chinitsu:6 han=6 fu=70 pay=ron:12000 total=12000
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_sextuple_yakuman
-# rule-sensitive (no double yakuman): = yaku=daisuushii:1,suuankou_tanki:1,tenhou:1,tsuuiisou:1 yakuman=4 pay=all:64000 total=192000
+# rule-sensitive (no double yakuman): = yaku=daisuushii:1,suuankou:1,tenhou:1,tsuuiisou:1 yakuman=4 pay=all:64000 total=192000
 sc5133 score hand=1112223334445z melds=- win=5z by=tsumo seat=E round=E flags=tenhou
 = sc5133 yaku=daisuushii:2,suuankou_tanki:2,tenhou:1,tsuuiisou:1 yakuman=6 pay=all:96000 total=288000
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_sextuple_yakuman
@@ -10622,8 +10701,10 @@ sc5134 score hand=5z melds=a1111z,a2222z,a3333z,a4444z win=5z by=ron seat=S roun
 sc5135 score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=S round=E
 = sc5135 yaku=kokushi:1 yakuman=1 pay=tsumo:8000/16000 total=32000
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
 sc5136 score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=E round=E flags=tenhou
-= sc5136 yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+= sc5136 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman
 sc5137 score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=S round=E flags=chiihou
 = sc5137 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16000/32000 total=64000
@@ -10632,7 +10713,7 @@ sc5137 score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=S round=E flags
 sc5138 score hand=19m19p19s1234567z melds=- win=7z by=tsumo seat=S round=E
 = sc5138 yaku=kokushi_13:2 yakuman=2 pay=tsumo:16000/32000 total=64000
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman
-# rule-sensitive (no double yakuman): = yaku=kokushi_13:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
 sc5139 score hand=19m19p19s1234567z melds=- win=7z by=tsumo seat=E round=E flags=tenhou
 = sc5139 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman
@@ -10648,3 +10729,203 @@ sc5142 score hand=2233445566778s melds=- win=8s by=ron seat=S round=E
 # from tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_daisuurin
 sc5143 score hand=2233445566778m melds=- win=8m by=ron seat=S round=E
 = sc5143 yaku=chinitsu:6,pinfu:1,ryanpeikou:3,tanyao:1 han=11 fu=30 pay=ron:24000 total=24000
+# from tests/hand_calculating/tests_yakuman_calculation.py::test_suuankou_wins_over_kazoe_yakuman_with_same_cost[False-0-dora_indicators1]
+# tie-break (real yakuman over kazoe); same total: yaku=chinitsu:6,dora:6,iipeikou:1,tsumo:1 han=14 fu=60 pay=tsumo:8000/16000 total=32000
+sc5144 score hand=4477788999p melds=a1111p win=8p by=tsumo seat=S round=E dora=67p
+= sc5144 yaku=suuankou:1 yakuman=1 pay=tsumo:8000/16000 total=32000
+
+# == targeted: ippatsu with chankan (a robbed added kan was never completed, so ippatsu survives)
+sc5145 score hand=11134077778m77z melds=- win=9m by=ron seat=E round=S dora=2s4z ura=6p5z flags=double_riichi,ippatsu,chankan
+= sc5145 yaku=aka:1,chankan:1,double_riichi:2,honitsu:3,ippatsu:1 han=8 fu=50 pay=ron:24000 total=24000
+sc5146 score hand=22288p12345678s melds=- win=9s by=ron seat=S round=E dora=4z ura=5s flags=double_riichi,ippatsu,chankan
+= sc5146 yaku=chankan:1,double_riichi:2,ippatsu:1,ittsu:2,ura:1 han=7 fu=40 pay=ron:12000 total=12000
+sc5147 score hand=34m233445p56799s melds=- win=2m by=ron seat=N round=W dora=6m ura=5z flags=riichi,ippatsu,chankan
+= sc5147 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1 han=4 fu=30 pay=ron:7700 total=7700
+sc5148 score hand=456m2245667p789s melds=- win=8p by=ron seat=N round=W dora=3z ura=4s flags=riichi,ippatsu,chankan
+= sc5148 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1 han=4 fu=30 pay=ron:7700 total=7700
+sc5149 score hand=677889m06888s55z melds=- win=4s by=ron seat=N round=S dora=2s ura=0m flags=riichi,ippatsu,chankan
+= sc5149 yaku=aka:1,chankan:1,ippatsu:1,riichi:1,ura:1 han=5 fu=40 pay=ron:8000 total=8000
+sc5150 score hand=999m778899p5557s melds=- win=6s by=ron seat=N round=S dora=2p ura=3z honba=3 flags=riichi,ippatsu,chankan
+= sc5150 yaku=chankan:1,iipeikou:1,ippatsu:1,riichi:1 han=4 fu=40 pay=ron:8900 total=8900
+sc5151 score hand=444m2222377789p melds=- win=1p by=ron seat=E round=E dora=6m9s ura=08m flags=riichi,ippatsu,chankan
+= sc5151 yaku=chankan:1,ippatsu:1,riichi:1 han=3 fu=40 pay=ron:7700 total=7700
+sc5152 score hand=34m234p234678s44z melds=- win=2m by=ron seat=E round=E dora=1z ura=9m flags=riichi,ippatsu,chankan
+= sc5152 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1,sanshoku:2 han=6 fu=30 pay=ron:18000 total=18000
+sc5153 score hand=34678m456p34055s melds=- win=2m by=ron seat=N round=S dora=1z ura=3s honba=2 flags=riichi,ippatsu,chankan
+= sc5153 yaku=aka:1,chankan:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1,ura:1 han=7 fu=30 pay=ron:12600 total=12600
+sc5154 score hand=23488m24p222234s melds=- win=3p by=ron seat=S round=S dora=1p ura=8s flags=riichi,ippatsu,chankan
+= sc5154 yaku=chankan:1,dora:1,ippatsu:1,riichi:1,sanshoku:2,tanyao:1 han=7 fu=40 pay=ron:12000 total=12000
+sc5155 score hand=12334055m123p23s melds=- win=1s by=ron seat=E round=S dora=9m ura=2s flags=riichi,ippatsu,chankan
+= sc5155 yaku=aka:1,chankan:1,dora:1,ippatsu:1,pinfu:1,riichi:1,sanshoku:2,ura:1 han=9 fu=30 pay=ron:24000 total=24000
+sc5156 score hand=678m1233346789s melds=- win=5s by=ron seat=E round=E dora=0m ura=7p flags=double_riichi,ippatsu,chankan
+= sc5156 yaku=chankan:1,dora:1,double_riichi:2,ippatsu:1,ittsu:2 han=7 fu=40 pay=ron:18000 total=18000
+sc5157 score hand=345m67789p22567s melds=- win=5p by=ron seat=E round=N dora=7s ura=8s flags=riichi,ippatsu,chankan
+= sc5157 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1 han=4 fu=30 pay=ron:11600 total=11600
+sc5158 score hand=234m7899p123789s melds=- win=6p by=ron seat=S round=E dora=0p ura=9s flags=riichi,ippatsu,chankan
+= sc5158 yaku=chankan:1,dora:1,ippatsu:1,pinfu:1,riichi:1,ura:1 han=6 fu=30 pay=ron:12000 total=12000
+sc5159 score hand=234m56p34445678s melds=- win=4p by=ron seat=W round=S dora=24p ura=3s5z flags=riichi,ippatsu,chankan
+= sc5159 yaku=chankan:1,dora:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1,ura:3 han=9 fu=30 pay=ron:16000 total=16000
+sc5160 score hand=678888m456p3367s melds=- win=8s by=ron seat=W round=E dora=3p ura=2s flags=double_riichi,ippatsu,chankan
+= sc5160 yaku=chankan:1,dora:1,double_riichi:2,ippatsu:1,tanyao:1,ura:2 han=8 fu=40 pay=ron:16000 total=16000
+sc5161 score hand=12305556s33555z melds=- win=4s by=ron seat=E round=S dora=7m ura=9m flags=riichi,ippatsu,chankan
+= sc5161 yaku=aka:1,chankan:1,honitsu:3,ippatsu:1,riichi:1,yakuhai_haku:1 han=8 fu=50 pay=ron:24000 total=24000
+sc5162 score hand=456678m4467p234s melds=- win=5p by=ron seat=N round=E dora=1p8s ura=1m8s flags=riichi,ippatsu,chankan
+= sc5162 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1 han=5 fu=30 pay=ron:8000 total=8000
+sc5163 score hand=055677778m13s22z melds=- win=2s by=ron seat=E round=S dora=7z ura=4z flags=riichi,ippatsu,chankan
+= sc5163 yaku=aka:1,chankan:1,ippatsu:1,riichi:1 han=4 fu=50 pay=ron:12000 total=12000
+sc5164 score hand=78889m345p40s melds=a5555z win=3s by=ron seat=S round=W dora=2p2s ura=4p7s flags=riichi,ippatsu,chankan
+= sc5164 yaku=aka:1,chankan:1,dora:2,ippatsu:1,riichi:1,ura:1,yakuhai_haku:1 han=8 fu=70 pay=ron:16000 total=16000
+
+# == ura indicators without riichi or double_riichi: ignored (the indicators point at tiles in the hand)
+sc5165 score hand=33p22279s222z melds=p777z win=8s by=ron seat=S round=E dora=8m ura=6z
+= sc5165 yaku=yakuhai_chun:1,yakuhai_seat:1 han=2 fu=40 pay=ron:2600 total=2600
+sc5166 score hand=2244488p111555z melds=- win=8p by=ron seat=E round=E dora=9s ura=4z
+= sc5166 yaku=honitsu:3,sanankou:2,toitoi:2,yakuhai_haku:1,yakuhai_round:1,yakuhai_seat:1 han=10 fu=60 pay=ron:24000 total=24000
+sc5167 score hand=11123678m34678s melds=- win=2s by=ron seat=E round=E dora=0m ura=7m
+= sc5167 yaku=dora:1,pinfu:1 han=2 fu=30 pay=ron:2900 total=2900
+sc5168 score hand=1112228p melds=c345p,c123p win=8p by=ron seat=W round=E dora=3z ura=4p honba=3
+= sc5168 yaku=chinitsu:5 han=5 fu=40 pay=ron:8900 total=8900
+sc5169 score hand=234456m2347789s melds=- win=7s by=tsumo seat=E round=S dora=5m ura=6s honba=3
+= sc5169 yaku=dora:1,tsumo:1 han=2 fu=30 pay=all:1300 total=3900
+sc5170 score hand=405556p3444456s melds=- win=2s by=ron seat=W round=S dora=6p ura=4p
+= sc5170 yaku=aka:1,tanyao:1 han=2 fu=40 pay=ron:2600 total=2600
+# tie-break (higher han); same total: yaku=aka:1,dora:1,sanshoku:2,tanyao:1,tsumo:1 han=6 fu=30 pay=tsumo:3300/6300 total=12900
+sc5171 score hand=345567m567p0567s melds=- win=5s by=tsumo seat=N round=W dora=6m ura=2m honba=3
+= sc5171 yaku=aka:1,dora:1,pinfu:1,sanshoku:2,tanyao:1,tsumo:1 han=7 fu=20 pay=tsumo:3300/6300 total=12900
+# rule-sensitive (no double yakuman): = yaku=suuankou_tanki:1 yakuman=1 pay=ron:48000 total=48000
+sc5172 score hand=6667p333666s555z melds=- win=7p by=ron seat=E round=S dora=1z ura=7z
+= sc5172 yaku=suuankou_tanki:2 yakuman=2 pay=ron:96000 total=96000
+sc5173 score hand=11m111123p12389s melds=- win=7s by=ron seat=E round=S dora=3z ura=7s
+= sc5173 yaku=junchan:3 han=3 fu=40 pay=ron:7700 total=7700
+sc5174 score hand=66m33366p333s melds=k7777s win=6m by=tsumo seat=S round=E dora=6p6z ura=25p
+= sc5174 yaku=sanankou:2,tanyao:1,toitoi:2 han=5 fu=50 pay=tsumo:2000/4000 total=8000
+sc5175 score hand=3440555667p melds=k6666z win=8p by=ron seat=E round=S dora=3m1p ura=55z honba=1
+= sc5175 yaku=aka:1,honitsu:2,yakuhai_hatsu:1 han=4 fu=40 pay=ron:12300 total=12300
+sc5176 score hand=77m678p55z melds=p222p,c123p win=5z by=ron seat=E round=E dora=8m ura=1p
+= sc5176 yaku=yakuhai_haku:1 han=1 fu=30 pay=ron:1500 total=1500
+sc5177 score hand=11m40666777p678s melds=- win=6p by=tsumo seat=N round=S dora=3m ura=3p
+= sc5177 yaku=aka:1,tsumo:1 han=2 fu=30 pay=tsumo:500/1000 total=2000
+sc5178 score hand=05677m33p440566s melds=- win=6m by=ron seat=W round=E dora=5z ura=4s
+= sc5178 yaku=aka:2,ryanpeikou:3,tanyao:1 han=6 fu=40 pay=ron:12000 total=12000
+sc5179 score hand=444m333777p4z melds=c406p win=4z by=tsumo seat=S round=E dora=5m ura=3p
+= sc5179 yaku=aka:1,sanankou:2 han=3 fu=40 pay=tsumo:1300/2600 total=5200
+sc5180 score hand=668899p1122355z melds=- win=3z by=ron seat=W round=E dora=7m ura=4z
+= sc5180 yaku=chiitoi:2,honitsu:3 han=5 fu=25 pay=ron:8000 total=8000
+sc5181 score hand=2223456678p melds=c345p win=6p by=tsumo seat=N round=S dora=23s ura=34p
+= sc5181 yaku=chinitsu:5,tanyao:1 han=6 fu=30 pay=tsumo:3000/6000 total=12000
+sc5182 score hand=6m melds=c567s,p777s,c456m,c567m win=6m by=tsumo seat=S round=E dora=7z ura=4s
+= sc5182 yaku=tanyao:1 han=1 fu=30 pay=tsumo:300/500 total=1100
+sc5183 score hand=1112340667899m melds=- win=9m by=tsumo seat=S round=E dora=4s ura=9m
+= sc5183 yaku=chuuren:1 yakuman=1 pay=tsumo:8000/16000 total=32000
+sc5184 score hand=33447788m788p44s melds=- win=7p by=tsumo seat=E round=E dora=9p ura=6p honba=4
+= sc5184 yaku=chiitoi:2,tanyao:1,tsumo:1 han=4 fu=25 pay=all:3600 total=10800
+
+# == tenhou scores the best choice of winning tile; chiihou keeps the supplied one (same hands)
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=chuuren:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+sc5185 score hand=1112346778999p melds=- win=5p by=tsumo seat=E round=E dora=5s honba=1 flags=tenhou
+= sc5185 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
+sc5186 score hand=1112346778999p melds=- win=5p by=tsumo seat=N round=E dora=2p3s honba=1 flags=chiihou
+= sc5186 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16100/32100 total=64300
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=chuuren:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5187 score hand=1112346778999m melds=- win=5m by=tsumo seat=E round=E dora=2s flags=tenhou
+= sc5187 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5188 score hand=1112346778999m melds=- win=5m by=tsumo seat=S round=E dora=6s flags=chiihou
+= sc5188 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=chuuren:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5189 score hand=1112346678999p melds=- win=0p by=tsumo seat=E round=E dora=2m flags=tenhou
+= sc5189 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5190 score hand=1112346678999p melds=- win=0p by=tsumo seat=S round=E dora=8p flags=chiihou
+= sc5190 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=chuuren:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+sc5191 score hand=1112344578999m melds=- win=6m by=tsumo seat=E round=E dora=3s honba=1 flags=tenhou
+= sc5191 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
+sc5192 score hand=1112344578999m melds=- win=6m by=tsumo seat=N round=E dora=3m honba=1 flags=chiihou
+= sc5192 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16100/32100 total=64300
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=chuuren:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5193 score hand=1112344078999m melds=- win=6m by=tsumo seat=E round=E dora=8s flags=tenhou
+= sc5193 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5194 score hand=1112344078999m melds=- win=6m by=tsumo seat=S round=E dora=4z flags=chiihou
+= sc5194 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=chuuren:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+sc5195 score hand=1112346788999m melds=- win=0m by=tsumo seat=E round=E dora=1z honba=1 flags=tenhou
+= sc5195 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
+sc5196 score hand=1112346788999m melds=- win=0m by=tsumo seat=W round=E dora=6z honba=1 flags=chiihou
+= sc5196 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16100/32100 total=64300
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32200 total=96600
+sc5197 score hand=19m119p19s134567z melds=- win=2z by=tsumo seat=E round=E dora=3s honba=2 flags=tenhou
+= sc5197 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48200 total=144600
+sc5198 score hand=19m119p19s134567z melds=- win=2z by=tsumo seat=W round=E dora=2m honba=2 flags=chiihou
+= sc5198 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16200/32200 total=64600
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32200 total=96600
+sc5199 score hand=19m19p19s2344567z melds=- win=1z by=tsumo seat=E round=E dora=3m honba=2 flags=tenhou
+= sc5199 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48200 total=144600
+sc5200 score hand=19m19p19s2344567z melds=- win=1z by=tsumo seat=S round=E dora=3m honba=2 flags=chiihou
+= sc5200 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16200/32200 total=64600
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5201 score hand=19m19p19s2334567z melds=- win=1z by=tsumo seat=E round=E dora=6m flags=tenhou
+= sc5201 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5202 score hand=19m19p19s2334567z melds=- win=1z by=tsumo seat=S round=E dora=1s flags=chiihou
+= sc5202 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+sc5203 score hand=19m199p19s134567z melds=- win=2z by=tsumo seat=E round=E dora=4s honba=1 flags=tenhou
+= sc5203 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
+sc5204 score hand=19m199p19s134567z melds=- win=2z by=tsumo seat=W round=E dora=8m honba=1 flags=chiihou
+= sc5204 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16100/32100 total=64300
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32200 total=96600
+sc5205 score hand=19m19p199s134567z melds=- win=2z by=tsumo seat=E round=E dora=6m honba=2 flags=tenhou
+= sc5205 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48200 total=144600
+sc5206 score hand=19m19p199s134567z melds=- win=2z by=tsumo seat=S round=E dora=5z honba=2 flags=chiihou
+= sc5206 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16200/32200 total=64600
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=kokushi:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5207 score hand=19m19p19s2334567z melds=- win=1z by=tsumo seat=E round=E dora=8m flags=tenhou
+= sc5207 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5208 score hand=19m19p19s2334567z melds=- win=1z by=tsumo seat=W round=E dora=5s flags=chiihou
+= sc5208 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32200 total=96600
+sc5209 score hand=3335599m777p222z melds=- win=5m by=tsumo seat=E round=E dora=8m honba=2 flags=tenhou
+= sc5209 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48200 total=144600
+sc5210 score hand=3335599m777p222z melds=- win=5m by=tsumo seat=W round=E dora=6p7z honba=2 flags=chiihou
+= sc5210 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16200/32200 total=64600
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5211 score hand=66688m11p222s222z melds=- win=8m by=tsumo seat=E round=E dora=1m flags=tenhou
+= sc5211 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5212 score hand=66688m11p222s222z melds=- win=8m by=tsumo seat=W round=E dora=9p flags=chiihou
+= sc5212 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32200 total=96600
+sc5213 score hand=0558899s111222z melds=- win=9s by=tsumo seat=E round=E dora=5m honba=2 flags=tenhou
+= sc5213 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48200 total=144600
+sc5214 score hand=0558899s111222z melds=- win=9s by=tsumo seat=S round=E dora=2s honba=2 flags=chiihou
+= sc5214 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16200/32200 total=64600
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32100 total=96300
+sc5215 score hand=33344s33355577z melds=- win=7z by=tsumo seat=E round=E dora=9s honba=1 flags=tenhou
+= sc5215 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48100 total=144300
+sc5216 score hand=33344s33355577z melds=- win=7z by=tsumo seat=N round=E dora=2z honba=1 flags=chiihou
+= sc5216 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16100/32100 total=64300
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5217 score hand=11444777m111p33s melds=- win=1m by=tsumo seat=E round=E dora=5p flags=tenhou
+= sc5217 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5218 score hand=11444777m111p33s melds=- win=1m by=tsumo seat=N round=E dora=5s flags=chiihou
+= sc5218 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# tenhou: a different choice of winning tile scores more than the supplied one
+# rule-sensitive (no double yakuman): = yaku=suuankou:1,tenhou:1 yakuman=2 pay=all:32000 total=96000
+sc5219 score hand=0556699m777999s melds=- win=6m by=tsumo seat=E round=E dora=5s flags=tenhou
+= sc5219 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+sc5220 score hand=0556699m777999s melds=- win=6m by=tsumo seat=N round=E dora=6s flags=chiihou
+= sc5220 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16000/32000 total=64000

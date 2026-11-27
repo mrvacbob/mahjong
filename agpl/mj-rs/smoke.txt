@@ -51,3 +51,17 @@ s4 shanten hand=123456789m1111z
 = s4 std=0 chiitoi=5 kokushi=9 min=0
 w4 waits hand=123456789m1111z
 = w4 shanten=0 tiles=- count=0
+# A zero wall disables calls and kans but grants no yaku without an explicit flag.
+l1 legal hand=23m456p789s33z melds=c123m draw=1m wall=0
+= l1 actions=discard:1m,discard:2m,discard:3m,discard:3z,discard:4p,discard:5p,discard:6p,discard:7s,discard:8s,discard:9s
+l2 legal hand=23m456p789s33z melds=c123m discard=1m from=toimen wall=0
+= l2 actions=pass
+# The extra 5m yields junsei chuuren only if the win can be reassigned.
+p16 score hand=1123455678999m win=1m by=tsumo flags=tenhou
+= p16 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+p17 score hand=1123455678999m win=1m by=tsumo seat=S flags=chiihou
+= p17 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+p18 score hand=234456m234p67s88s win=5s by=ron seat=S flags=riichi,ippatsu,chankan
+= p18 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1 han=5 fu=30 pay=ron:8000 total=8000
+p19 score hand=4477788999p melds=a1111p win=8p by=tsumo
+= p19 yaku=suuankou:1 yakuman=1 pay=all:16000 total=48000

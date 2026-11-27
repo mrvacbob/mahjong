@@ -156,7 +156,8 @@ Out, one of:
 and are included in `han`. Yaku from different decompositions never combine. The
 interpretation with the highest `total` wins; ties go to a real yakuman over a
 kazoe one, then higher han, then higher fu, then the yaku list that sorts first as
-a string.
+a string. (Between two real-yakuman interpretations there is no han or fu, so only
+total and the string decide.)
 
 `pay`:
 - ron: `ron:<n>` — what the discarder pays, including honba (300 each).
@@ -187,7 +188,7 @@ In: `hand`, `melds`, context keys, plus:
 |---|---|---|
 | `draw=<tile>` | It is this seat's turn and it just drew this tile. `hand` excludes it. | |
 | `discard=<tile>` + `from=kamicha\|toimen\|shimocha` | Another seat just discarded. (`kamicha` is the player to the left, whose discards can be chi'd.) | |
-| `called=<meld>` + `took=<tile>` | This seat just called `took` to make the meld (already in `melds`) and must now discard. | |
+| `called=<meld>` + `took=<tile>` | This seat just called `took` to make this chi or pon (already in `melds`) and must now discard. The only actions are `discard:` entries: no riichi, kan or win. | |
 | `riichi=0\|1` | This seat is already in riichi | `0` |
 | `furiten=0\|1` | This seat is furiten (any kind) | `0` |
 | `wall=<n>` | Live wall tiles remaining now (after the draw, if this is a draw) | `70` |
@@ -238,6 +239,11 @@ Out: `actions=<comma list>`, sorted as strings. Never empty (`pass` or a discard
 | `pass` | Always present when responding to a discard or a kan |
 
 ## Decisions log
+
+History from the first corpus build. Superseded by the body above where they
+differ; in particular: entry 3's 6x cap does not exist, entry 7's ties are now
+decided by the tie-break and are in the corpus, entry 10's ban on ippatsu+chankan
+is reversed, and entry 12 is replaced by the tenhou best-tile rule.
 
 Entries by the Python-oracle corpus builder (tools/, corpus/*.txt except legal.txt).
 

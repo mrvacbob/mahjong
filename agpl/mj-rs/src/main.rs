@@ -9,7 +9,7 @@ mod state;
 #[allow(dead_code)]
 mod tile;
 
-use crate::model::{Request, Result, counts, notation, shantens, tile};
+use crate::model::{Request, Result, counts, notation, shantens, tile, wait_copies};
 use std::io::{self, BufRead, Write};
 
 fn answer(op: &str, request: &Request<'_>) -> Result<String> {
@@ -32,16 +32,9 @@ fn answer(op: &str, request: &Request<'_>) -> Result<String> {
             let shanten = shantens(&hand, groups).3;
             let mut waits = Vec::new();
             let mut count = 0;
-            for (i, &owned) in owned.iter().enumerate() {
-                if owned == 4 {
-                    continue;
-                }
-                let mut after = hand;
-                after[i] += 1;
-                if shantens(&after, groups).3 < shanten {
-                    waits.push(tile(i as u8));
-                    count += 4 - owned;
-                }
+            for (i, copies) in wait_copies(&hand, groups, &owned, shanten) {
+                waits.push(tile(i as u8));
+                count += copies;
             }
             Ok(format!(
                 "shanten={shanten} tiles={} count={count}",

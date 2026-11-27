@@ -1,6 +1,6 @@
 # Brief: Phase 1 gate review (spec + corpus)
 
-Repo: /Users/astrange/Projects/mahjong/my_mahjong. Read-only review: write exactly
+Repo: .. Read-only review: write exactly
 one file, `docs/reviews/p1/<your-name>.md`. No other writes, no git commands. Do not
 read the other reviewers' files in `docs/reviews/p1/`.
 
@@ -16,7 +16,7 @@ Review:
   library and agree with an independent Rust reference (libriichi). `legal.txt` has
   ONE source (libriichi, a Tenhou-rules engine) and is the least trusted file.
 - `tools/harness.py` if you want to run things:
-  `python3.14 tools/harness.py corpus/rs/target/release/mj-rs corpus/*.txt`
+  `python3.14 tools/harness.py agpl/mj-rs/target/release/mj-rs corpus/*.txt`
 
 Answer these specifically, each with a verdict and evidence:
 1. Can chankan combine with ippatsu? rules.md says no (item 26) and the corpus

@@ -1,4 +1,6 @@
-use crate::model::{Request, Result, counts, kind, one, tiles, validate_tiles};
+use std::cmp::Reverse;
+
+use crate::model::{Request, Result, counts, kind, one, tile, tiles, validate_tiles};
 
 pub fn score(req: &Request<'_>) -> Result<String> {
     req.check_size(0)?;
@@ -10,7 +12,17 @@ pub fn score(req: &Request<'_>) -> Result<String> {
     };
     validate_tiles(req.owned(Some(win)))?;
     let concealed = counts(req.hand.iter().copied().chain([win]));
-    let outcomes = req.evaluate(&concealed, win, ron);
+    let dealer = req.seat == 27;
+    let outcomes = if !ron && dealer && req.closed() && req.flag("tenhou") {
+        concealed
+            .iter()
+            .enumerate()
+            .filter(|&(_, &n)| n > 0)
+            .flat_map(|(i, _)| req.evaluate(&concealed, tile(i as u8), ron))
+            .collect()
+    } else {
+        req.evaluate(&concealed, win, ron)
+    };
     if outcomes.is_empty() {
         return Err("not_agari");
     }
@@ -53,7 +65,6 @@ pub fn score(req: &Request<'_>) -> Result<String> {
         0
     };
     let aka = req.owned(Some(win)).filter(|t| t.is_aka()).count() as u64;
-    let dealer = req.seat == 27;
     let payment = |base: i64| {
         let round_up = |n: i64| (n + 99) / 100 * 100;
         if ron {
@@ -86,18 +97,16 @@ pub fn score(req: &Request<'_>) -> Result<String> {
         let (order, response) = if !result.yakuman.is_empty() {
             let n: u8 = result.yakuman.iter().map(|&(_, n)| n).sum();
             let (total, pay) = payment(8000 * i64::from(n));
+            let yaku = names(
+                result
+                    .yakuman
+                    .into_iter()
+                    .map(|(name, n)| (name, u64::from(n)))
+                    .collect(),
+            );
             (
-                (total, true, 0, 0),
-                format!(
-                    "yaku={} yakuman={n} pay={pay} total={total}",
-                    names(
-                        result
-                            .yakuman
-                            .into_iter()
-                            .map(|(name, n)| (name, u64::from(n)))
-                            .collect()
-                    )
-                ),
+                (total, true, 0, 0, Reverse(yaku.clone())),
+                format!("yaku={yaku} yakuman={n} pay={pay} total={total}"),
             )
         } else {
             result.yaku.extend(situational.iter().copied());
@@ -125,12 +134,10 @@ pub fn score(req: &Request<'_>) -> Result<String> {
                 _ => (i64::from(fu) << (han + 2)).min(2000),
             };
             let (total, pay) = payment(base);
+            let yaku = names(yaku);
             (
-                (total, false, han, fu),
-                format!(
-                    "yaku={} han={han} fu={fu} pay={pay} total={total}",
-                    names(yaku)
-                ),
+                (total, false, han, fu, Reverse(yaku.clone())),
+                format!("yaku={yaku} han={han} fu={fu} pay={pay} total={total}"),
             )
         };
         if best.as_ref().is_none_or(|(old, _)| order > *old) {

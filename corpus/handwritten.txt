@@ -262,3 +262,64 @@ hw87 score hand=111222333m456p7s melds=- win=7s by=ron seat=S round=E flags=riic
 # Red five inside a chi counts as aka.
 hw88 score hand=234m678p2388s melds=c406m win=4s by=ron seat=S round=E
 = hw88 yaku=aka:1,tanyao:1 han=2 fu=30 pay=ron:2000 total=2000
+
+# ================================================================ score, added after the Phase 1 review
+# (docs/reviews/p1/synthesis.md items 2, 3, 7, 13). Derived by hand, then run through the oracle.
+
+# Chankan + ippatsu (formats.md: a robbed added kan was never completed, so it does not
+# end ippatsu). Same hand as hw71; winner holds no 5s. Closed 234m 567p 234s 567s 88p,
+# ryanmen on 67s. chankan 1 + ippatsu 1 + pinfu 1 + riichi 1 + tanyao 1 = 5 han: mangan.
+hw89 score hand=234m56788p23467s melds=- win=5s by=ron seat=S round=E flags=riichi,ippatsu,chankan
+= hw89 yaku=chankan:1,ippatsu:1,pinfu:1,riichi:1,tanyao:1 han=5 fu=30 pay=ron:8000 total=8000
+# Dealer, double riichi: 2+1+1+1+1 = 6 han haneman, 18000.
+hw90 score hand=234m56788p23467s melds=- win=5s by=ron seat=E round=E flags=double_riichi,ippatsu,chankan
+= hw90 yaku=chankan:1,double_riichi:2,ippatsu:1,pinfu:1,tanyao:1 han=6 fu=30 pay=ron:18000 total=18000
+# Ura without riichi is ignored. hw51 with ura=6z (would be three chun ura): still 1 han 40 fu.
+hw91 score hand=123m456p7899s777z melds=- win=6s by=ron seat=W round=E ura=6z
+= hw91 yaku=yakuhai_chun:1 han=1 fu=40 pay=ron:1300 total=1300
+# Dora counts, ura does not: indicator 1m -> one 2m; ura 4s -> two 5s, ignored.
+# Pinfu + tanyao + dora 1 = 3 han, closed ron 30 fu -> 3900.
+hw92 score hand=234m56788p34567s melds=- win=5s by=ron seat=S round=E dora=1m ura=4s
+= hw92 yaku=dora:1,pinfu:1,tanyao:1 han=3 fu=30 pay=ron:3900 total=3900
+# Open hand, tsumo, ura 3s -> two 4s, ignored. As hw46.
+hw93 score hand=55p23s melds=c234m,c567p,c678s win=4s by=tsumo seat=S round=E ura=3s
+= hw93 yaku=tanyao:1 han=1 fu=30 pay=tsumo:300/500 total=1100
+# Rinshan: the 2 tsumo fu decide the rounding (codex.md finding 6).
+# 20 + 2 tsumo + 8 (concealed 111m) + 8 (open simple kan) + 4 (double East pair) + 0
+# (ryanmen 23p) = 42 -> 50. Rinshan only (open hand). Dealer 1 han 50 fu: base 400,
+# 800 all. Without the tsumo fu it would be 40 fu, 700 all.
+hw94 score hand=111m23p789s11z melds=k2222s win=4p by=tsumo seat=E round=E flags=rinshan
+= hw94 yaku=rinshan:1 han=1 fu=50 pay=all:800 total=2400
+# Non-dealer, South seat in South round (22z double wind): same 42 -> 50, 400/800.
+# Without the tsumo fu: 40 fu, 400/700.
+hw95 score hand=111m23p789s22z melds=k2222s win=4p by=tsumo seat=S round=S flags=rinshan
+= hw95 yaku=rinshan:1 han=1 fu=50 pay=tsumo:400/800 total=1600
+# Real yakuman vs kazoe with the same total (formats.md tie-break). 44 777 888 999p +
+# a1111p by tsumo = suuankou (1x, 32000). The other reading, 44 + 789p x3, scores
+# chinitsu 6 + iipeikou 1 + riichi 1 + tsumo 1 + dora 3 (6p -> 7p x3) + ura 2
+# (3p -> 4p x2) = 14 han, kazoe, also 32000. The real yakuman wins.
+hw96 score hand=4477788999p melds=a1111p win=8p by=tsumo seat=S round=E dora=6p ura=3p flags=riichi
+= hw96 yaku=suuankou:1 yakuman=1 pay=tsumo:8000/16000 total=32000
+hw97 score hand=4477788999p melds=a1111p win=8p by=tsumo seat=E round=E dora=6p ura=3p flags=riichi
+= hw97 yaku=suuankou:1 yakuman=1 pay=all:16000 total=48000
+# Tenhou scores the best choice of winning tile. 14 tiles 11123455678999m: taking 5m as
+# the winning tile leaves the pure 1112345678999m, so junsei_chuuren 2 + tenhou 1 = 3x,
+# although the supplied tile is 9m.
+hw98 score hand=1112345567899m melds=- win=9m by=tsumo seat=E round=E flags=tenhou
+= hw98 yaku=junsei_chuuren:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+# Chiihou keeps the supplied 9m: plain chuuren 1 + chiihou 1 = 2x.
+hw99 score hand=1112345567899m melds=- win=9m by=tsumo seat=S round=E flags=chiihou
+= hw99 yaku=chiihou:1,chuuren:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# Chiihou on the nine-sided wait itself: 2 + 1 = 3x, 24000/48000.
+hw100 score hand=1112345678999m melds=- win=5m by=tsumo seat=S round=E flags=chiihou
+= hw100 yaku=chiihou:1,junsei_chuuren:2 yakuman=3 pay=tsumo:24000/48000 total=96000
+# Kokushi: tenhou picks a 6z as the winning tile (13-sided), chiihou keeps the 7z.
+hw101 score hand=19m19p19s1234566z melds=- win=7z by=tsumo seat=E round=E flags=tenhou
+= hw101 yaku=kokushi_13:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+hw102 score hand=19m19p19s1234566z melds=- win=7z by=tsumo seat=W round=E flags=chiihou
+= hw102 yaku=chiihou:1,kokushi:1 yakuman=2 pay=tsumo:16000/32000 total=64000
+# Suuankou: tenhou picks a 5z (tanki), chiihou keeps the 1m (shanpon, tsumo).
+hw103 score hand=11m222p333s44455z melds=- win=1m by=tsumo seat=E round=E flags=tenhou
+= hw103 yaku=suuankou_tanki:2,tenhou:1 yakuman=3 pay=all:48000 total=144000
+hw104 score hand=11m222p333s44455z melds=- win=1m by=tsumo seat=N round=E flags=chiihou
+= hw104 yaku=chiihou:1,suuankou:1 yakuman=2 pay=tsumo:16000/32000 total=64000
