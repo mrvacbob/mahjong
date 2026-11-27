@@ -11,32 +11,7 @@ import Testing
 /// Scenarios this engine disagrees with, and why. A disputed scenario that starts
 /// passing fails the run (the known issue is not recorded), so this list cannot go
 /// stale silently.
-let disputedScenarios: [String: String] = [
-    "abort_suufon_renda_riichi_stick.mahjongsoul":
-        "a riichi declared on the fourth-wind discard pays its stick in both clients' records (fourWindsRiichiStickPaid now on; docs/notes/p3-reallogs.md)",
-    "formal_tenpai_fifth_copy.mahjongsoul":
-        "Mahjong Soul counts a fifth-copy wait with copies in melds as tenpai at the draw (fifthCopyTenpaiAtDraw now on, from its records; docs/notes/p3-reallogs.md)",
-    "furiten_surviving_call":
-        "both clients end temporary furiten when the seat calls (temporaryFuritenEndsOnCall now on, from their records; docs/notes/p3-reallogs.md)",
-    "ippatsu_cancelled_by_kakan.mahjongsoul":
-        "Mahjong Soul now flips an owed kan indicator before the discard (openKanDoraBeforeRon on, from its records; docs/notes/p3-reallogs.md): only the event order differs",
-    "kakan_robbing_pass_furiten.mahjongsoul":
-        "Mahjong Soul now flips an owed kan indicator before the discard (openKanDoraBeforeRon on, from its records; docs/notes/p3-reallogs.md): only the event order differs",
-    "open_kan_chained_kan_discard_ron.mahjongsoul":
-        "Mahjong Soul's records show the owed open/added-kan indicator before the kan seat's discard, and a ron on it counts it (openKanDoraBeforeRon now on for Mahjong Soul; docs/notes/p3-reallogs.md): the expected payment or event order is the old default's",
-    "open_kan_discard_all_pass_dora.mahjongsoul":
-        "Mahjong Soul now flips an owed kan indicator before the discard (openKanDoraBeforeRon on, from its records; docs/notes/p3-reallogs.md): only the event order differs",
-    "open_kan_discard_called_dora.mahjongsoul":
-        "Mahjong Soul now flips an owed kan indicator before the discard (openKanDoraBeforeRon on, from its records; docs/notes/p3-reallogs.md): only the event order differs",
-    "open_kan_discard_riichi_ron_ura.mahjongsoul":
-        "Mahjong Soul's records show the owed open/added-kan indicator before the kan seat's discard, and a ron on it counts it (openKanDoraBeforeRon now on for Mahjong Soul; docs/notes/p3-reallogs.md): the expected payment or event order is the old default's",
-    "open_kan_discard_ron_dora.mahjongsoul":
-        "Mahjong Soul's records show the owed open/added-kan indicator before the kan seat's discard, and a ron on it counts it (openKanDoraBeforeRon now on for Mahjong Soul; docs/notes/p3-reallogs.md): the expected payment or event order is the old default's",
-    "riichi_discard_daiminkan_cancels_ippatsu.mahjongsoul":
-        "Mahjong Soul now flips an owed kan indicator before the discard (openKanDoraBeforeRon on, from its records; docs/notes/p3-reallogs.md): only the event order differs",
-    "suukaikan_open_kan_owed_dora.mahjongsoul":
-        "Mahjong Soul now flips an owed kan indicator before the discard (openKanDoraBeforeRon on, from its records; docs/notes/p3-reallogs.md): only the event order differs",
-]
+let disputedScenarios: [String: String] = [:]
 
 enum ScenarioFiles {
     static let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()

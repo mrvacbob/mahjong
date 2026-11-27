@@ -1,0 +1,73 @@
+# Temporary furiten cleared by the seat’s own call (engine.md §4.1, rules.md §1 furiten_temporary, §4.28).
+# Setup: Seat 0 discards 2s -> Seat 1 pons 2s (using 22s), discards 9m.
+# Seat 1 now holds 456p 567s 23m 88p + pon 222s (waiting 1m/4m; 4m is Tanyao).
+# Seat 2 discards 4m -> Seat 1 passes ron -> temporary furiten!
+# Seat 3 discards 8p -> Seat 1 calls pon:88p, discards 2m -> now waiting tanki on 3m (Tanyao).
+# Seat 2 discards 3m (before Seat 1's next draw from the wall!).
+# The pon clears temporary furiten in both rulesets. Seat 1 rons before drawing again.
+# Open Tanyao is 1 han. Fu: 20 base + 2 pon(2s) + 2 pon(8p) + 2 tanki(3m) = 26 -> 30.
+# Nondealer ron: 30 × 2^(1+2) × 4 = 960, rounded up to 1000 from Seat 2.
+# Scores: Seat 1 gains 1000 (26000) and Seat 2 loses 1000 (24000).
+
+[meta]
+name: furiten_cleared_by_own_call
+title: Temporary furiten holds until the seat calls pon and can ron before its next draw
+rules: both
+source: engine.md §4.1, rules.md §1 (furiten_temporary), §4.28; real-log campaign, docs/notes/p3-reallogs.md
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 2s 111p 999p 111s 999s
+hand 1: 22s 456p 567s 23m 88p 9m
+hand 2: 4m 3m 1199m 556p 334s 7z
+hand 3: 8p 5566m 77p 9p 344s 6z 7z
+dora: 1z
+draws: 2z 2z 3z 3z 4z
+
+[steps]
+0 discard 2s
+window: 1=pon:22s
+1 discard 9m
+window: 2=pass
+2 discard 4m
+assert_legal 1: ron
+window: 1=pass, 3=pass
+assert_furiten 1: true
+3 discard 8p
+assert_furiten 1: true
+window: 1=pon:88p
+assert_furiten 1: false
+1 discard 2m
+window: 2=pass
+2 discard 3m
+assert_legal 1: ron
+window: 1=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 1
+win 1: han=1 fu=30 yaku=tanyao
+deltas: 0 1000 -1000 0
+scores: 25000 26000 24000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), dahai(2), pon(1), dahai(2), hora(1), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 1
+win 1: han=1 fu=30 yaku=tanyao
+deltas: 0 1000 -1000 0
+scores: 25000 26000 24000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: pon(1), dahai(2), pon(1), dahai(2), hora(1), end_kyoku

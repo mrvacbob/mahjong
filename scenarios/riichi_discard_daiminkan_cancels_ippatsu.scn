@@ -13,8 +13,7 @@
 name: riichi_discard_daiminkan_cancels_ippatsu
 title: Daiminkan on a riichi discard emits reach_accepted before daiminkan and cancels ippatsu
 rules: mahjongsoul
-source: engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26, §5.4
-unverified: rules.md §5 item 4 (Mahjong Soul owed kan dora on post-kan ron)
+source: engine.md §4.1 rows 3/6, §4.2, §6, rules.md §4.26, §5.4; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E
@@ -51,4 +50,4 @@ scores: 36600 13400 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), daiminkan(1), tsumo(1), dahai(1), hora(0), end_kyoku
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), daiminkan(1), tsumo(1), dora(2z), dahai(1), hora(0), end_kyoku

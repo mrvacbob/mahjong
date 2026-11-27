@@ -1,7 +1,7 @@
 # Game end: In extension (West 1), non-dealer passes 30,000 while dealer ALSO repeats
 # without being first -> dealer repeat takes priority and game continues!
 # (engine.md §5 step 4, rules.md §5 item 8).
-# Verified for Tenhou; unverified for Mahjong Soul (defaults to the same).
+# Both rulesets give the dealer repeat priority.
 # West 1, dealer=0, scores: 24000 29000 24000 23000.
 # Exhaustive draw: Seat 0 (dealer) and Seat 1 (non-dealer) are tenpai ->
 # deltas: +1500 +1500 -1500 -1500 -> scores: 25500 30500 22500 21500.
@@ -12,8 +12,7 @@
 name: endgame_extension_dealer_repeat_priority
 title: Dealer repeat takes priority over non-dealer passing 30000 in West extension
 rules: mahjongsoul
-source: engine.md §5 step 4, rules.md §5.8
-unverified: rules.md §5 item 8 (Mahjong Soul dealer repeat vs 30000 sudden death in extension)
+source: engine.md §5 step 4, rules.md §5.8; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 game_length: south

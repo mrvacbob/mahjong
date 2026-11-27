@@ -13,8 +13,7 @@
 name: pao_double_ron
 title: Pao inside a double ron splits only the pao winner's yakuman with the liable seat
 rules: mahjongsoul
-source: engine.md §4.2, rules.md §4.21, §4.31
-unverified: rules.md §5 item 2 (Mahjong Soul multi-ron honba to closest CCW only)
+source: engine.md §4.2, rules.md §4.21, §4.31; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E

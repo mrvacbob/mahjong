@@ -1,11 +1,11 @@
 # A completed added kan (kakan) cancels an opponent's ippatsu
 # (engine.md §4.2 Ippatsu, rules.md §4.26).
-# Turn 1: Seat 0 discards 5z -> Seat 1 calls pon:55z, discards 9m. Seats 2, 3 tsumogiri.
+# Turn 1: Seat 0 discards 5z -> Seat 1 calls pon:55z, discards 9s. Seats 2, 3 tsumogiri.
 # Turn 2: Seat 0 declares riichi (holding one 2p dora from ind 1p -> riichi+pinfu+tanyao+dora:1 = 4 han 30 fu).
 # Seat 1 draws 4th 5z, declares kakan 5z (no robber -> kakan completes, cancelling Seat 0's ippatsu!),
 # draws rinshan 7s, and discards 7s -> Seat 0 rons 7s WITHOUT ippatsu!
 # Scoring for Seat 0 (dealer, East):
-#   Hand: 234m 678m 234p 56s 88p + ron 7s (dora ind 1p -> dora 2p, +1; kan dora ind 1z not active on Majsoul ron; ura 1z, 1z -> 0)
+#   Hand: 234m 678m 234p 56s 88p + ron 7s (dora ind 1p -> dora 2p, +1; kan dora ind 1z adds 0; ura ind 7z, 6z add 0)
 #   Yaku: riichi (1) + pinfu (1) + tanyao (1) + dora:1 (2p) = 4 han 30 fu (NO ippatsu!)
 #   Dealer 4 han 30 fu ron = 11600 from Seat 1 (with ippatsu it would be 12000).
 
@@ -13,8 +13,7 @@
 name: ippatsu_cancelled_by_kakan
 title: A completed added kan cancels another seat's ippatsu
 rules: mahjongsoul
-source: engine.md §4.2, rules.md §4.26, §5.4
-unverified: rules.md §5 item 4 (Mahjong Soul owed kan dora on post-kan ron)
+source: engine.md §4.2, rules.md §4.26, §5.4; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E
@@ -56,4 +55,4 @@ scores: 36600 13400 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), kakan(1), tsumo(1), dahai(1), hora(0), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), reach(0), dahai(0), reach_accepted(0), tsumo(1), kakan(1), tsumo(1), dora(1z), dahai(1), hora(0), end_kyoku

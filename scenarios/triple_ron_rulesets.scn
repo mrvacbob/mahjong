@@ -12,8 +12,7 @@
 name: triple_ron_rulesets
 title: Triple ron pays all three on Mahjong Soul and aborts (sanchahou) on Tenhou
 rules: both
-source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21
-unverified: rules.md §5 item 2 (Mahjong Soul multi-ron honba to closest CCW only)
+source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E

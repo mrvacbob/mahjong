@@ -202,15 +202,17 @@ let quietHands = [
         #expect(problems.isEmpty, "\(problems)")
     }
 
-    @Test func fourWindsRiichiStickPaid() throws {
+    @Test func fourWindsRiichiStickNotPaid() throws {
+        // Both presets pay the stick (settled from real game records); the field
+        // off gives the old default: no acceptance, no stick.
         var r = Rules.mahjongSoul
-        r.fourWindsRiichiStickPaid = true
+        r.fourWindsRiichiStickPaid = false
         let problems = try run("abort_suufon_renda_riichi_stick", rules: r) { e in
-            e["deltas"] = [0, 0, 0, -1000]
-            e["scores"] = [25000, 25000, 25000, 24000]
-            e["sticks"] = 1
+            e["deltas"] = [0, 0, 0, 0]
+            e["scores"] = [25000, 25000, 25000, 25000]
+            e["sticks"] = 0
             var ev = e["events"] as! [String]
-            ev.insert("reach_accepted(3)", at: ev.firstIndex(of: "ryukyoku(suufon_renda)")!)
+            ev.remove(at: ev.firstIndex(of: "reach_accepted(3)")!)
             e["events"] = ev
         }
         #expect(problems.isEmpty, "\(problems)")

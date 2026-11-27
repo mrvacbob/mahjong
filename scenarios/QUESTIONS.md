@@ -4,14 +4,14 @@ Disagreements between `docs/design/engine.md` (draft 2) and `spec/rules.md`, or
 places where either document looks incomplete or ambiguous. Per the brief,
 scenarios follow `spec/rules.md` where the two disagree and list the item here.
 
-## 1. Temporary furiten clearing on a call (resolved for scenarios)
+## 1. Temporary furiten clearing on a call (resolved)
 
-The Phase 3 ruling keeps temporary furiten until the next own draw for both
-rulesets. A call leaves it in place. `furiten_surviving_call.scn` uses one
-play sequence and the same outcome for both rulesets. The Mahjong Soul
-client behavior of an intervening call remains untested in a replay.
+In both clients, the seat’s own chi, pon, or open kan clears temporary furiten.
+`furiten_cleared_by_own_call.scn` checks the flag immediately before and after
+the pon and takes a legal ron before the seat draws again. Source is the
+real-log campaign, `docs/notes/p3-reallogs.md`.
 
-## 2. Pao on Ron honba in Mahjong Soul vs `engine.md` §4.2
+## 2. Pao on Ron honba in Mahjong Soul vs `engine.md` §4.2 (resolved)
 
 - **`spec/rules.md` (§1 `pao_ron_split`, §4 item 31):** Explicitly states for
   Mahjong Soul that on a 3rd-party ron with pao, the liable player and discarder
@@ -20,7 +20,8 @@ client behavior of an intervening call remains untested in a replay.
 - **`docs/design/engine.md` (§4.2):** Mentions *"and the liable seat pays the
   honba"* only in the Tenhou clause, leaving Mahjong Soul honba payment implicit.
 - **Action taken:** `scenarios/pao_ron_third_party.scn` follows `spec/rules.md`
-  (liable seat pays the honba in Mahjong Soul as well).
+  (liable seat pays the honba in Mahjong Soul as well). The real-log campaign,
+  `docs/notes/p3-reallogs.md`, found results consistent with this settlement.
 
 ## 3. Open kan → closed kan owed-indicator order if robbed by Kokushi (Mahjong Soul)
 
@@ -30,7 +31,8 @@ client behavior of an intervening call remains untested in a replay.
   Kokushi Musou (`rules.md` §4 item 16). If `dora` (owed) is emitted *before*
   `ankan`, it flips even if the `ankan` is robbed (which does not affect a
   Kokushi yakuman's score, only the mjai event log). `rules.md` §5 item 10
-  already marks Mahjong Soul chained-kan dora order as unverified.
+  settles the chained added-kan order. The evidence does not answer this
+  chained closed-kan question, so both closed-kan order scenarios retain their tags.
 
 ## 4. Adjusted score units for `GameResult` (resolved)
 
@@ -42,20 +44,35 @@ client behavior of an intervening call remains untested in a replay.
   `adjusted_scores` in raw integer points (`final_score - return + oka*1000 +
   uma*1000`, e.g., `+27000` for `+27.0`). The Phase 3 ruling confirms those integer point units.
 
-## 5. Unverified Mahjong Soul client behaviours (tracked in `spec/rules.md` §5)
+## 5. Client behavior checked in the real-log campaign
 
-All items marked unverified in `spec/rules.md` §5 are written to the design's
-stated defaults and tagged `unverified` in their scenario `[meta]` headers:
-- `rules.md` §5 item 2: `double_ron_with_sticks_and_honba.scn`, `triple_ron_rulesets.scn`, and `pao_double_ron.scn`
-- `rules.md` §5 item 3: `riichi_ankan_waits.scn`
-- `rules.md` §5 item 4: `open_kan_discard_ron_dora.scn`, `open_kan_discard_called_dora.scn`, `open_kan_discard_riichi_ron_ura.scn`, `ippatsu_cancelled_by_kakan.scn`, and `riichi_discard_daiminkan_cancels_ippatsu.scn`
-- `rules.md` §5 items 4 & 10: `open_kan_chained_kan_discard_ron.scn`
-- `rules.md` §5 item 10: `open_kan_to_closed_kan_chain.scn`
-- `rules.md` §5 item 5: `added_kan_robbed_ippatsu_alive.scn`
-- `rules.md` §5 item 6: `endgame_nagashi_pushes_dealer_out_of_first.scn`
-- `rules.md` §5 item 7: `formal_tenpai_fifth_copy.scn`
-- `rules.md` §5 item 8: `endgame_extension_dealer_repeat_priority.scn`
-- `rules.md` §5 item 9: `abort_suufon_renda_riichi_stick.scn`
+The real-log campaign, `docs/notes/p3-reallogs.md`, closes these questions:
+
+- Both clients reveal the owed indicator just before the post-kan discard, and
+  ron counts that indicator and its ura.
+- Mahjong Soul shows an earlier kan’s owed indicator immediately after the
+  chained added-kan announcement and before its robbing window. Tenhou waits
+  for the window to pass.
+- Riichi on the fourth-wind discard pays its stick in both clients. The
+  campaign confirms payment from the next hand’s header. The engine scenario
+  asserts its corresponding `reach_accepted` event before the abort.
+- A fifth-copy wait counts at exhaustive draw in both clients if the four
+  copies are not all concealed. Both permit riichi on the documented closed-kan
+  form of that wait.
+- Multi-ron honba go only to the nearest winner, all-last evaluates the
+  post-nagashi scores, and dealer repeat takes priority in extension in both clients.
+
+Still open:
+
+- The chained closed-kan order in §3 above.
+- Riichi ankan that preserves wait kinds while changing hand decomposition,
+  and chankan with ippatsu. Published rules settle both, but neither has
+  a distinguishing client replay cited here.
+- Composite pao, open-kan rinshan dora, and declined tsumo. The relevant
+  scenarios retain or now carry `unverified` tags.
+- The winning tile of a heavenly hand and leftover sticks at game end.
+  The heavenly-hand scenario tests the yakuman award only, and no scenario
+  asserts either unresolved behavior.
 
 ## 6. Physically impossible coverage gaps from `docs/reviews/p3/F-codex.md`
 

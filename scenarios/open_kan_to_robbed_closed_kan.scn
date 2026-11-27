@@ -10,7 +10,7 @@ name: open_kan_to_robbed_closed_kan
 title: Kokushi robs the closed kan chained after an open kan
 rules: mahjongsoul
 source: engine.md §4.2, rules.md §4.16, §4.17
-unverified: rules.md §5 item 10 (owed indicator before the robbed ankan)
+unverified: rules.md §5 item 10 covers added kans; chained closed-kan order is still unverified
 
 [round]
 scores: 25000 35000 25000 15000

@@ -4,17 +4,15 @@
 # draws rinshan 7s, discards 7s -> Seat 2 rons 7s (holding 88p!).
 # Scoring for Seat 2 (non-dealer, West):
 #   Hand: 234m 678m 234p 56s 88p + ron 7s
-#   - Mahjong Soul (default, unverified): owed kan dora flips only AFTER window passes ->
-#     pinfu (1) + tanyao (1) = 2 han 30 fu -> 2000 from Seat 1.
-#   - Tenhou: owed kan dora flips immediately before the discard ->
-#     pinfu (1) + tanyao (1) + dora:2 (88p) = 4 han 30 fu (no kiriage!) -> 7700 from Seat 1.
+# Both rulesets reveal 7p before the discard. Pinfu (1) + tanyao (1) + dora (2) = 4 han.
+# Closed pinfu ron is 20 + 10 = 30 fu. Nondealer ron is 30 × 2^(4+2) × 4 = 7680,
+# rounded up to 7700. Seat 1 pays (17300) and Seat 2 receives (32700).
 
 [meta]
 name: open_kan_discard_ron_dora
-title: Kan dora on a ron of the post-open-kan discard (Tenhou counts it, Majsoul default does not)
+title: Both rulesets count kan dora on a ron of the post-open-kan discard
 rules: both
-source: engine.md §4.2, rules.md §1, §4.17, §5.4
-unverified: rules.md §5 item 4 (Mahjong Soul kan dora timing on post-kan ron)
+source: engine.md §4.2, rules.md §1, §4.17, §5.4; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E
@@ -42,13 +40,13 @@ window: 2=ron
 [expect.mahjongsoul]
 outcome: ron
 winners: 2
-win 2: han=2 fu=30 yaku=pinfu,tanyao
-deltas: 0 -2000 2000 0
-scores: 25000 23000 27000 25000
+win 2: han=4 fu=30 yaku=dora:2,pinfu,tanyao
+deltas: 0 -7700 7700 0
+scores: 25000 17300 32700 25000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dahai(1), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7p), dahai(1), hora(2), end_kyoku
 
 [expect.tenhou]
 outcome: ron

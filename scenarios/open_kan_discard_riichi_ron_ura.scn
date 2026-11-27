@@ -5,17 +5,17 @@
 # Seat 1 draws rinshan 7s and discards 7s -> Seat 0 (holding two 8p!) rons 7s!
 # Scoring for Seat 0 (dealer, East):
 #   Hand: 234m 678m 234p 56s 88p + ron 7s
-#   - Mahjong Soul (default): owed kan dora #1 is NOT revealed before ron, so only 1 ura indicator (1z) applies:
-#     double_riichi (2) + pinfu (1) + tanyao (1) = 4 han 30 fu -> Dealer ron = 11600!
-#   - Tenhou: owed kan dora #1 IS revealed before the discard, so 2 ura indicators (1z, 7p -> ura 8p x2!) apply:
-#     double_riichi (2) + pinfu (1) + tanyao (1) + ura:2 (88p) = 6 han (Haneman) -> Dealer ron = 18000!
+# Both rulesets reveal the 2z indicator before the discard, enabling its paired 7p ura.
+# Double riichi (2) + pinfu (1) + tanyao (1) + ura (2) = 6 han.
+# Closed pinfu ron is 20 + 10 = 30 fu. Dealer haneman is 3000 × 6 = 18000.
+# Seat 0 recovers its own 1000 stick, so its net gain is 18000 (43000),
+# and Seat 1 pays 18000 (7000).
 
 [meta]
 name: open_kan_discard_riichi_ron_ura
-title: Post-open-kan riichi ron counts the second ura indicator on Tenhou but not Mahjong Soul default
+title: Post-open-kan riichi ron counts both ura indicators
 rules: both
-source: engine.md §4.2, rules.md §1, §4.17, §5.4
-unverified: rules.md §5 item 4 (Mahjong Soul owed kan dora and matching ura on post-kan ron)
+source: engine.md §4.2, rules.md §1, §4.17, §5.4; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E
@@ -46,13 +46,13 @@ window: 0=ron
 [expect.mahjongsoul]
 outcome: ron
 winners: 0
-win 0: han=4 fu=30 yaku=double_riichi,pinfu,tanyao
-deltas: 11600 -11600 0 0
-scores: 36600 13400 25000 25000
+win 0: han=6 fu=30 yaku=double_riichi,pinfu,tanyao,ura:2
+deltas: 18000 -18000 0 0
+scores: 43000 7000 25000 25000
 sticks: 0
 honba: 1
 dealer_repeats: true
-events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), daiminkan(1), tsumo(1), dahai(1), hora(0), end_kyoku
+events: start_kyoku, tsumo(0), reach(0), dahai(0), reach_accepted(0), daiminkan(1), tsumo(1), dora(2z), dahai(1), hora(0), end_kyoku
 
 [expect.tenhou]
 outcome: ron

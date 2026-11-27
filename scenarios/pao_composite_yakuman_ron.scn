@@ -16,6 +16,7 @@ name: pao_composite_yakuman_ron
 title: Composite yakuman third-party ron splits only liable yakuman on Mahjong Soul and whole hand on Tenhou
 rules: both
 source: engine.md §4.2, rules.md §1, §4.31
+unverified: rules.md §5 item 12 (no discriminating composite pao payment)
 
 [round]
 wind: E

@@ -17,7 +17,7 @@
 name: kakan_robbing_pass_furiten
 title: Passing a legal kakan rob completes the kan and triggers temporary furiten until own draw
 rules: mahjongsoul
-source: engine.md §4.1, §4.2, rules.md §4.28
+source: engine.md §4.1, §4.2, rules.md §4.28; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E
@@ -65,4 +65,4 @@ scores: 24300 24600 24600 26500
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), kakan(1), tsumo(1), dahai(1), dora(3z), tsumo(2), dahai(2), tsumo(3), hora(3), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), tsumo(1), kakan(1), tsumo(1), dora(3z), dahai(1), tsumo(2), dahai(2), tsumo(3), hora(3), end_kyoku

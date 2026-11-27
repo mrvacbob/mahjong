@@ -3,22 +3,18 @@
 # Setup: Seat 0 discards 9p -> Seat 1 pons 9p (using 99p), discards 1s.
 # Seats 2, 3 tsumogiri; Seat 0 draws 2z, discards 5z -> Seat 1 calls daiminkan on 5z
 # (owes kan dora #1: 1p -> dora 2p), draws rinshan[0] (4th 9p), declares kakan 9p!
-# Robbing window passes (no robber) -> owed kan dora #1 (1p) flips BEFORE rinshan[1],
-# and kakan 9p owes kan dora #2 (7p -> dora 8p).
-# Seat 1 draws rinshan[1] (7s), discards 7s -> Seat 2 rons 7s (holding one 2p and two 8p!).
-# Scoring for Seat 2 (non-dealer, West):
-#   Hand: 234m 678m 234p 56s 88p + ron 7s
-#   - Mahjong Soul (default): kan dora #1 (1p -> 2p, +1) IS active; kan dora #2 (7p -> 8p) is NOT:
-#     pinfu (1) + tanyao (1) + dora:1 (2p) = 3 han 30 fu -> 3900 from Seat 1.
-#   - Tenhou: BOTH kan dora #1 (2p, +1) and kan dora #2 (88p, +2, flipped before the discard) ARE active:
-#     pinfu (1) + tanyao (1) + dora:3 = 5 han (Mangan) -> 8000 from Seat 1.
+# Mahjong Soul reveals the owed 1p indicator immediately after kakan, before its
+# robbing window. Tenhou reveals it once that window passes. Both do so before
+# the replacement draw, and both reveal 7p immediately before the 7s discard.
+# Seat 2 rons on 7s with pinfu (1) + tanyao (1) + dora (1 from 2p, 2 from 88p) = 5 han.
+# Closed pinfu ron is 20 + 10 = 30 fu. Nondealer mangan is 2000 × 4 = 8000.
+# Seat 1 pays (17000) and Seat 2 receives (33000).
 
 [meta]
 name: open_kan_chained_kan_discard_ron
 title: Open kan -> replacement draw -> added kan -> discard -> ron (owed dora ordering)
 rules: both
-source: engine.md §4.2, rules.md §4.17, §5.4, §5.10
-unverified: rules.md §5 items 4 and 10 (Mahjong Soul chained kan dora and post-kan ron)
+source: engine.md §4.2, rules.md §4.17, §5.4, §5.10; real-log campaign, docs/notes/p3-reallogs.md
 
 [round]
 wind: E
@@ -53,13 +49,13 @@ window: 2=ron
 [expect.mahjongsoul]
 outcome: ron
 winners: 2
-win 2: han=3 fu=30 yaku=dora:1,pinfu,tanyao
-deltas: 0 -3900 3900 0
-scores: 25000 21100 28900 25000
+win 2: han=5 fu=30 yaku=dora:3,pinfu,tanyao
+deltas: 0 -8000 8000 0
+scores: 25000 17000 33000 25000
 sticks: 0
 honba: 0
 dealer_repeats: false
-events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dahai(1), hora(2), end_kyoku
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dora(7p), dahai(1), hora(2), end_kyoku
 
 [expect.tenhou]
 outcome: ron
