@@ -16,6 +16,9 @@ Each implementation builds one executable, `mj`.
 - Reads requests from stdin, one per line. Writes one response line per request to
   stdout, in the same order. Exits 0 at EOF.
 - Must not read the corpus's expected answers, the network, or anything under `3p/`.
+- Standard library only: no third-party packages in any language (for Haskell,
+  the packages that ship with GHC; for Swift, Foundation is allowed). Build tools
+  such as SwiftPM, `mmc --make`, or cabal are fine.
 - A request it cannot handle gets `<id> error=<reason>`, never a crash.
 
 Request: `<id> <op> key=value key=value ...` (single spaces; values contain no spaces)
@@ -79,7 +82,7 @@ sorted as strings. Special forms: `chiitoi`, `kokushi`. A hand can have both
 standard forms and `chiitoi` (ryanpeikou shapes); list all.
 
 Example: `hand=11122233399m123p` →
-`win=1 forms=111m,123p,222m,333m,99m;123m,123m,123m,123p,99m` (after sorting).
+`win=1 forms=111m,222m,333m,99m,123p;123m,123m,123m,99m,123p` (after sorting).
 
 ### `shanten`
 
@@ -174,4 +177,66 @@ Out: `actions=<comma list>`, sorted as strings. Never empty (`pass` or a discard
 
 ## Decisions log
 
-(empty)
+Entries by the Python-oracle corpus builder (tools/, corpus/*.txt except legal.txt).
+
+1. **Spec fix (agari example).** The example listed groups in plain string order
+   (`111m,123p,222m,...`), which contradicts the stated rule (suit, then first digit,
+   then pair < sequence < triplet). The rule wins; the example now reads
+   `111m,222m,333m,99m,123p;123m,123m,123m,99m,123p`. So `234m` precedes `222m`, and
+   `22m` precedes `234m`. Forms are then sorted as plain strings.
+2. **agari:** decompositions that print identically are listed once.
+3. **Ruleset.** The brief's provisional assumptions (2-fu double-wind pair, no double
+   yakuman) were replaced by spec/rules.md (Mahjong Soul ranked) once it existed:
+   double-wind pair = 4 fu; kokushi_13, suuankou_tanki, junsei_chuuren and daisuushii
+   each print `:2`; distinct yakuman stack and `yakuman=` is the sum of the multiples
+   (e.g. daisuushii:2 + suuankou_tanki:2 + tsuuiisou:1 = 5, paid as 5x). Kazoe stays 1x.
+   Library settings used: open tanyao on, aka on, double yakuman on, kazoe limited to
+   1x, kiriage off, open no-fu ron = 30 fu, pinfu tsumo = 20 fu, 6x yakuman cap. Score
+   cases whose answer would differ under the old assumptions carry a
+   `# rule-sensitive (...)` comment with the alternative answer (140 cases).
+4. **Shanten ignores tile availability.** `std` is the textbook value
+   8 - 2*sets - taatsu - head with sets+taatsu <= 4, so a hand waiting only on a fifth
+   copy (e.g. `234567789m1111z`) is tenpai (std 0), and `waits` then lists nothing
+   (`tiles=- count=0`), which is what the spec's waits rule implies. The oracle library
+   instead adds Tenhou-style penalties for hands holding four of a kind and calls them
+   1-shanten. tools/oracle_mj.py uses its own search (checked against the library on
+   every hand without a four-of-a-kind). Affected generated cases carry a
+   `# rule-sensitive (oracle library's own 4-copy shanten)` note (16 shanten, 14 waits).
+   See corpus/disputed.txt.
+5. **Chiitoi** needs seven distinct kinds. Four of a kind counts as one pair for both
+   agari and chiitoi shanten (6 - pairs + max(0, 7 - kinds)).
+6. **Kazoe yakuman** (13+ han from ordinary yaku and dora) prints in the ordinary form
+   with its real han (`han=14 fu=30`) and is paid as a 1x yakuman. It never uses the
+   `yakuman=` key.
+7. **Ties the spec's tie-break cannot settle are left out of the corpus.** (a) A real
+   yakuman and a kazoe interpretation with the same total (one case found:
+   `hand=4477788999p melds=a1111p win=8p by=tsumo`, suuankou vs. chinitsu kazoe).
+   "Higher han" means nothing for a yakuman. The library prefers the real yakuman, as
+   Tenhou and Mahjong Soul display it. Suggest the spec say so. (b) Interpretations
+   with equal total, han and fu that print different yaku lists: none found.
+8. **ura** is counted only with `riichi` or `double_riichi`. Without them it is
+   ignored. The generators only send `ura` with riichi.
+9. **Red fives:** a request with more than one red of a suit, or with four non-red
+   copies of a five, is invalid input (oracle_mj answers `error=bad_input`; the corpus
+   never contains invalid input).
+10. **Flag combinations** that cannot happen (riichi or ippatsu on an open hand;
+   ippatsu without riichi; haitei/rinshan by ron; houtei/chankan by tsumo;
+   haitei+rinshan; houtei+chankan; rinshan without a kan; ippatsu+rinshan; tenhou
+   when not dealer, not tsumo or with melds; chiihou likewise) are never generated,
+   and the response to them is unspecified. ippatsu+chankan is also never generated:
+   the robbed added kan is a call, which ends ippatsu (spec/rules.md, item 26).
+   Generated chankan cases always have the winner holding no other copy of the
+   winning tile.
+11. **Ron on a shanpon** makes the completed triplet an open one, for fu and for
+   sanankou/suuankou. A tanki win on four concealed triplets is suuankou_tanki by ron
+   or by tsumo.
+12. **tenhou/chiihou** take `hand` + `win` like any tsumo. The `win` tile still
+   decides wait-dependent yakuman (kokushi vs kokushi_13, chuuren vs junsei_chuuren,
+   suuankou vs suuankou_tanki). Whether Mahjong Soul upgrades these on a tenhou has
+   not been checked.
+13. **Dealer** is `seat=E`. Honba: +300 on ron, +100 per payer on tsumo (spec).
+   Riichi sticks are never included.
+14. **Dora indicator counts** in generated cases are realistic (1 + kans, sometimes one
+   more) but no op checks the count.
+15. **Errors beyond the spec's** (`error=bad_input`, `error=internal`,
+   `error=unsupported` for `legal`) are oracle_mj's own; no corpus case expects them.

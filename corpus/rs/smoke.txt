@@ -1,0 +1,53 @@
+# Independently calculated examples for the line protocol
+s1 shanten hand=123m789p123s11122z
+= s1 std=-1 chiitoi=4 kokushi=7 min=-1
+s2 shanten hand=23m456p789s33z melds=c123m
+= s2 std=0 chiitoi=x kokushi=x min=0
+s3 shanten hand=19m19p19s1234567z
+= s3 std=8 chiitoi=6 kokushi=0 min=0
+w1 waits hand=1122334455667m
+= w1 shanten=0 tiles=147m count=7
+w2 waits hand=23m456p789s33z melds=a1111m
+= w2 shanten=0 tiles=4m count=4
+w3 waits hand=19m19p19s1234567z
+= w3 shanten=0 tiles=19m19p19s1234567z count=39
+a1 agari hand=11223344556677m
+= a1 win=1 forms=11m,234m,234m,567m,567m;123m,123m,44m,567m,567m;123m,123m,456m,456m,77m;chiitoi
+a2 agari hand=123456m12p789s22z3z
+= a2 win=0
+p01 score hand=234456m23p678s22z win=4p by=ron
+= p01 yaku=pinfu:1 han=1 fu=30 pay=ron:1500 total=1500
+p02 score hand=234456m23p678s33z win=4p by=tsumo seat=S honba=1
+= p02 yaku=pinfu:1,tsumo:1 han=2 fu=20 pay=tsumo:500/800 total=1800
+p03 score hand=23m456p789s33z melds=c123m win=1m by=ron dora=9m
+= p03 error=no_yaku
+p04 score hand=23m456p789s33z melds=c123m win=2m by=ron
+= p04 error=not_agari
+p05 score hand=19m19p19s1234567z win=1m by=ron
+= p05 yaku=kokushi_13:2 yakuman=2 pay=ron:96000 total=96000
+p06 score hand=1112345678999m win=5m by=ron
+= p06 yaku=junsei_chuuren:2 yakuman=2 pay=ron:96000 total=96000
+p07 score hand=1112223334445z win=5z by=ron
+= p07 yaku=daisuushii:2,suuankou_tanki:2,tsuuiisou:1 yakuman=5 pay=ron:240000 total=240000
+p08 score hand=1144m2255p3377s1z win=1z by=ron seat=W flags=riichi,ippatsu
+= p08 yaku=chiitoi:2,ippatsu:1,riichi:1 han=4 fu=25 pay=ron:6400 total=6400
+p09 score hand=111222m345p789s1z win=1z by=ron seat=E round=E flags=riichi
+= p09 yaku=riichi:1 han=1 fu=50 pay=ron:2400 total=2400
+p10 score hand=234406m23p678s33z win=4p by=ron seat=S flags=riichi,ippatsu dora=4m ura=2z
+= p10 yaku=aka:1,dora:1,ippatsu:1,pinfu:1,riichi:1,ura:2 han=7 fu=30 pay=ron:12000 total=12000
+p11 score hand=1122334455667m win=7m by=ron flags=riichi
+= p11 yaku=chinitsu:6,pinfu:1,riichi:1,ryanpeikou:3 han=11 fu=30 pay=ron:36000 total=36000
+p12 score hand=234456m23p678s33z win=4p by=ron seat=S flags=riichi,ippatsu dora=2z
+= p12 yaku=dora:2,ippatsu:1,pinfu:1,riichi:1 han=5 fu=30 pay=ron:8000 total=8000
+p13 score hand=234450m23p678s33z win=4p by=ron seat=S flags=riichi,ippatsu dora=2z
+= p13 error=not_agari
+p14 score hand=234456m23p678s33z win=4p by=ron seat=S flags=riichi,ippatsu dora=6s
+= p14 yaku=dora:1,ippatsu:1,pinfu:1,riichi:1 han=4 fu=30 pay=ron:7700 total=7700
+p15 score hand=23m456p789s33z melds=k1111z win=1m by=tsumo seat=S round=S flags=rinshan
+= p15 yaku=rinshan:1 han=1 fu=40 pay=tsumo:400/700 total=1500
+a3 agari hand=55566677788899p
+= a3 win=1 forms=555p,666p,777p,888p,99p;555p,66p,678p,789p,789p;555p,678p,678p,678p,99p;567p,567p,567p,888p,99p
+s4 shanten hand=123456789m1111z
+= s4 std=0 chiitoi=5 kokushi=9 min=0
+w4 waits hand=123456789m1111z
+= w4 shanten=0 tiles=- count=0

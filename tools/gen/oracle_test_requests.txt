@@ -1,0 +1,460 @@
+# Requests harvested from the oracle library's tests by convert_oracle_tests.py.
+# Format: <pytest id> TAB <op> <key=value ...>
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_kokushi_ron	score hand=19m19p19s1234567z melds=- win=1s by=ron seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_kokushi_ron	agari hand=19m19p119s1234567z melds=-
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_open_hand_with_honor_melds	score hand=34m22244z melds=p111z,p333z win=2m by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_open_hand_with_honor_melds	agari hand=234m22244z melds=p111z,p333z
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_all_honors_with_meld	score hand=1112233777z melds=p444z win=2z by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_all_honors_with_meld	agari hand=11122233777z melds=p444z
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_monster_hand	score hand=3z melds=a1111z,a5555z,a6666z,a7777z win=3z by=tsumo seat=E round=E dora=22224444z flags=riichi,ippatsu,haitei
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_monster_hand	agari hand=33z melds=a1111z,a5555z,a6666z,a7777z
+tests/hand_calculating/tests_aotenjou.py::test_daisangen	score hand=1123s555666777z melds=- win=1s by=ron seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_daisangen	agari hand=11123s555666777z melds=-
+tests/hand_calculating/tests_aotenjou.py::test_shousuushii	score hand=123s1112233z melds=p444z win=2z by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_shousuushii	agari hand=123s11122233z melds=p444z
+tests/hand_calculating/tests_aotenjou.py::test_daisuushii	score hand=11s11122333z melds=p444z win=2z by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_daisuushii	agari hand=11s111222333z melds=p444z
+tests/hand_calculating/tests_aotenjou.py::test_tsuuiisou	score hand=1113335556z melds=p444z win=6z by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_tsuuiisou	agari hand=11133355566z melds=p444z
+tests/hand_calculating/tests_aotenjou.py::test_suuankou	score hand=1113335556668m melds=- win=8m by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_suuankou	agari hand=11133355566688m melds=-
+tests/hand_calculating/tests_aotenjou.py::test_chinroutou	score hand=111999m1199s melds=p111p win=9s by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_chinroutou	agari hand=111999m11999s melds=p111p
+tests/hand_calculating/tests_aotenjou.py::test_chuuren_poutou	score hand=1112345678999m melds=- win=1m by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_chuuren_poutou	agari hand=11112345678999m melds=-
+tests/hand_calculating/tests_aotenjou.py::test_chuuren_poutou_inner	score hand=1112345678999m melds=- win=5m by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_chuuren_poutou_inner	agari hand=11123455678999m melds=-
+tests/hand_calculating/tests_aotenjou.py::test_suukantsu	score hand=2z melds=k1111m,k4444s,k9999p,k3333z win=2z by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_suukantsu	agari hand=22z melds=k1111m,k4444s,k9999p,k3333z
+tests/hand_calculating/tests_aotenjou.py::test_daisharin	score hand=2233445566788p melds=- win=7p by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_daisharin	agari hand=22334455667788p melds=-
+tests/hand_calculating/tests_aotenjou.py::test_ryuisou	score hand=22334466688s66z melds=- win=8s by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_ryuisou	agari hand=223344666888s66z melds=-
+tests/hand_calculating/tests_aotenjou.py::test_overlapping_yakuman_remove_toitoi_once[tsuuiisou_chiitoitsu]	score hand=1122334455667z melds=- win=7z by=ron seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_overlapping_yakuman_remove_toitoi_once[tsuuiisou_chiitoitsu]	agari hand=11223344556677z melds=-
+tests/hand_calculating/tests_aotenjou.py::test_overlapping_yakuman_remove_toitoi_once[tsuuiisou_daisuushii]	score hand=1112223334445z melds=- win=5z by=ron seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_overlapping_yakuman_remove_toitoi_once[tsuuiisou_daisuushii]	agari hand=11122233344455z melds=-
+tests/hand_calculating/tests_aotenjou.py::test_overlapping_yakuman_remove_toitoi_once[chinroutou_suuankou]	score hand=111999m111999p1s melds=- win=1s by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_overlapping_yakuman_remove_toitoi_once[chinroutou_suuankou]	agari hand=111999m111999p11s melds=-
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_kokushi_tsumo	score hand=19m19p19s1234567z melds=- win=7z by=tsumo seat=E round=E
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_kokushi_tsumo	agari hand=19m19p19s12345677z melds=-
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_kokushi_with_dora	score hand=19m19p19s1234567z melds=- win=7z by=ron seat=E round=E dora=8m
+tests/hand_calculating/tests_aotenjou.py::test_aotenjou_kokushi_with_ura_dora	score hand=19m19p19s1234567z melds=- win=7z by=ron seat=E round=E ura=8m flags=riichi
+tests/hand_calculating/tests_fu_calculation.py::test_chitoitsu_fu	agari hand=115599m66p112244s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_open_hand_base	agari hand=123456m11p222678s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_fu_based_on_win_group	agari hand=234789m12345666p melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_open_pinfu_adds_hand_without_fu	agari hand=234567m22p234678s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_open_hand_without_additional_fu_tsumo_hand_value[True]	score hand=234567m22p78s melds=c234s win=6s by=tsumo seat=S round=E
+tests/hand_calculating/tests_fu_calculation.py::test_open_hand_without_additional_fu_tsumo_hand_value[True]	agari hand=234567m22p678s melds=c234s
+tests/hand_calculating/tests_fu_calculation.py::test_tsumo_hand_and_pinfu	agari hand=123456m123p22678s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_tsumo_hand_and_not_pinfu	agari hand=123456m111p22678s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_penchan_fu[12_wait]	agari hand=123456m55p123456s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_penchan_fu[89_wait]	agari hand=123456m55p345789s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_kanchan_fu	agari hand=123456m55p123567s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_valued_pair_fu[single]	agari hand=123456m123678s11z melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_pair_wait_fu	agari hand=123456m11p123678s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_closed_terminal_pon_fu	agari hand=123456m11p111678s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_closed_honor_pon_fu	agari hand=123456m11678s111z melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_open_terminal_pon_fu	agari hand=123456m22678s111z melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_incorrect_fu_calculation_test_case_1	score hand=234m1112356777s melds=- win=4s by=tsumo seat=S round=E
+tests/hand_calculating/tests_fu_calculation.py::test_incorrect_fu_calculation_test_case_1	agari hand=234m11123456777s melds=-
+tests/hand_calculating/tests_fu_calculation.py::test_incorrect_fu_calculation_test_case_2	agari hand=11123444m555p melds=c123m
+tests/hand_calculating/tests_hand_dividing.py::test_single_hand_dividing[simple]	agari hand=234567m23455s777z melds=-
+tests/hand_calculating/tests_hand_dividing.py::test_single_hand_dividing[simple_all_suits]	agari hand=123m123p123s11222z melds=-
+tests/hand_calculating/tests_hand_dividing.py::test_single_hand_dividing[with_pairs]	agari hand=23444m344556p333s melds=-
+tests/hand_calculating/tests_hand_dividing.py::test_single_hand_dividing[one_suit]	agari hand=111123666789s11z melds=-
+tests/hand_calculating/tests_hand_dividing.py::test_multiple_hand_dividing[one_suit]	agari hand=11122233388899m melds=-
+tests/hand_calculating/tests_hand_dividing.py::test_multiple_hand_dividing[chitoitsu_like]	agari hand=112233m99p445566s melds=-
+tests/hand_calculating/tests_hand_dividing.py::test_third_one_suit_hand_dividing	agari hand=778899p22z melds=c789p,c234p
+tests/hand_calculating/tests_hand_dividing.py::test_divide_hand_skips_combinations_with_pairs_in_several_suits	agari hand=11456m22789p33s44z melds=-
+tests/hand_calculating/tests_hand_response_error.py::test_hand_not_winning	score hand=234456m66p12334s melds=- win=4s by=ron seat=S round=E
+tests/hand_calculating/tests_hand_response_error.py::test_hand_not_winning	agari hand=234456m66p123344s melds=-
+tests/hand_calculating/tests_hand_response_error.py::test_no_yaku	score hand=234456m66p44s melds=c123s win=4s by=ron seat=S round=E
+tests/hand_calculating/tests_hand_response_error.py::test_no_yaku	agari hand=234456m66p444s melds=c123s
+tests/hand_calculating/tests_hand_response_error.py::test_no_yaku_hand_does_not_count_dora	score hand=13m234p340678s22z melds=- win=2m by=ron seat=S round=E dora=1m
+tests/hand_calculating/tests_hand_response_error.py::test_no_yaku_hand_does_not_count_dora	agari hand=123m234p345678s22z melds=-
+tests/hand_calculating/tests_hand_response_error.py::test_rinshan_after_nuki	agari hand=11199m666p123444s melds=-
+tests/hand_calculating/tests_hand_response_error.py::test_tenhou_not_as_dealer	score hand=234456m66p12344s melds=- win=4s by=tsumo seat=E round=E flags=tenhou
+tests/hand_calculating/tests_hand_response_error.py::test_chiihou_as_dealer	score hand=234456m66p12344s melds=- win=4s by=tsumo seat=S round=E flags=chiihou
+tests/hand_calculating/tests_hand_response_error.py::test_chiihou_as_dealer	agari hand=234456m66p123444s melds=-
+tests/hand_calculating/tests_hand_response_error.py::test_winning_tile_in_meld[win_tile_only_in_pon]	agari hand=234m456p789s11z melds=p111m
+tests/hand_calculating/tests_hand_response_error.py::test_winning_tile_in_meld[closed_kan]	agari hand=234m456p789s11z melds=a1111m
+tests/hand_calculating/tests_hand_response_error.py::test_same_kind_winning_tile_in_meld_is_accepted	agari hand=123m456p789s55z melds=p111m
+tests/hand_calculating/tests_hand_response_error.py::test_meld_invalid[closed_pon]	score hand=345p2678s555z melds=p111m win=2s by=ron seat=S round=E
+tests/hand_calculating/tests_hand_response_error.py::test_negative_count[tsumi_number]	score hand=234567p2345567s melds=- win=8s by=ron seat=S round=E
+tests/hand_calculating/tests_hand_response_error.py::test_zero_counts_are_allowed	agari hand=234567p23455678s melds=-
+tests/hand_calculating/tests_hand_response_error.py::test_str_returns_han_and_fu_for_valid_hand	score hand=234456m66p12344s melds=- win=4s by=ron seat=S round=E flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=99p77z melds=p111z,c123p,c123p win=9p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=999p77z melds=p111z,c123p,c123p
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=2244456799p melds=k4444z win=2p by=ron seat=S round=E dora=3s3z
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=22244456799p melds=k4444z
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=11m12345p678s666z melds=- win=3p by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=11m123345p678s666z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=234789m1234566p melds=- win=6p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=3455789p678s555z melds=- win=5p by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=34555789p678s555z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=678m88p12345678s melds=- win=3s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=678m88p123345678s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=123456m456p2399s melds=- win=1s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=123456m456p12399s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=11123789s11z melds=p666s win=1s by=ron seat=E round=E dora=4z
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=111123789s11z melds=p666s
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=1233p567s melds=p666z,p777z win=3p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=12333p567s melds=p666z,p777z
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=456m1236778p678s melds=- win=7p by=ron seat=S round=E flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=456m12367778p678s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=56799m melds=k7777z,p111m,c678m
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=222888m66z melds=c123m,p777m
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=44678p melds=p444z,p111p,p888p
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=345m999p6778s222z melds=- win=7s by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=345m999p67778s222z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=345m3344557789s melds=- win=7s by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=345m33445577789s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=123667788p22z melds=c123p
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=1233456789m345s melds=- win=3m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=12333456789m345s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=1156s melds=c123s,p777s,p888s win=4s by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=11456s melds=c123s,p777s,p888s
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=123789s55777z melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=778899p22z melds=c234p,c789p
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=7788899p melds=p777z,p444m win=8p by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=77888899p melds=p777z,p444m
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=567m1233345p555z melds=- win=3p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=567m12333345p555z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=6777889p555z melds=c345p win=7p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=67777889p555z melds=c345p
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	score hand=567p33555s77z melds=a4444s win=3s by=ron seat=S round=E flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_hands_calculation	agari hand=567p333555s77z melds=a4444s
+tests/hand_calculating/tests_yaku_calculation.py::test_chi_tiles_in_any_order[order0]	score hand=234567m99s55z melds=c789p win=5z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_chi_tiles_in_any_order[order0]	agari hand=234567m99s555z melds=c789p
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tsumo	score hand=234456m66p12344s melds=- win=4s by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tsumo	score hand=234456m66p44s melds=c123s win=4s by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ippatsu	score hand=234456m66p12344s melds=- win=4s by=ron seat=S round=E flags=riichi,ippatsu
+tests/hand_calculating/tests_yaku_calculation.py::test_is_rinshan	score hand=234456m66p23s melds=a4444s win=1s by=tsumo seat=S round=E flags=rinshan
+tests/hand_calculating/tests_yaku_calculation.py::test_is_rinshan	agari hand=234456m66p123s melds=a4444s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_rinshan	score hand=234456m66p23s melds=k4444s win=1s by=tsumo seat=S round=E flags=rinshan
+tests/hand_calculating/tests_yaku_calculation.py::test_is_rinshan	agari hand=234456m66p123s melds=k4444s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chankan	score hand=234456m66p23444s melds=- win=1s by=ron seat=S round=E flags=chankan
+tests/hand_calculating/tests_yaku_calculation.py::test_is_haitei	score hand=234456m66p12344s melds=- win=4s by=tsumo seat=S round=E flags=haitei
+tests/hand_calculating/tests_yaku_calculation.py::test_is_haitei	score hand=234456m66p44s melds=c123s win=4s by=tsumo seat=S round=E flags=haitei
+tests/hand_calculating/tests_yaku_calculation.py::test_is_houtei	score hand=234456m66p12344s melds=- win=4s by=ron seat=S round=E flags=houtei
+tests/hand_calculating/tests_yaku_calculation.py::test_is_daburu_riichi	score hand=234456m66p12344s melds=- win=4s by=ron seat=S round=E flags=double_riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chitoitsu_hand	agari hand=113355m11p113355s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chitoitsu_hand	agari hand=2299m1199p2299s44z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chitoitsu_hand	score hand=113355m1p113355s melds=- win=1p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tanyao	agari hand=234567m22p234567s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tanyao	agari hand=234567m22p123456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tanyao	agari hand=234567m234567s22z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tanyao	score hand=23456m22p234567s melds=- win=7m by=ron seat=S round=E flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tanyao	score hand=23456m22p567s melds=c234s win=7m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_tanyao	agari hand=234567m22p567s melds=c234s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=12345m55p123456s melds=- win=6m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=12355m55p123456s melds=- win=5m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	agari hand=123555m55p123456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=12345m55p111456s melds=- win=6m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	agari hand=123456m55p111456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=123456m55p12456s melds=- win=3s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=123456m55p12357s melds=- win=6s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=2456678m123678p melds=- win=2m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	agari hand=22456678m123678p melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=123456m12378s11z melds=- win=6s by=ron seat=E round=W
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=123456m12378s22z melds=- win=6s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	agari hand=123456m123678s22z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	score hand=23456m456p99s melds=c123s win=1m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_pinfu_hand	agari hand=123456m456p99s melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_iipeiko	agari hand=123m23444p112233s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_iipeiko	score hand=33m12344p112233s melds=- win=3m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_iipeiko	agari hand=333m12344p112233s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_iipeiko	score hand=33m12344p123s melds=c123s win=3m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_iipeiko	agari hand=333m12344p123s melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ryanpeiko	agari hand=22m223344p112233s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ryanpeiko	agari hand=22m111122223333s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ryanpeiko	score hand=33m22344p112233s melds=- win=3p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ryanpeiko	agari hand=33m223344p112233s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ryanpeiko	score hand=33m22344p123s melds=c123s win=3p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ryanpeiko	agari hand=33m223344p123s melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku	agari hand=123m12345677p123s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku	agari hand=23455m123p123456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku	score hand=1399m123p123456s melds=- win=2m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku	agari hand=12399m123p123456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku	score hand=1399m123p456s melds=c123s win=2m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku	agari hand=12399m123p456s melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku_douko	agari hand=111m11145677p111s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku_douko	agari hand=222m33344455p111s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku_douko	score hand=222m2224569p melds=p222s win=9p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku_douko	agari hand=222m22245699p melds=p222s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku_douko_and_kan_in_hand	score hand=222m2224569p melds=k2222s win=9p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanshoku_douko_and_kan_in_hand	agari hand=222m22245699p melds=k2222s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_toitoi	agari hand=333m44555p111333s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_toitoi	agari hand=777888999p777s44z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_toitoi	score hand=333m4455p melds=p111s,p333s win=5p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_toitoi	agari hand=333m44555p melds=p111s,p333s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_toitoi	score hand=77788899p44z melds=p777s win=9p by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_toitoi	agari hand=777888999p44z melds=p777s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sankantsu	score hand=12m44p melds=s1111s,k3333s,k6666p win=3m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sankantsu	agari hand=123m44p melds=s1111s,k3333s,k6666p
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honroto	agari hand=111m111999s11222z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honroto	agari hand=1199m11p22334466z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honroto	score hand=111m999s1122z melds=p111s win=2z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honroto	agari hand=111m999s11222z melds=p111s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honroto	score hand=199m11p22334466z melds=- win=1m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanankou	agari hand=333m44555p111444s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanankou	agari hand=444789999p22333z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanankou	agari hand=222456666777p77z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanankou	score hand=333m4455p444s melds=c123s win=5p by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_sanankou	agari hand=333m44555p444s melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_shosangen	agari hand=345m123s55666777z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_shosangen	score hand=345m123s5566677z melds=- win=7z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chanta	agari hand=123789m123s22333z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chanta	agari hand=111999m111s22333z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chanta	agari hand=111999m11p111999s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chanta	score hand=123789m123s2233z melds=- win=3z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chanta	score hand=123789m2233z melds=c123s win=3z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chanta	agari hand=123789m22333z melds=c123s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_junchan	agari hand=123789m12399p789s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_junchan	score hand=13789m12399p789s melds=- win=2m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_junchan	score hand=13789m12399p melds=c789s win=2m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_junchan	agari hand=123789m12399p melds=c789s
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	agari hand=123456789m11122z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	agari hand=123456789m123p22z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	agari hand=12345666778899m melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	score hand=123455667m1112z melds=- win=2z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	agari hand=123455667m11122z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	score hand=455667m1112z melds=c123m win=2z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_honitsu	agari hand=455667m11122z melds=c123m
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chinitsu	agari hand=123456778899m22z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chinitsu	score hand=1234566777889m melds=- win=1m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chinitsu	agari hand=11234566777889m melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chinitsu	score hand=1234567789m melds=c678m win=1m by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chinitsu	agari hand=11234567789m melds=c678m
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ittsu	agari hand=123456789m123s22z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ittsu	agari hand=112233456789m22z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ittsu	agari hand=122334567789m11z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ittsu	score hand=123456789m12s22z melds=- win=3s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ittsu	score hand=456789m12s22z melds=c123m win=3s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_ittsu	agari hand=456789m123s22z melds=c123m
+tests/hand_calculating/tests_yaku_calculation.py::test_is_haku	agari hand=22234m234567s555z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_haku	score hand=22234m234567s55z melds=- win=5z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_hatsu	agari hand=22234m234567s666z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_hatsu	score hand=22234m234567s66z melds=- win=6z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chun	agari hand=22234m234567s777z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_chun	score hand=22234m234567s77z melds=- win=7z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_east	agari hand=22234m234567s111z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_east	score hand=22234m234567s11z melds=- win=1z by=ron seat=E round=W
+tests/hand_calculating/tests_yaku_calculation.py::test_is_east	score hand=22234m234567s11z melds=- win=1z by=ron seat=E round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_south	agari hand=22234m234567s222z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_south	score hand=22234m234567s22z melds=- win=2z by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_south	score hand=22234m234567s22z melds=- win=2z by=ron seat=S round=S
+tests/hand_calculating/tests_yaku_calculation.py::test_is_west	agari hand=22234m234567s333z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_west	score hand=22234m234567s33z melds=- win=3z by=ron seat=W round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_west	score hand=22234m234567s33z melds=- win=3z by=ron seat=W round=W
+tests/hand_calculating/tests_yaku_calculation.py::test_is_north	agari hand=22234m234567s444z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_is_north	score hand=22234m234567s44z melds=- win=4z by=ron seat=N round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_is_north	score hand=22234m234567s44z melds=- win=4z by=ron seat=N round=N
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=456789m34s55z melds=c678s win=5s by=ron seat=S round=E dora=5s
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	agari hand=456789m345s55z melds=c678s
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=12345m33p123456s melds=- win=6m by=ron seat=S round=E dora=2p
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	agari hand=123456m33p123456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=2456678m123678p melds=- win=2m by=tsumo seat=S round=E dora=1m2p
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=678m3457p123345s melds=- win=7p by=tsumo seat=S round=E dora=44s
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	agari hand=678m34577p123345s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=678m34p123345s66z melds=- win=5p by=ron seat=S round=E dora=55z flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	agari hand=678m345p123345s66z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=123678m4p123406s melds=- win=4p by=tsumo seat=S round=E dora=22p
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	agari hand=123678m44p123456s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	score hand=3457p123345s melds=a7777m win=7p by=tsumo seat=S round=E dora=6m
+tests/hand_calculating/tests_yaku_calculation.py::test_dora_in_hand	agari hand=34577p123345s melds=a7777m
+tests/hand_calculating/tests_yaku_calculation.py::test_ura_dora_in_hand	score hand=12345m33p123456s melds=- win=6m by=ron seat=S round=E ura=2p flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_ura_dora_in_hand	score hand=12345m33p123456s melds=- win=6m by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_kazoe_settings[limited]	score hand=4446667788m melds=a2222m win=7m by=ron seat=S round=E dora=1111m flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_kazoe_settings[limited]	agari hand=44466677788m melds=a2222m
+tests/hand_calculating/tests_yaku_calculation.py::test_open_hand_without_additional_fu_scores_correctly	score hand=234567m22p78s melds=c234s win=6s by=ron seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_aka_dora	score hand=1230559m406p340s melds=- win=9m by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_aka_dora	agari hand=12355599m456p345s melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_aka_dora	score hand=1235559m456p345s melds=- win=9m by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_aka_dora	score hand=1235559m456p340s melds=- win=9m by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_aka_dora	score hand=1235559m406p340s melds=- win=9m by=tsumo seat=S round=E
+tests/hand_calculating/tests_yaku_calculation.py::test_nuki_dora_with_dora_indicators[0-1-1]	score hand=1235559m456p345s melds=- win=9m by=tsumo seat=S round=E dora=3z
+tests/hand_calculating/tests_yaku_calculation.py::test_nuki_dora_with_dora_indicators[0-2-1]	score hand=1235559m456p345s melds=- win=9m by=tsumo seat=S round=E dora=33z
+tests/hand_calculating/tests_yaku_calculation.py::test_nuki_dora_with_ura_dora_indicators[0-0-1]	score hand=1235559m456p345s melds=- win=9m by=ron seat=S round=E flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_nuki_dora_with_ura_dora_indicators[0-1-1]	score hand=1235559m456p345s melds=- win=9m by=ron seat=S round=E ura=3z flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_nuki_dora_with_ura_dora_indicators[0-2-1]	score hand=1235559m456p345s melds=- win=9m by=ron seat=S round=E ura=33z flags=riichi
+tests/hand_calculating/tests_yaku_calculation.py::test_three_player_man_one_dora_indicator[True-7]	agari hand=99m456789p345s111z melds=-
+tests/hand_calculating/tests_yaku_calculation.py::test_three_player_man_one_dora_indicator[False-1]	score hand=9m456789p345s111z melds=- win=9m by=ron seat=S round=E dora=1m ura=11m flags=riichi
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_daisangen	agari hand=22m123s555666777z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_daisangen	score hand=22m123s55566677z melds=- win=7z by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_shosuushi	agari hand=123s11122233344z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_shosuushi	score hand=123s1112223334z melds=- win=4z by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_daisuushi	agari hand=22s111222333444z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_daisuushi	score hand=22s11122233344z melds=- win=4z by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_tsuisou	agari hand=11122233366677z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_tsuisou	agari hand=88p11s1133445577z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_tsuisou	score hand=1122334455667z melds=- win=7z by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chinroto	agari hand=111999m99p111999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chinroto	score hand=111999m9p111222s melds=- win=9p by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chinroto	agari hand=111999m99p111222s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_kokushi	score hand=19m19p11s1234567z melds=- win=9s by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_kokushi	score hand=19m19p19s1234567z melds=- win=1s by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_ryuisou	agari hand=22334466888s666z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_ryuisou	score hand=22334466888s66z melds=- win=6z by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_suuankou	score hand=333m4455p111444s melds=- win=5p by=tsumo seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_suuankou	score hand=333m4455p111444s melds=- win=5p by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_suuankou	score hand=333m4445p111444s melds=- win=5p by=tsumo seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_suuankou	agari hand=333m44455p111444s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_suuankou	score hand=3334445557779m melds=- win=9m by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_suuankou	agari hand=33344455577799m melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles1]	agari hand=11122345678999p melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles2]	agari hand=11123345678999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles3]	agari hand=11123445678999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles4]	agari hand=11123455678999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles5]	agari hand=11123456678999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles6]	agari hand=11123456778999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles7]	agari hand=11123456788999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_chuuren_poutou[tiles8]	agari hand=11123456789999s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_chuuren_poutou[tiles0]	agari hand=11112233488999m melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_chuuren_poutou[tiles1]	agari hand=11123444678999p melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_chuuren_poutou[tiles2]	agari hand=12345678999p111z melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_chuuren_poutou[tiles3]	agari hand=999m11123456789s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_single	score hand=1123456789999m melds=- win=1m by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_single	agari hand=11123456789999m melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_double[tiles0-4]	score hand=1112345678999m melds=- win=2m by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_double[tiles0-4]	agari hand=11122345678999m melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_double[tiles1-32]	score hand=1112345678999m melds=- win=9m by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_double[tiles2-0]	score hand=1112345678999m melds=- win=1m by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_rejects_hand_with_melds	score hand=1112456678p melds=a9999p win=3p by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_chuuren_poutou_hand_value_rejects_hand_with_melds	agari hand=11123456678p melds=a9999p
+tests/hand_calculating/tests_yakuman_calculation.py::test_sextuple_yakuman	score hand=1112223334445z melds=- win=5z by=tsumo seat=E round=E flags=tenhou
+tests/hand_calculating/tests_yakuman_calculation.py::test_sextuple_yakuman	score hand=5z melds=a1111z,a2222z,a3333z,a4444z win=5z by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_sextuple_yakuman	agari hand=55z melds=a1111z,a2222z,a3333z,a4444z
+tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman	score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman	score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=E round=E flags=tenhou
+tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman	score hand=19m19p19s2345677z melds=- win=1z by=tsumo seat=S round=E flags=chiihou
+tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman	score hand=19m19p19s1234567z melds=- win=7z by=tsumo seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman	score hand=19m19p19s1234567z melds=- win=7z by=tsumo seat=E round=E flags=tenhou
+tests/hand_calculating/tests_yakuman_calculation.py::test_kokushi_musou_multiple_yakuman	score hand=19m19p19s1234567z melds=- win=7z by=tsumo seat=S round=E flags=chiihou
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_daisharin	score hand=2233445566778p melds=- win=8p by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_daichikurin	score hand=2233445566778s melds=- win=8s by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_daichikurin	agari hand=22334455667788s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_daisuurin	score hand=2233445566778m melds=- win=8m by=ron seat=S round=E
+tests/hand_calculating/tests_yakuman_calculation.py::test_is_not_daisuurin	agari hand=22334455667788m melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_paarenchan[1-26]	agari hand=111222777p44455s melds=-
+tests/hand_calculating/tests_yakuman_calculation.py::test_suuankou_wins_over_kazoe_yakuman_with_same_cost[True-3-dora_indicators0]	agari hand=44777888999p melds=a1111p
+tests/hand_calculating/tests_yakuman_calculation.py::test_suuankou_wins_over_kazoe_yakuman_with_same_cost[False-0-dora_indicators1]	score hand=4477788999p melds=a1111p win=8p by=tsumo seat=S round=E dora=67p
+tests/tests_agari.py::test_is_agari[123456789-123-33-]	agari hand=33m123p123456789s melds=-
+tests/tests_agari.py::test_is_agari[123456789-11123--]	agari hand=11123p123456789s melds=-
+tests/tests_agari.py::test_is_agari[123456789---11777]	agari hand=123456789s11777z melds=-
+tests/tests_agari.py::test_is_agari[12345556778899---]	agari hand=12345556778899s melds=-
+tests/tests_agari.py::test_is_agari[233334-789-345-55]	agari hand=345m789p233334s55z melds=-
+tests/tests_agari.py::test_is_not_agari[123456789-12345--]	agari hand=12345p123456789s melds=-
+tests/tests_agari.py::test_is_not_agari[111222444-11145--]	agari hand=11145p111222444s melds=-
+tests/tests_agari.py::test_is_not_agari[11122233356888---]	agari hand=11122233356888s melds=-
+tests/tests_agari.py::test_is_chitoitsu_agari[1133557799-1199--]	agari hand=1199p1133557799s melds=-
+tests/tests_agari.py::test_is_chitoitsu_agari[2244-1199-11-2277]	agari hand=11m1199p2244s2277z melds=-
+tests/tests_agari.py::test_is_chitoitsu_agari[--11223344556677-]	agari hand=11223344556677m melds=-
+tests/tests_agari.py::test_is_kokushi_musou_agari[19-19-199-1234567]	agari hand=199m19p19s1234567z melds=-
+tests/tests_agari.py::test_is_kokushi_musou_agari[19-19-19-11234567]	agari hand=19m19p19s11234567z melds=-
+tests/tests_agari.py::test_is_not_kokushi_musou_agari[129-19-19-1234567]	agari hand=19m19p129s1234567z melds=-
+tests/tests_agari.py::test_is_not_kokushi_musou_agari[19-19-19-11134567]	agari hand=19m19p19s11134567z melds=-
+tests/tests_agari.py::test_is_agari_and_open_hand	agari hand=222p23467s melds=c345m,p555s
+tests/tests_agari.py::test_honor_tile_overflow_returns_false[honor_count_5]	agari hand=55556z melds=p777z,p444z,p333z
+tests/tests_agari.py::test_no_valid_decomposition_returns_false	agari hand=147m11z melds=p777z,p666z,p555z
+tests/tests_agari.py::test_is_mentsu_negative_a_returns_false	agari hand=114m11z melds=p777z,p666z,p555z
+tests/tests_agari.py::test_open_hand_with_kan_meld	agari hand=123456789p22s melds=k1111m
+tests/tests_agari.py::test_atama_mentsu_pair_positions[66-111222333444]	agari hand=66m111222333444p melds=-
+tests/tests_agari.py::test_atama_mentsu_pair_positions[99-111222333444]	agari hand=99m111222333444p melds=-
+tests/tests_agari.py::test_atama_mentsu_pair_positions[22-111222333444]	agari hand=22m111222333444p melds=-
+tests/tests_agari.py::test_atama_mentsu_pair_positions[44-111222333444]	agari hand=44m111222333444p melds=-
+tests/tests_agari.py::test_atama_mentsu_pair_positions[77-111222333444]	agari hand=77m111222333444p melds=-
+tests/tests_shanten.py::test_calculate_shanten[4566677-1367-8-12-2]	shanten hand=8m1367p4566677s12z melds=-
+tests/tests_shanten.py::test_calculate_shanten[14-3356-3678-2567-4]	shanten hand=3678m3356p14s2567z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[111234567-11-567---1]	shanten hand=567m11p111234567s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[111345677-11-567--0]	shanten hand=567m11p111345677s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[111345677-15-567--1]	shanten hand=567m15p111345677s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[11134567-15-1578--2]	shanten hand=1578m15p11134567s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[113456-1358-1358--3]	shanten hand=1358m1358p113456s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[1589-13588-1358-1-4]	shanten hand=1358m13588p1589s1z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[159-13588-1358-12-5]	shanten hand=1358m13588p159s12z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[1589-258-1358-123-6]	shanten hand=1358m258p1589s123z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[11123456788999-----1]	shanten hand=11123456788999s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[11122245679999----0]	shanten hand=11122245679999s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[159-17-359-123567-7]	shanten hand=359m17p159s123567z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[---11112222333444-1]	shanten hand=11112222333444z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[--11-111122223333-2]	shanten hand=11m111122223333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[--23-111122223333-2]	shanten hand=23m111122223333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[1111--333444555--1]	shanten hand=333444555m1111s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[1111--333444555--1]	waits hand=333444555m1111s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[111234567-11--77-0]	shanten hand=11p111234567s77z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand[111234567-11--77-0]	waits hand=11p111234567s77z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[111345677-1-567--1]	shanten hand=567m1p111345677s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[111345677-1-567--1]	waits hand=567m1p111345677s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[111345677--56--0]	shanten hand=56m111345677s melds=p777z
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[--123456789-1111-1]	shanten hand=123456789m1111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[--123456789-1111-1]	waits hand=123456789m1111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[112233-123-1111--1]	shanten hand=1111m123p112233s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[112233-123-1111--1]	waits hand=1111m123p112233s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[---1111222333444-1]	shanten hand=1111222333444z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[---1111222333444-1]	waits hand=1111222333444z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[--11-11112222333-2]	shanten hand=11m11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[--11-11112222333-2]	waits hand=11m11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[--23-11112222333-2]	shanten hand=23m11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[--23-11112222333-2]	waits hand=23m11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[---1111222233334-3]	shanten hand=1111222233334z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_for_not_completed_hand[---1111222233334-3]	waits hand=1111222233334z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114477-114477-77---1]	shanten hand=77m114477p114477s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114477-114477-76--0]	shanten hand=67m114477p114477s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114477-114479-76--1]	shanten hand=67m114479p114477s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114477-14479-76-1-2]	shanten hand=67m14479p114477s1z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114477-13479-76-1-3]	shanten hand=67m13479p114477s1z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114467-13479-76-1-4]	shanten hand=67m13479p114467s1z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[114367-13479-76-1-5]	shanten hand=67m13479p113467s1z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[124367-13479-76-1-6]	shanten hand=67m13479p123467s1z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_chiitoitsu_hand[66677888-55-2255--1]	shanten hand=2255m55p66677888s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[19-19-19-12345677--1]	shanten hand=19m19p19s12345677z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[129-19-19-1234567-0]	shanten hand=19m19p129s1234567z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[129-129-19-123456-1]	shanten hand=19m129p129s123456z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[129-129-129-12345-2]	shanten hand=129m129p129s12345z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[1239-129-129-2345-3]	shanten hand=129m129p1239s2345z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[1239-1239-129-345-4]	shanten hand=129m1239p1239s345z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[1239-1239-1239-45-5]	shanten hand=1239m1239p1239s45z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[12349-1239-1239-5-6]	shanten hand=1239m1239p12349s5z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_kokushi_hand[12349-12349-1239--7]	shanten hand=1239m12349p12349s melds=-
+tests/tests_shanten.py::test_calculate_shanten_with_open_sets[44467778-222567----1]	shanten hand=222567p44467778s melds=-
+tests/tests_shanten.py::test_calculate_shanten_with_open_sets[44468-222567---0]	shanten hand=222567p44468s melds=p777z
+tests/tests_shanten.py::test_calculate_shanten_with_open_sets[68-222567---0]	shanten hand=222567p68s melds=p777z,p666z
+tests/tests_shanten.py::test_calculate_shanten_with_open_sets[68-567---0]	shanten hand=567p68s melds=p777z,p666z,p555z
+tests/tests_shanten.py::test_calculate_shanten_with_open_sets[68----0]	shanten hand=68s melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_with_open_sets[88-----1]	shanten hand=88s melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_kokushi_should_be_ignored_when_melds_exist	shanten hand=19m19p19s12345z melds=p777z
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player[--1111-2222333444-1]	shanten hand=1111m2222333444z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player[-11-9999-22223333-2]	shanten hand=9999m11p22223333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[111345677-567-1--1]	shanten hand=1m567p111345677s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[111345677-567-1--1]	waits hand=1m567p111345677s melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[111345677-56---0]	shanten hand=56p111345677s melds=p777z
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-123456789--1111-1]	shanten hand=123456789p1111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-123456789--1111-1]	waits hand=123456789p1111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[112233-1111--111-1]	shanten hand=1111p112233s111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[112233-1111--111-1]	waits hand=1111p112233s111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[--9999-222333444-1]	shanten hand=9999m222333444z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[--9999-222333444-1]	waits hand=9999m222333444z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-11--11112222333-2]	shanten hand=11p11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-11--11112222333-2]	waits hand=11p11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-11-11119999-111-2]	shanten hand=11119999m11p111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-11-11119999-111-2]	waits hand=11119999m11p111z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-23--11112222333-2]	shanten hand=23p11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[-23--11112222333-2]	waits hand=23p11112222333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[--11119-22223333-3]	shanten hand=11119m22223333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_for_regular_hand_three_player_for_not_completed_hand[--11119-22223333-3]	waits hand=11119m22223333z melds=-
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[2]	shanten hand=2m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[2]	waits hand=2m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[3]	shanten hand=3m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[3]	waits hand=3m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[4]	shanten hand=4m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[4]	waits hand=4m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[5]	shanten hand=5m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[5]	waits hand=5m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[6]	shanten hand=6m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[6]	waits hand=6m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[7]	shanten hand=7m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[7]	waits hand=7m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[8]	shanten hand=8m melds=p777z,p666z,p555z,p444z
+tests/tests_shanten.py::test_calculate_shanten_raises_error_for_manzu_in_three_player[8]	waits hand=8m melds=p777z,p666z,p555z,p444z
