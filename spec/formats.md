@@ -1,7 +1,8 @@
 # Shootout formats and runner contract
 
-Status: draft 1. The corpus builders may tighten ambiguities they find; every such
-decision gets a line in the "Decisions log" at the bottom.
+Status: draft 2, revised after the Phase 1 council review
+(`docs/reviews/p1/synthesis.md`). The body of this document is authoritative. The
+Decisions log at the bottom is history; where it and the body differ, the body wins.
 
 ## Why plain text and not JSON
 
@@ -20,6 +21,11 @@ Each implementation builds one executable, `mj`.
   the packages that ship with GHC; for Swift, Foundation is allowed). Build tools
   such as SwiftPM, `mmc --make`, or cabal are fine.
 - A request it cannot handle gets `<id> error=<reason>`, never a crash.
+- Corpus requests are always well-formed and physically possible (tile lists in
+  canonical order, at most four copies of a kind, at most one red five per suit,
+  flag combinations that can occur). The only error answers the corpus expects are
+  `error=not_agari` and `error=no_yaku` from `score`. What `mj` says for malformed
+  input is not tested.
 
 Request: `<id> <op> key=value key=value ...` (single spaces; values contain no spaces)
 Response: `<id> key=value ...`
@@ -40,7 +46,12 @@ West North, 5–7 = white, green, red (haku, hatsu, chun). A red five is digit `
   within a suit ascending with `0` sorting immediately before `5`. Empty list is `-`.
 
 Red fives behave as fives everywhere except: they count one aka dora each, and
-they are distinct tiles in `legal` actions.
+they are distinct tiles in `legal` actions (`discard:0m` and `discard:5m` are
+separate entries, likewise `riichi:` and `kakan:`).
+
+Dora: the dora is the tile after the indicator, wrapping within its group:
+9→1 in a suit, a red-five indicator counts as a 5 (dora is 6), winds
+E→S→W→N→E, dragons white→green→red→white.
 
 ## Melds
 
@@ -54,7 +65,8 @@ they are distinct tiles in `legal` actions.
 | `s0555s` | added kan (shouminkan) |
 | `a2222m` | closed kan (ankan) |
 
-`hand=` never includes meld tiles. A hand with k melds has 13−3k tiles, or 14−3k
+`hand=` never includes meld tiles. Closed kans are melds for shape purposes (they
+can't be part of chiitoi or kokushi) but leave the hand closed for yaku and riichi. A hand with k melds has 13−3k tiles, or 14−3k
 when it includes a drawn or winning tile (each op says which).
 
 ## Common context keys
@@ -76,9 +88,10 @@ In: `hand` (14−3k tiles, including the winning tile), `melds`.
 Out: `win=0` or `win=1 forms=<form>;<form>;...`
 
 A form is one decomposition of the **concealed** tiles: comma-separated groups,
-each a tile list, reds written as `5`. Groups within a form sorted by suit
-(m, p, s, z) then first digit then pairs before sequences before triplets; forms
-sorted as strings. Special forms: `chiitoi`, `kokushi`. A hand can have both
+each a tile list, reds written as `5`. Groups within a form are sorted by suit
+(m, p, s, z), then first digit, and for equal suit and first digit pair, then
+sequence, then triplet. Forms are then sorted as plain strings, and forms that
+print identically are listed once. Special forms: `chiitoi`, `kokushi`. A hand can have both
 standard forms and `chiitoi` (ryanpeikou shapes); list all.
 
 Example: `hand=11122233399m123p` →
@@ -89,7 +102,12 @@ Example: `hand=11122233399m123p` →
 In: `hand` (13−3k or 14−3k tiles), `melds`.
 Out: `std=<n> chiitoi=<n> kokushi=<n> min=<n>`. −1 means complete. For a hand with
 any meld, `chiitoi=x kokushi=x`. For a 14-tile hand, shanten is of the hand as it
-stands (best discard assumed).
+stands (best discard assumed); a complete hand is −1.
+
+Shanten is structural and ignores tile availability: `std` is
+8 − 2·sets − partial sets − pair, with sets + partial sets ≤ 4. A hand whose only
+wait is a fifth copy of a tile it holds four of (`234567789m1111z`) is tenpai,
+`std=0`. Chiitoi needs seven distinct kinds: 6 − pairs + max(0, 7 − kinds).
 
 ### `waits`
 
@@ -98,7 +116,8 @@ Out: `shanten=<n> tiles=<tile list> count=<n>`.
 
 `tiles` are the tile kinds that lower `min` shanten when drawn (reds as `5`). A
 kind is listed only if at least one copy is outside this hand and melds. `count`
-is the total copies of listed kinds outside this hand and melds.
+is the total copies of listed kinds outside this hand and melds. A structurally
+tenpai hand can therefore answer `shanten=0 tiles=- count=0`.
 
 ### `score`
 
@@ -107,6 +126,23 @@ In: `hand` (13−3k tiles, **excluding** the winning tile), `melds`, `win=<tile>
 
 Flags: `riichi`, `double_riichi`, `ippatsu`, `haitei`, `houtei`, `rinshan`,
 `chankan`, `tenhou`, `chiihou`. (`double_riichi` implies riichi; don't send both.)
+Situational yaku come only from flags, never inferred from other keys. `ura` is
+counted only with `riichi` or `double_riichi`, and ignored otherwise. `ippatsu`
+can combine with `chankan` (a robbed kan was never completed, so it does not end
+ippatsu).
+
+Rulings that affect the answer:
+- Ron on a shanpon wait makes the completed triplet open, for fu and for
+  sanankou/suuankou. A tanki win on four concealed triplets is `suuankou_tanki` by
+  ron or tsumo.
+- `tenhou`: `hand` + `win` is the dealer's opening 14 tiles, and any of them may be
+  treated as the winning tile; score the best choice (so tenhou with four concealed
+  triplets is always `suuankou_tanki`, with kokushi always `kokushi_13`, with
+  chuuren always `junsei_chuuren`). `chiihou` uses the supplied `win` tile.
+- Kazoe yakuman (13+ han from ordinary yaku and dora) is answered in the ordinary
+  form with its real han (`han=14 fu=30`), paid as one yakuman. It never uses the
+  `yakuman=` key.
+- Pao (liability) is out of scope: `score` answers the ordinary payment.
 
 Out, one of:
 - `error=not_agari` — not a complete hand.
@@ -117,8 +153,10 @@ Out, one of:
   ruleset has double yakuman) and `yakuman` is the sum. No `han`/`fu`.
 
 `yaku` is sorted by name. Dora appear in it as `dora:n`, `aka:n`, `ura:n` when n>0
-and are included in `han`. The interpretation with the highest `total` wins; ties
-go to higher han, then higher fu.
+and are included in `han`. Yaku from different decompositions never combine. The
+interpretation with the highest `total` wins; ties go to a real yakuman over a
+kazoe one, then higher han, then higher fu, then the yaku list that sorts first as
+a string.
 
 `pay`:
 - ron: `ron:<n>` — what the discarder pays, including honba (300 each).
@@ -152,12 +190,36 @@ In: `hand`, `melds`, context keys, plus:
 | `called=<meld>` + `took=<tile>` | This seat just called `took` to make the meld (already in `melds`) and must now discard. | |
 | `riichi=0\|1` | This seat is already in riichi | `0` |
 | `furiten=0\|1` | This seat is furiten (any kind) | `0` |
-| `wall=<n>` | Live wall tiles remaining | `70` |
-| `first=0\|1` | First uninterrupted go-around (no calls yet, seat hasn't discarded) | `0` |
-| `kans=<n>` | Kans declared at the table so far | `0` |
+| `wall=<n>` | Live wall tiles remaining now (after the draw, if this is a draw) | `70` |
+| `first=0\|1` | First uninterrupted go-around (no calls yet, seat hasn't discarded). Used only for `kyuushu`; it grants no yaku. | `0` |
+| `kans=<n>` | Kans declared at the table so far, by anyone, this seat's included | `0` |
 
-Exactly one of `draw`, `discard`, `called` is present. In the `draw` case,
-`flags` may carry `rinshan` or `haitei`; in the `discard` case, `houtei` or `chankan`.
+Exactly one of `draw`, `discard`, `called` is present. `hand` is 13−3k tiles in
+the `draw` and `discard` cases and 14−3k in the `called` case (the new meld is
+already in `melds`, counted in k, and the seat owes a discard).
+
+Flags are the only source of situational yaku when deciding `tsumo` and `ron`;
+`wall=0` on its own grants nothing. In the `draw` case `flags` may carry
+`rinshan`, `haitei`, `tenhou` or `chiihou`; in the `discard` case `houtei`,
+`chankan` or `ankan_rob`. A seat with `riichi=1` has the riichi yaku (the request
+does not say whether ippatsu or double riichi apply; they aren't needed to decide
+legality).
+
+Robbing a kan: `discard=<tile> flags=chankan` means another seat is adding that
+tile to a pon. `flags=ankan_rob` means another seat is declaring a closed kan of
+that tile. In both cases the only possible actions are `ron` and `pass`. An added
+kan can be robbed by any hand it completes (chankan is the yaku). A closed kan can
+be robbed only by kokushi.
+
+Tenpai, for `riichi:`: after the discard the hand has `shanten=0` **and** at least
+one wait kind with a copy outside this hand and melds (the `waits` op would answer
+`count>0`). A wait that exists only as a fifth copy doesn't qualify.
+
+Kuikae, after a call, with `0` and `5` the same kind: after pon, the called kind
+may not be discarded. After chi, the called kind may not be discarded, and if the
+two tiles used from hand are adjacent and the tile at their other end exists, that
+kind may not be discarded either (take 4 with 56: no 4, no 7; take 7 with 56: no
+7, no 4; take 3 with 12: no 3; take 5 with 46: no 5).
 
 Out: `actions=<comma list>`, sorted as strings. Never empty (`pass` or a discard always exists).
 
@@ -166,14 +228,14 @@ Out: `actions=<comma list>`, sorted as strings. Never empty (`pass` or a discard
 | `discard:<tile>` | Own turn. One entry per distinct tile (red and non-red five are distinct). Includes the drawn tile. Kuikae-forbidden tiles are left out after a call. In riichi, only the drawn tile. |
 | `riichi:<tile>` | Own turn, closed hand, not in riichi, discarding this tile leaves tenpai, `wall>=4`. (1000-point check is out of scope: assume enough points.) |
 | `tsumo` | Own turn, hand complete with a yaku |
-| `ankan:<kind>` | e.g. `ankan:5m`. `wall>=1`, `kans<4`. In riichi only when it's the drawn tile and it changes neither waits nor hand interpretation. |
-| `kakan:<tile>` | Add the exact tile to an existing pon. Same wall/kan limits. |
+| `ankan:<kind>` | e.g. `ankan:5m`. `wall>=1`, `kans<4`. In riichi only when the kan uses the drawn tile and the set of wait kinds (structural, as in `shanten`) is the same before the draw and after the kan. The hand's decomposition may change. |
+| `kakan:<tile>` | Add the exact tile to an existing pon. Same wall/kan limits. Never in riichi (a riichi hand has no pon). |
 | `kyuushu` | `first=1`, own draw, nine or more distinct terminal/honor kinds |
-| `ron` | Discard completes the hand with a yaku, and `furiten=0` |
-| `chi:<two tiles>` | From `kamicha` only, e.g. `chi:46m`, `chi:40m` if a red is used. Not in riichi. `wall>=1`. Left out if every remaining discard would be kuikae. |
+| `ron` | Discard (or robbed kan tile) completes the hand with a yaku, and `furiten=0` |
+| `chi:<two tiles>` | From `kamicha` only, e.g. on a 6m, `chi:45m` and, using the red, `chi:40m`. Not in riichi. `wall>=1`. Left out if every remaining discard would be kuikae. |
 | `pon:<two tiles>` | e.g. `pon:55m` or `pon:05m`. Not in riichi. `wall>=1`. |
 | `kan:<kind>` | Open kan on the discard. Not in riichi. `wall>=1`, `kans<4`. |
-| `pass` | Always present when responding to a discard |
+| `pass` | Always present when responding to a discard or a kan |
 
 ## Decisions log
 
