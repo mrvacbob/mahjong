@@ -1,0 +1,13 @@
+# build output
+.build/
+build/
+Mercury/
+dist-newstyle/
+__pycache__/
+*.err
+*.mh
+*.o
+*.hi
+/swift/*/mj
+/mercury/*/mj
+/haskell/*/mj
