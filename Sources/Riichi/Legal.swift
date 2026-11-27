@@ -39,12 +39,12 @@ public struct LegalRequest: Sendable {
 }
 
 /// Whether discarding down to `rest` leaves a hand that may declare riichi: tenpai,
-/// on a wait with a copy outside the hand and melds unless `rules` allows a
-/// fifth-copy wait.
+/// on a wait with a copy outside the hand and melds, or (`rules.riichiOnFifthCopyWait`)
+/// on a fifth copy whose four are not all concealed.
 func isRiichiTenpai(_ rest: Counts, melds: [Meld], rules: Rules) -> Bool {
     let meldKinds = Counts(melds.tiles)
     return Kind.all.contains { w in
-        (rules.riichiOnFifthCopyWait || rest[w] + meldKinds[w] < 4)
+        (rest[w] + meldKinds[w] < 4 || (rules.riichiOnFifthCopyWait && rest[w] < 4))
             && isComplete(rest.adding(w), meldCount: melds.count)
     }
 }

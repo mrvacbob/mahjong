@@ -224,9 +224,6 @@ let quietHands = [
         let runs = json["runs"] as! [String: Any]
         let problems = ScenarioRunner(json: json, ruleset: "tenhou", spec: runs["tenhou"] as! [String: Any],
                                       rules: r).run()
-            // The scenario's event order (dahai before dora) is disputed: see
-            // disputedScenarios; everything else must agree.
-            .filter { !$0.hasPrefix("events:") }
         #expect(problems.isEmpty, "\(problems)")
     }
 }

@@ -101,13 +101,16 @@ extension RoundState {
     }
 
     /// Tenpai for riichi after discarding down to `rest`: some wait has a copy
-    /// outside the hand and melds, unless the rules allow a fifth-copy wait.
+    /// outside the hand and melds, or (`rules.riichiOnFifthCopyWait`) is a fifth
+    /// copy whose four are not all concealed, as for tenpai at a draw.
     func isRiichiTenpai(_ rest: Counts, _ p: PlayerState) -> Bool {
         var w = waitMask(rest, meldCount: p.melds.count)
         guard w != 0 else { return false }
-        if rules.riichiOnFifthCopyWait { return true }
         let meldKinds = Counts(p.analysisMelds.tiles)
-        for k in Kind.all where w & bit(k) != 0 && rest[k] + meldKinds[k] >= 4 { w &= ~bit(k) }
+        for k in Kind.all where w & bit(k) != 0 && rest[k] + meldKinds[k] >= 4 {
+            if rules.riichiOnFifthCopyWait && rest[k] < 4 { continue }
+            w &= ~bit(k)
+        }
         return w != 0
     }
 

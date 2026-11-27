@@ -70,6 +70,10 @@ func rulesetName(_ r: Rules) -> String { r == .tenhou ? "tenhou" : "mahjongsoul"
 /// Plays one game to the end with these players.
 func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [String],
               observers: [any GameObserver], botsLabel: String) throws -> GameRecord {
+    // A version 1 trace names a preset only (Codex C/D finding 6).
+    guard rules == .tenhou || rules == .mahjongSoul else {
+        throw DriverError.trace("only the two preset rulesets can be recorded in a trace")
+    }
     let log = LogWriter(names: names)
     let all: [any GameObserver] = [log] + observers
     let observe: (RoundState, Event) -> Void = { s, e in for o in all { o.event(e, state: s) } }
@@ -86,7 +90,12 @@ func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [S
             let masked = events.map { $0.masked(for: seat) }
             let legal = game.legalActions(for: seat)
             let view = legal.isEmpty ? nil : game.round.view(of: seat)
-            out[seat.index] = players[seat.index].receive(masked, view: view)
+            // One event per call, so that where the engine paused (whether some
+            // other seat was offered a call) does not show (Codex C/D finding 1).
+            if masked.isEmpty { out[seat.index] = players[seat.index].receive([], view: view); continue }
+            for (i, m) in masked.enumerated() {
+                out[seat.index] = players[seat.index].receive([m], view: i == masked.count - 1 ? view : nil)
+            }
         }
         return out
     }

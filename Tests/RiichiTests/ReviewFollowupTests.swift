@@ -68,7 +68,11 @@ import Testing
         let concealed = Counts(t("46m123p456s99s"))
         let m = melds("a5555m")
         #expect(isTenpaiAtDraw(concealed, melds: m, rules: .tenhou))
-        #expect(!isTenpaiAtDraw(concealed, melds: m, rules: .mahjongSoul))
+        // Mahjong Soul too, from its records (docs/notes/p3-reallogs.md).
+        #expect(isTenpaiAtDraw(concealed, melds: m, rules: .mahjongSoul))
+        var strict = Rules.mahjongSoul
+        strict.fifthCopyTenpaiAtDraw = false
+        #expect(!isTenpaiAtDraw(concealed, melds: m, rules: strict))
     }
 
     @Test func calledSituationWithRedFives() {

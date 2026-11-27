@@ -47,9 +47,10 @@ public struct JSONObject: Hashable, Sendable {
         self.ranges = ranges
     }
 
-    /// The value of `key` (the first, if repeated), parsed now.
+    /// The value of `key` (the last, if repeated, as other JSON readers do), parsed
+    /// now. Parsing cannot fail: `init(parsing:)` has validated every value.
     public subscript(key: String) -> JSONValue? {
-        guard let i = keys.firstIndex(of: key) else { return nil }
+        guard let i = keys.lastIndex(of: key) else { return nil }
         var s = Scanner(bytes: bytes, i: ranges[i].lowerBound)
         return try? s.value()
     }
@@ -65,6 +66,16 @@ public struct JSONObject: Hashable, Sendable {
 struct Scanner {
     let bytes: [UInt8]
     var i = 0
+    /// Arrays and objects open around the current position.
+    var depth = 0
+    /// Deeper nesting is refused (mjai needs three levels; the limit keeps hostile
+    /// input from exhausting the stack).
+    static let maxDepth = 64
+
+    mutating func enter() throws(JSONError) {
+        depth += 1
+        if depth > Scanner.maxDepth { throw fail("nesting too deep") }
+    }
 
     func fail(_ m: String) -> JSONError { JSONError(message: m, offset: i) }
 
@@ -85,6 +96,8 @@ struct Scanner {
 
     mutating func object() throws(JSONError) -> JSONObject {
         try expect(UInt8(ascii: "{"))
+        try enter()
+        defer { depth -= 1 }
         var keys: [String] = [], ranges: [Range<Int>] = []
         if peek() == UInt8(ascii: "}") { i += 1; return JSONObject(bytes: bytes, keys: [], ranges: []) }
         while true {
@@ -128,15 +141,23 @@ struct Scanner {
                     var code = try hex4()
                     if (0xD800..<0xDC00).contains(code), i + 1 < bytes.count,
                        bytes[i] == UInt8(ascii: "\\"), bytes[i + 1] == UInt8(ascii: "u") {
+                        // A low surrogate completes the pair; anything else is left
+                        // to be read on its own, and the lone high surrogate is U+FFFD.
+                        let save = i
                         i += 2
                         let low = try hex4()
-                        code = 0x10000 + ((code - 0xD800) << 10) + (low - 0xDC00)
+                        if (0xDC00...0xDFFF).contains(low) {
+                            code = 0x10000 + ((code - 0xD800) << 10) + (low - 0xDC00)
+                        } else {
+                            i = save
+                        }
                     }
                     let scalar = Unicode.Scalar(code) ?? "\u{FFFD}"
                     out += Array(String(Character(scalar)).utf8)
                 default: throw fail("bad escape")
                 }
             default:
+                guard c >= 0x20 else { i -= 1; throw fail("control character in a string") }
                 out.append(c)
             }
         }
@@ -168,18 +189,22 @@ struct Scanner {
         }
     }
 
+    /// RFC 8259: `-? (0 | [1-9][0-9]*) (. [0-9]+)? ([eE] [+-]? [0-9]+)?`.
     mutating func number() throws(JSONError) -> String {
         let start = i
-        if i < bytes.count, bytes[i] == UInt8(ascii: "-") { i += 1 }
-        var digits = 0
-        while i < bytes.count {
-            let c = bytes[i]
-            if (UInt8(ascii: "0")...UInt8(ascii: "9")).contains(c) { digits += 1; i += 1 }
-            else if [UInt8(ascii: "."), UInt8(ascii: "e"), UInt8(ascii: "E"), UInt8(ascii: "+"),
-                     UInt8(ascii: "-")].contains(c) { i += 1 }
-            else { break }
+        func digit() -> Bool { i < bytes.count && (UInt8(ascii: "0")...UInt8(ascii: "9")).contains(bytes[i]) }
+        func digits() throws(JSONError) {
+            guard digit() else { throw fail("bad number") }
+            while digit() { i += 1 }
         }
-        guard digits > 0 else { throw fail("bad number") }
+        if i < bytes.count, bytes[i] == UInt8(ascii: "-") { i += 1 }
+        if i < bytes.count, bytes[i] == UInt8(ascii: "0") { i += 1 } else { try digits() }
+        if i < bytes.count, bytes[i] == UInt8(ascii: ".") { i += 1; try digits() }
+        if i < bytes.count, bytes[i] == UInt8(ascii: "e") || bytes[i] == UInt8(ascii: "E") {
+            i += 1
+            if i < bytes.count, bytes[i] == UInt8(ascii: "+") || bytes[i] == UInt8(ascii: "-") { i += 1 }
+            try digits()
+        }
         return String(decoding: bytes[start..<i], as: UTF8.self)
     }
 
@@ -189,16 +214,14 @@ struct Scanner {
         guard i < bytes.count else { throw fail("expected a value") }
         switch bytes[i] {
         case UInt8(ascii: "\""):
-            i += 1
-            while i < bytes.count && bytes[i] != UInt8(ascii: "\"") {
-                i += bytes[i] == UInt8(ascii: "\\") ? 2 : 1
-            }
-            guard i < bytes.count else { throw fail("unterminated string") }
-            i += 1
+            // Validated as `string()` would read it (escapes, control characters).
+            _ = try string()
         case UInt8(ascii: "{"), UInt8(ascii: "["):
             let close = bytes[i] == UInt8(ascii: "{") ? UInt8(ascii: "}") : UInt8(ascii: "]")
             let isObject = close == UInt8(ascii: "}")
             i += 1
+            try enter()
+            defer { depth -= 1 }
             if peek() == close { i += 1; return }
             while true {
                 if isObject {
@@ -228,6 +251,8 @@ struct Scanner {
         case UInt8(ascii: "{"): return .object(try object())
         case UInt8(ascii: "["):
             i += 1
+            try enter()
+            defer { depth -= 1 }
             var out: [JSONValue] = []
             if peek() == UInt8(ascii: "]") { i += 1; return .array([]) }
             while true {

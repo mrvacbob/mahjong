@@ -174,6 +174,10 @@ public struct MjaiMessage: Sendable {
     public var reason: String?
     public var kyotakuLeft: Int?
     public var dealerRepeats: Bool?
+    public var tenpais: [Bool]?
+    public var horaTehais: [Tile]?
+    public var fu: Int?
+    public var fan: Int?
 
     public init(type: String) { self.type = type }
 }
@@ -230,23 +234,35 @@ extension Mjai {
             guard let s = v.string, let t = tile(s) else { throw MjaiError(description: "bad \(k)") }
             return t
         }
+        // A field that is present (and not null) must have its type.
+        func bool(_ k: String) throws(MjaiError) -> Bool? {
+            guard let v = o[k], v != .null else { return nil }
+            guard let b = v.bool else { throw MjaiError(description: "\(k) is not a boolean") }
+            return b
+        }
+        func str(_ k: String) throws(MjaiError) -> String? {
+            guard let v = o[k], v != .null else { return nil }
+            guard let s = v.string else { throw MjaiError(description: "\(k) is not a string") }
+            return s
+        }
         m.actor = try int("actor")
         m.target = try int("target")
-        if let v = o["pai"], let s = v.string {
+        if let s = try str("pai") {
             if s == "?" { m.paiHidden = true }
             else if let t = tile(s) { m.pai = t }
             else { throw MjaiError(description: "bad pai \(s)") }
         }
         m.consumed = try known("consumed")
-        m.tsumogiri = o["tsumogiri"]?.bool
-        if let v = o["tehais"], let a = v.array {
+        m.tsumogiri = try bool("tsumogiri")
+        if let v = o["tehais"], v != .null {
+            guard let a = v.array else { throw MjaiError(description: "tehais is not an array") }
             var hs: [[Tile?]] = []
             for h in a { hs.append(try tileList(h, "tehais")) }
             m.tehais = hs
         }
         m.scores = try ints("scores")
         m.deltas = try ints("deltas")
-        if let s = o["bakaze"]?.string {
+        if let s = try str("bakaze") {
             guard let i = honorNames.firstIndex(of: s), i < 4 else { throw MjaiError(description: "bad bakaze") }
             m.bakaze = Wind(rawValue: i + 1)
         }
@@ -255,13 +271,35 @@ extension Mjai {
         m.kyotaku = try int("kyotaku")
         m.oya = try int("oya")
         m.doraMarker = try oneTile("dora_marker")
+        // `uradora_markers` is the original mjai name.
         m.uraMarkers = try known("ura_markers")
+        if m.uraMarkers == nil { m.uraMarkers = try known("uradora_markers") }
         m.wall = try known("wall")
-        m.names = o["names"]?.array?.compactMap(\.string)
+        if let v = o["names"], v != .null {
+            guard let a = v.array else { throw MjaiError(description: "names is not an array") }
+            var names: [String] = []
+            for x in a {
+                guard let s = x.string else { throw MjaiError(description: "names holds a non-string") }
+                names.append(s)
+            }
+            m.names = names
+        }
         m.id = try int("id")
-        m.reason = o["reason"]?.string
+        m.reason = try str("reason")
         m.kyotakuLeft = try int("kyotaku_left")
-        m.dealerRepeats = o["dealer_repeats"]?.bool
+        m.dealerRepeats = try bool("dealer_repeats")
+        if let v = o["tenpais"], v != .null {
+            guard let a = v.array else { throw MjaiError(description: "tenpais is not an array") }
+            var out: [Bool] = []
+            for x in a {
+                guard let b = x.bool else { throw MjaiError(description: "tenpais holds a non-boolean") }
+                out.append(b)
+            }
+            m.tenpais = out
+        }
+        m.horaTehais = try known("hora_tehais")
+        m.fu = try int("fu")
+        m.fan = try int("fan")
         for s in [m.actor, m.target, m.oya, m.id].compactMap({ $0 }) where !(0..<4).contains(s) {
             throw MjaiError(description: "seat \(s) out of range")
         }
@@ -273,8 +311,18 @@ extension Mjai {
     /// nine terminals, `none` is `pass`. A `dahai` whose tsumogiri flag does not
     /// match but whose tile does is taken as the matching discard. Nil if the
     /// reply names no action in `legal`.
-    public static func action(_ m: MjaiMessage, seat: Seat, legal: [Action]) -> Action? {
+    /// `offered` is the discard a call would take, when there is one: a call's
+    /// `pai` and `target`, where given, must name it.
+    public static func action(_ m: MjaiMessage, seat: Seat, legal: [Action],
+                              offered: (tile: Tile, from: Seat)? = nil) -> Action? {
         if let a = m.actor, a != seat.index, m.type != "none" { return nil }
+        if ["pon", "chi", "daiminkan"].contains(m.type), let offered {
+            if let p = m.pai, p != offered.tile { return nil }
+            if let t = m.target, t != offered.from.index { return nil }
+            if m.type == "daiminkan", let c = m.consumed {
+                guard c.count == 3, c.allSatisfy({ $0.kind == offered.tile.kind }) else { return nil }
+            }
+        }
         let wanted: Action?
         switch m.type {
         case "none": wanted = .pass
@@ -288,7 +336,7 @@ extension Mjai {
         case "hora": wanted = legal.contains(.tsumo) ? .tsumo : .ron
         case "ryukyoku": wanted = .kyuushu
         case "ankan":
-            guard let c = m.consumed, let k = c.first?.kind else { return nil }
+            guard let c = m.consumed, c.count == 4, let k = c.first?.kind, c.allSatisfy({ $0.kind == k }) else { return nil }
             wanted = .ankan(k)
         case "kakan":
             guard let t = m.pai else { return nil }

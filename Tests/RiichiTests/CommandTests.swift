@@ -92,4 +92,152 @@ import Testing
         #expect(log.contains(#""type":"reach","actor""#))
         #expect(log.contains(#""type":"reach_accepted""#))
     }
+
+    /// Gemini C/D finding 3: a bot that ignores SIGTERM, or floods its output
+    /// without a newline, is killed and its decisions substituted, without hanging.
+    @Test(.enabled(if: mj != nil)) func mjaiAdapterHostileBots() throws {
+        let bot = Self.root.appendingPathComponent("Tests/Fixtures/fakebot.py").path
+        let start = ContinuousClock.now
+        let (status, out) = try run(["selfplay", "--seed", "3", "--games", "1", "--bots", "eager", "--timeout", "300",
+                                     "--seat", "0=mjai:python3.14 \(bot) stubborn=2",
+                                     "--seat", "1=mjai:python3.14 \(bot) flood=2", "--check"])
+        #expect(status == 0, "\(out)")
+        #expect(ContinuousClock.now - start < .seconds(20))
+        #expect(out.contains("invariants ok"), "\(out)")
+        let line = try #require(out.split(separator: "\n").first { $0.hasPrefix("substitutions") })
+        #expect(!line.contains("timeout=0") && !line.contains("crashed=0"), "\(line)")
+    }
+
+    /// Gemini C/D findings 4, 5 and 7, and the seed options: bad logs and bad
+    /// arguments are errors, not crashes or silent passes.
+    @Test(.enabled(if: mj != nil)) func checkLogRefusesBadLogs() throws {
+        let dir = tempDir("badlogs")
+        try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        let (s0, o0) = try run(["selfplay", "--seed", "5", "--games", "1", "--bots", "eager", "--out", dir, "--quiet"])
+        #expect(s0 == 0, "\(o0)")
+        let log = try String(contentsOfFile: dir + "/000000.jsonl", encoding: .utf8)
+        var lines = log.split(separator: "\n").map(String.init)
+        func check(_ name: String, _ text: String) throws -> (Int32, String) {
+            let path = "\(dir)/\(name).jsonl"
+            try text.write(toFile: path, atomically: false, encoding: .utf8)
+            return try run(["check-log", path])
+        }
+        var (s, o) = try check("good", log)
+        #expect(s == 0, "\(o)")
+        (s, o) = try check("empty", "")
+        #expect(s != 0 && o.contains("no start_kyoku"), "\(o)")
+        (s, o) = try check("outside", lines[0] + "\n" + #"{"type":"hora","actor":0,"target":1}"# + "\n" + lines.dropFirst().joined(separator: "\n"))
+        #expect(s != 0 && o.contains("outside a hand"), "\(o)")
+        let k = try #require(lines.firstIndex { $0.contains(#""type":"start_kyoku""#) })
+        var neg = lines
+        neg[k] = neg[k].replacingOccurrences(of: #""honba":0"#, with: #""honba":-1"#)
+        (s, o) = try check("neg", neg.joined(separator: "\n"))
+        #expect(s != 0 && o.contains("out of range"), "\(o)")
+        if let r = lines.firstIndex(where: { $0.contains(#""type":"ryukyoku""#) }) {
+            lines[r] = lines[r].replacingOccurrences(of: #""reason":"#, with: #""reason":"bogus","x":"#)
+            (s, o) = try check("reason", lines.joined(separator: "\n"))
+            #expect(s != 0 && o.contains("ryukyoku.reason"), "\(o)")
+        }
+        (s, o) = try run(["selfplay", "--seed", "-1", "--games", "1"])
+        #expect(s != 0 && !o.contains("Fatal"), "\(o)")
+        (s, o) = try run(["selfplay", "--seed", "18446744073709551615", "--games", "1", "--quiet"])
+        #expect(s == 0, "\(o)")
+        (s, o) = try run(["selfplay", "--games", "-1"])
+        #expect(s != 0 && !o.contains("Fatal"), "\(o)")
+    }
+
+    /// Codex C/D findings 2 and 7: with an external bot and no --seed, each game's
+    /// wall seed is fresh from the system (recorded in the trace only); with --seed
+    /// a warning is printed. The replay check compares bytes.
+    @Test(.enabled(if: mj != nil)) func externalBotSeeds() throws {
+        let bot = Self.root.appendingPathComponent("Tests/Fixtures/fakebot.py").path
+        var seeds: [String] = []
+        for k in 0..<2 {
+            let dir = tempDir("seed\(k)")
+            let (s, o) = try run(["selfplay", "--games", "2", "--bots", "eager", "--seat", "0=mjai:python3.14 \(bot)",
+                                  "--out", dir, "--quiet"])
+            #expect(s == 0, "\(o)")
+            #expect(!o.contains("warning"))
+            for g in 0..<2 {
+                let trace = try String(contentsOfFile: String(format: "%@/%06d.trace", dir, g), encoding: .utf8)
+                seeds += trace.split(separator: "\n").filter { $0.hasPrefix("seed ") }.map(String.init)
+                let (rs, ro) = try run(["replay", String(format: "%@/%06d.trace", dir, g)])
+                #expect(rs == 0, "\(ro)")
+            }
+        }
+        #expect(Set(seeds).count == 4, "\(seeds)")
+        let (s, o) = try run(["selfplay", "--seed", "1", "--games", "1", "--bots", "eager",
+                              "--seat", "0=mjai:python3.14 \(bot)", "--quiet"])
+        #expect(s == 0 && o.contains("warning: --seed with an external bot"), "\(o)")
+        // A log differing from the replay only in Unicode normalization is a difference.
+        let dir = tempDir("nfc")
+        _ = try run(["selfplay", "--seed", "2", "--games", "1", "--bots", "eager", "--out", dir, "--quiet"])
+        let path = dir + "/000000.jsonl"
+        var bytes = try [UInt8](Data(contentsOf: URL(fileURLWithPath: path)))
+        let (rs, _) = try run(["replay", dir + "/000000.trace"])
+        #expect(rs == 0)
+        // Append a combining accent to a bot name: "eager" + U+0301 vs. the same bytes
+        // re-encoded is not equal byte-wise even where String equality might hold.
+        let eager = Array(#""eager""#.utf8)
+        if let i = (0...(bytes.count - eager.count)).first(where: { Array(bytes[$0..<$0 + eager.count]) == eager }) {
+            bytes.insert(contentsOf: [0xCC, 0x81], at: i + eager.count - 1)
+            try Data(bytes).write(to: URL(fileURLWithPath: path))
+            let (bs, _) = try run(["replay", dir + "/000000.trace"])
+            #expect(bs != 0)
+        }
+    }
+
+    /// check-log on the reduced format of the real-log campaign (docs/notes/p3-reallogs.md):
+    /// our own logs stripped to it (no deltas, scores, dora events or ura; the
+    /// dealer's first draw dealt as a 14th tile) still check, the hidden
+    /// indicators being searched for against the next hand's scores.
+    @Test(.enabled(if: mj != nil), arguments: ["tenhou", "mahjongsoul"]) func checkLogReducedFormat(_ rules: String) throws {
+        let dir = tempDir("lite-\(rules)")
+        let (s0, o0) = try run(["selfplay", "--seed", "40", "--games", "6", "--rules", rules, "--bots", "eager", "--out", dir, "--quiet"])
+        #expect(s0 == 0, "\(o0)")
+        var paths: [String] = []
+        for g in 0..<6 {
+            let text = try String(contentsOfFile: String(format: "%@/%06d.jsonl", dir, g), encoding: .utf8)
+            var out: [String] = []
+            var pendingDealer: (index: Int, tile: Any)? = nil
+            for line in text.split(separator: "\n") {
+                var e = try #require(try JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any])
+                let type = e["type"] as! String
+                switch type {
+                case "dora": continue
+                case "start_kyoku": e["wall"] = nil
+                case "hora": e = e.filter { ["type", "actor", "target", "pai"].contains($0.key) }
+                case "ryukyoku", "end_kyoku", "end_game", "reach_accepted": e = e.filter { ["type", "actor"].contains($0.key) }
+                case "tsumo":
+                    // The dealer's first draw joins its dealt hand.
+                    if let p = pendingDealer {
+                        var start = try #require(try JSONSerialization.jsonObject(with: Data(out[p.index].utf8)) as? [String: Any])
+                        var tehais = start["tehais"] as! [[Any]]
+                        let oya = start["oya"] as! Int
+                        tehais[oya].append(e["pai"]!)
+                        start["tehais"] = tehais
+                        out[p.index] = String(decoding: try JSONSerialization.data(withJSONObject: start), as: UTF8.self)
+                        pendingDealer = nil
+                        continue
+                    }
+                default: break
+                }
+                out.append(String(decoding: try JSONSerialization.data(withJSONObject: e), as: UTF8.self))
+                if type == "start_kyoku" { pendingDealer = (out.count - 1, 0) }
+            }
+            let path = String(format: "%@/lite%06d.jsonl", dir, g)
+            try (out.joined(separator: "\n") + "\n").write(toFile: path, atomically: false, encoding: .utf8)
+            paths.append(path)
+        }
+        let (s, o) = try run(["check-log", "--rules", rules] + paths)
+        #expect(s == 0 && o.contains("errors=0"), "\(o)")
+        #expect(o.contains("lite_hidden_indicators") || o.contains("lite_no_dora"), "\(o)")
+        // A wrong final score in the next header is still caught.
+        var t = try String(contentsOfFile: paths[0], encoding: .utf8).split(separator: "\n").map(String.init)
+        let k = try #require(t.indices.filter { t[$0].contains(#""type":"start_kyoku""#) }.dropFirst().first)
+        t[k] = t[k].replacingOccurrences(of: #""scores":["#, with: #""scores":[1"#)
+        try (t.joined(separator: "\n") + "\n").write(toFile: paths[0], atomically: false, encoding: .utf8)
+        let (bs, bo) = try run(["check-log", "--rules", rules, paths[0]])
+        #expect(bs != 0, "\(bo)")
+    }
 }

@@ -103,6 +103,14 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         r2.dealerRepeatBeforeTarget = false
         (n, t) = GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true), at: s4, rules: r2)
         #expect(t == .ends(.target))
+        // ... but an abortive draw in all last still repeats (Gemini C/D finding 12).
+        (n, t) = GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true,
+                                             outcome: .abortiveDraw(.kyuushu)), at: s4, rules: r2)
+        #expect(t == .allLastRepeat && n?.kyoku == 4)
+        // North 4 never wraps to East 1 (Codex C/D finding 4).
+        (n, t) = GameFlow.next(after: result(even, dealer: 3, repeats: false),
+                               at: GamePosition(roundWind: .north, kyoku: 4, scores: even), rules: rules)
+        #expect(n == nil && t == .ends(.extensionOver))
         // East game: East 4 is all last, South is the extension.
         var east = rules
         east.length = .east
@@ -137,10 +145,35 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
                     }
                     guard !g.isOver else { continue }
                     let v = g.round.view(of: seat)
-                    #expect(folders[seat.index].table == v.table, "seed \(seed) seat \(seat)")
+                    #expect(folders[seat.index].table(asked: !v.legalActions.isEmpty) == v.table, "seed \(seed) seat \(seat)")
+                    if v.legalActions.isEmpty { #expect(v.table.reacting == nil) }
                     #expect(v.legalActions == g.legalActions(for: seat))
                 }
             }
         }
+    }
+
+    /// Codex C/D finding 5: rules are bounded so that the game-end arithmetic fits
+    /// 32-bit Int at the extremes allowed.
+    @Test func rulesBounds() {
+        #expect(Rules.mahjongSoul.isValid && Rules.tenhou.isValid)
+        var r = Rules.tenhou
+        r.returnPoints = 600_025_000
+        #expect(!r.isValid)
+        r = Rules.tenhou
+        r.doubleWindPairFu = 3
+        #expect(!r.isValid)
+        // The largest valid settings and scores: every result fits Int32.
+        r.doubleWindPairFu = 4
+        r.startingPoints = 0
+        r.returnPoints = 1_000_000
+        r.targetPoints = 1_000_000
+        r.uma = [1_000_000, 1_000_000, -1_000_000, -1_000_000]
+        #expect(r.isValid)
+        let m = RoundState.maxScore
+        let g = GameFlow.result(scores: [m, m, -m, -m], sticks: RoundState.maxCount, rules: r, end: .target)
+        let int32 = Int(Int32.min)...Int(Int32.max)
+        #expect(int32.contains(r.oka))
+        #expect((g.scores + g.adjusted).allSatisfy { int32.contains($0) })
     }
 }

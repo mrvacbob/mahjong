@@ -40,15 +40,20 @@ struct Request {
     }
     func bool(_ key: Substring) throws(BadInput) -> Bool { try int(key, default: 0, in: 0...1) == 1 }
     func flags() throws(BadInput) -> Set<Flag> { try value("flags", default: "-", parseFlags) }
-    /// `rules=mahjongsoul|tenhou`, default Mahjong Soul.
+    /// `rules=mahjongsoul|tenhou`, default Mahjong Soul. The line protocol keeps
+    /// `spec/formats.md`'s definition of a riichi wait (no fifth copy, even of a
+    /// kan's tiles), which the corpus fixes; the clients allow more
+    /// (`Rules.riichiOnFifthCopyWait`, docs/notes/p3-reallogs.md).
     func rules() throws(BadInput) -> Rules {
-        try value("rules", default: "mahjongsoul") { text -> Rules? in
+        var r = try value("rules", default: "mahjongsoul") { text -> Rules? in
             switch text {
             case "mahjongsoul": .mahjongSoul
             case "tenhou": .tenhou
             default: nil
             }
         }
+        r.riichiOnFifthCopyWait = false
+        return r
     }
 }
 
@@ -231,7 +236,13 @@ case "replay": run { try replay(Array(args.dropFirst(2))) }
 case "check-log": run { try checkLogCommand(Array(args.dropFirst(2))) }
 case nil: break
 default:
-    FileHandle.standardError.write(Data("usage: mj [selfplay|replay|check-log|bench-round] ... (no argument: line protocol on stdin)\n".utf8))
+    FileHandle.standardError.write(Data("""
+        usage: mj [selfplay|replay|check-log|bench-round] ... (no argument: line protocol on stdin)
+        selfplay writes referee-only files: the unmasked log (.jsonl: every wall and hand),
+        the trace (.trace: the seed and every decision), --legal rows (all four hands)
+        and --requests dumps. Keep them where no player or bot can read them.
+
+        """.utf8))
     exit(2)
 }
 

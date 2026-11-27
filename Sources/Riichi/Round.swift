@@ -97,6 +97,11 @@ enum WinSource {
 }
 
 public struct RoundState: Sendable {
+    /// Bounds on honba and sticks, and on each starting score, that keep every
+    /// payment and total within 32-bit `Int` (with `Rules.isValid`).
+    public static let maxCount = 1_000
+    public static let maxScore = 100_000_000
+
     public let rules: Rules
     public let wall: Wall
     public let roundWind: Wind
@@ -151,9 +156,12 @@ public struct RoundState: Sendable {
     init(rules: Rules, wall: Wall, roundWind: Wind, kyoku: Int, honba: Int, sticks: Int,
          dealer: Seat?, scores: [Int]?, emitter e: inout Emitter) {
         precondition((1...4).contains(kyoku), "kyoku is 1...4")
-        precondition(honba >= 0 && sticks >= 0)
+        precondition(rules.isValid, "Rules out of range (Rules.isValid)")
+        precondition((0...RoundState.maxCount).contains(honba) && (0...RoundState.maxCount).contains(sticks),
+                     "honba and sticks are 0...\(RoundState.maxCount)")
         let scores = scores ?? Array(repeating: rules.startingPoints, count: 4)
         precondition(scores.count == 4, "one score per seat")
+        precondition(scores.allSatisfy { abs($0) <= RoundState.maxScore }, "scores within ±\(RoundState.maxScore)")
         self.rules = rules
         self.wall = wall
         self.roundWind = roundWind
@@ -559,6 +567,7 @@ public struct RoundState: Sendable {
     mutating func announceAddedKan(_ seat: Seat, _ t: Tile, _ e: inout Emitter) {
         let m = players[seat.index].melds.first { $0.kind == .pon && $0.tiles[0].kind == t.kind }!
         emit(.kakan(actor: seat, tile: t, consumed: m.tiles), &e)
+        if rules.owedDoraAtChainedAddedKan { revealOwed(&e) }
         let pk = PendingKan(seat: seat, tile: t, kind: .added)
         let o = kanOffers(pk)
         if o.contains(where: { !$0.isEmpty }) {

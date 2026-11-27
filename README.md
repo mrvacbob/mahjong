@@ -30,6 +30,15 @@ actions for one seat); the full game state machine is next.
 
 `mj` is any executable following the runner contract in `spec/formats.md`.
 
+`mj selfplay` (bots against each other, including external mjai bots) writes
+referee-only files: the unmasked mjai log (`.jsonl`, with every wall and hand), the
+trace (`.trace`, with the game seed and every decision), the `--legal` rows (all four
+seats' hands and waits) and the `--requests` dumps. Keep them out of reach of any
+player or bot. With an external bot at the table each game draws a fresh seed from
+the system unless `--seed` is given (which makes the walls predictable to the bot;
+for tests only). `mj check-log` checks mjai logs from elsewhere; `tools/reallogs.py`
+runs it over tar shards of real game records (see `docs/notes/p3-reallogs.md`).
+
 The reference tools expect the third-party sources checked out beside this repo, in
 `../3p/mahjong` and `../3p/Mortal` (or set `MJ_ORACLE_PATH`).
 

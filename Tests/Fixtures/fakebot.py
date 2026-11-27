@@ -10,6 +10,8 @@ Misbehaviour on the Nth decision (1-based), from the arguments:
   illegal=N    discard a tile it does not hold
   sleep=N      never reply (the adapter times out)
   exit=N       exit
+  stubborn=N   ignore SIGTERM and never reply (the adapter must kill it)
+  flood=N      write 4 MB without a newline, then hang
 """
 import json, sys
 
@@ -51,6 +53,15 @@ def reply(obj):
         sys.stdin.readline()  # wait for the adapter to give up and close
         sys.exit(0)
     if what == "exit": sys.exit(0)
+    if what == "stubborn":
+        import signal, time
+        signal.signal(signal.SIGTERM, signal.SIG_IGN)
+        time.sleep(600)
+    if what == "flood":
+        import time
+        for _ in range(64): sys.stdout.write("a" * 65536)
+        sys.stdout.flush()
+        time.sleep(600)
     print(json.dumps(obj), flush=True)
 
 for line in sys.stdin:

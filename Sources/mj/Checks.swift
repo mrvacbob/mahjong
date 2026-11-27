@@ -20,7 +20,7 @@ final class InvariantChecks: GameObserver {
             for e in events { folders[seat.index].apply(e.masked(for: seat)) }
             guard !game.isOver else { continue }
             let view = game.round.view(of: seat)
-            if folders[seat.index].table != view.table {
+            if folders[seat.index].table(asked: !view.legalActions.isEmpty) != view.table {
                 fail("step \(steps): seat \(seat)'s folded view differs from its PlayerView\n  folded \(folders[seat.index].table)\n  engine \(view.table)")
             }
             if view.legalActions != game.legalActions(for: seat) { fail("step \(steps): view's legal actions") }

@@ -11,6 +11,8 @@ struct Options {
     var values: [String: String] = [:]
     var flags: Set<String> = []
     var seats: [Int: String] = [:]
+    /// `--set field=value`, in order (check-log).
+    var sets: [String] = []
     var positional: [String] = []
 
     init(_ args: [String], flags known: Set<String>) throws {
@@ -27,6 +29,8 @@ struct Options {
                         throw UsageError(description: "--seat N=BOT")
                     }
                     seats[s] = String(v[v.index(after: eq)...])
+                } else if k == "set" {
+                    sets.append(args[i + 1])
                 } else {
                     values[k] = args[i + 1]
                 }
@@ -58,7 +62,26 @@ func writeFile(_ path: String, _ text: String) throws {
 
 func readFile(_ path: String) throws -> String { try String(contentsOfFile: path, encoding: .utf8) }
 
+/// A file's bytes as UTF-8 text without any normalization (for byte comparisons).
+func readFileBytes(_ path: String) throws -> [UInt8] {
+    guard let d = FileManager.default.contents(atPath: path) else { throw UsageError(description: "cannot read \(path)") }
+    return [UInt8](d)
+}
+
+/// One SplitMix64 output step.
+func mix64(_ x: UInt64) -> UInt64 {
+    var z = x &+ 0x9E37_79B9_7F4A_7C15
+    z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+    z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+    return z ^ (z >> 31)
+}
+
+/// A built-in bot's RNG seed from a game seed: the sum of two unrelated mixes, so
+/// not an invertible function of the wall seed (Codex C/D finding 2).
+func botSeed(_ seed: UInt64) -> UInt64 { mix64(seed ^ 0x5DEE_CE66_D1CE_4E5B) &+ mix64(~seed &* 0xD6E8_FEB8_6659_FD93) }
+
 /// The players for one game: `random`, `eager` or `mjai:COMMAND` per seat.
+/// `seed` seeds the built-in bots' RNGs (see `botSeed`).
 func makePlayers(_ specs: [String], seed: UInt64, timeoutMs: Int) throws -> [any Player] {
     let names = specs.map { $0.hasPrefix("mjai:") ? "mjai" : $0 }
     return try (0..<4).map { i -> any Player in
@@ -67,7 +90,7 @@ func makePlayers(_ specs: [String], seed: UInt64, timeoutMs: Int) throws -> [any
             return MjaiBot(seat: Seat(i), command: String(spec.dropFirst(5)), names: names, timeoutMs: timeoutMs)
         }
         guard let k = BotKind(rawValue: spec) else { throw UsageError(description: "unknown bot \(spec)") }
-        return BuiltinBot(kind: k, rng: BotRNG(state: seed &* 0x2545_F491_4F6C_DD1D &+ UInt64(i + 1)))
+        return BuiltinBot(kind: k, rng: BotRNG(state: mix64(seed &+ UInt64(i + 1))))
     }
 }
 
@@ -75,14 +98,24 @@ func makePlayers(_ specs: [String], seed: UInt64, timeoutMs: Int) throws -> [any
 /// [--seat N=BOT] [--out DIR] [--legal] [--requests FILE] [--check] [--timeout MS]`
 func selfplay(_ args: [String]) throws -> Int32 {
     let o = try Options(args, flags: ["legal", "check", "quiet"])
-    let seed = UInt64(try o.int("seed", 0))
+    guard let seed = UInt64(o.values["seed"] ?? "0") else { throw UsageError(description: "--seed wants a number from 0 to 2^64 − 1") }
     let games = try o.int("games", 1)
+    guard games >= 0 else { throw UsageError(description: "--games wants a count") }
     let rules = try o.rules()
     let timeout = try o.int("timeout", 10_000)
     var specs = Array(repeating: o.values["bots"] ?? "eager", count: 4)
     for (s, b) in o.seats { specs[s] = b }
     let names = specs.map { $0.hasPrefix("mjai:") ? "mjai" : $0 }
     let label = specs.map { $0.hasPrefix("mjai:") ? "mjai" : $0 }.joined(separator: ",")
+    // With an external bot at the table, walls must not be predictable: each game
+    // gets a fresh 64-bit seed from the system unless --seed is given (for tests),
+    // and that seed is recorded only in the trace (Codex C/D finding 2).
+    let external = specs.contains { $0.hasPrefix("mjai:") }
+    let randomSeeds = external && o.values["seed"] == nil
+    if external && !randomSeeds {
+        FileHandle.standardError.write(Data("warning: --seed with an external bot: the bot can predict the walls\n".utf8))
+    }
+    var system = SystemRandomNumberGenerator()
     let out = o.values["out"]
     if let out { try FileManager.default.createDirectory(atPath: out, withIntermediateDirectories: true) }
     if o.flags.contains("legal") && out == nil { throw UsageError(description: "--legal needs --out") }
@@ -95,7 +128,8 @@ func selfplay(_ args: [String]) throws -> Int32 {
     let clock = ContinuousClock()
     let start = clock.now
     for g in 0..<games {
-        let gameSeed = seed &+ UInt64(g)
+        let gameSeed = randomSeeds ? system.next() : seed &+ UInt64(g)
+        let playerSeed = randomSeeds ? system.next() : botSeed(gameSeed)
         let name = String(format: "%06d", g)
         var observers: [any GameObserver] = [coverage]
         let legal = o.flags.contains("legal") ? LegalityRows(file: "\(out!)/\(name).jsonl") : nil
@@ -103,7 +137,7 @@ func selfplay(_ args: [String]) throws -> Int32 {
         if let requests, rules == .mahjongSoul { observers.append(requests) }
         let checks = o.flags.contains("check") ? InvariantChecks(label: "game \(g)") : nil
         if let checks { observers.append(checks) }
-        var players = try makePlayers(specs, seed: gameSeed, timeoutMs: timeout)
+        var players = try makePlayers(specs, seed: playerSeed, timeoutMs: timeout)
         let rec = try playGame(rules: rules, seed: gameSeed, players: &players, names: names,
                                observers: observers, botsLabel: label)
         hands += rec.game.handsDealt
@@ -114,7 +148,7 @@ func selfplay(_ args: [String]) throws -> Int32 {
         if o.flags.contains("check") {
             // The trace replays to the same log, and check-log accepts the log.
             let again = try replayTrace(rec.trace)
-            if again != rec.log { failures.append("game \(g): replay of its trace gives a different log") }
+            if Array(again.utf8) != Array(rec.log.utf8) { failures.append("game \(g): replay of its trace gives a different log") }
             let report = checkLog(text: rec.log, rules: rules, path: name)
             if !report.errors.isEmpty { failures += report.errors.prefix(3).map { "game \(g) check-log: \($0)" } }
         }
@@ -162,8 +196,8 @@ func replay(_ args: [String]) throws -> Int32 {
     for path in args {
         let log = try replayTrace(try readFile(path))
         let logPath = (path.hasSuffix(".trace") ? String(path.dropLast(6)) : path) + ".jsonl"
-        let want = try readFile(logPath)
-        if log != want {
+        let want = try readFileBytes(logPath)
+        if Array(log.utf8) != want {
             bad += 1
             print("\(path): differs from \(logPath)")
         }

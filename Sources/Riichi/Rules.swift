@@ -61,12 +61,19 @@ public struct Rules: Sendable, Hashable {
 
     // MARK: kans
 
-    /// The indicator owed by an open or added kan is revealed at the kan seat's
-    /// discard, before the window, so a ron on that discard counts it (Tenhou). If
-    /// false it is revealed only after the window passes (Mahjong Soul as published;
-    /// rules.md §5 item 4, unverified). `kan_dora_daiminkan_timing`,
-    /// `kan_dora_shouminkan_timing`.
+    /// The indicator owed by an open or added kan is revealed immediately before the
+    /// kan seat's discard, so a ron on that discard counts it. On for both: Tenhou's
+    /// manual, and Mahjong Soul's records (rules.md §5 item 4, settled from real
+    /// logs; docs/notes/p3-reallogs.md). If false it is revealed only after the
+    /// window passes. `kan_dora_daiminkan_timing`, `kan_dora_shouminkan_timing`.
     public var openKanDoraBeforeRon: Bool
+    /// An indicator still owed by an open or added kan is revealed when the same
+    /// seat announces another added kan (after the `kakan` event, before that
+    /// kan's robbing window), so a chankan on the chained kan counts it (as a
+    /// closed kan always does, design §4.2). Mahjong Soul, from its records; off
+    /// for Tenhou, whose manual flips it only before the next replacement draw
+    /// (docs/notes/p3-reallogs.md).
+    public var owedDoraAtChainedAddedKan: Bool = false
 
     // MARK: pao
 
@@ -77,19 +84,27 @@ public struct Rules: Sendable, Hashable {
     // MARK: riichi and draws
 
     /// Riichi may be declared on a hand whose only wait is a fifth copy of a kind
-    /// the hand and melds already hold four of. Unverified on both clients (rules.md
-    /// §5 item 7); default off (`spec/formats.md`, `legal`).
+    /// the hand and melds already hold four of, as long as the four are not all in
+    /// the concealed hand (some are in a kan): the same test as
+    /// `fifthCopyTenpaiAtDraw`. On for both: both clients' records show such riichi,
+    /// each on a wait whose four copies form the seat's own closed kan (rules.md §5
+    /// item 7; docs/notes/p3-reallogs.md). A wait on four concealed copies stays
+    /// refused, as `spec/formats.md` has it.
     public var riichiOnFifthCopyWait: Bool
     /// At an exhaustive draw, a hand whose only wait is a fifth copy counts as tenpai
     /// unless all four copies are in the concealed hand (Tenhou, rules.md §5 item 7).
-    /// Otherwise it is noten (Mahjong Soul, as `formats.md` defines tenpai).
+    /// On for both (Mahjong Soul from its records, docs/notes/p3-reallogs.md).
+    /// Otherwise it is noten (as `formats.md` defines tenpai).
     public var fifthCopyTenpaiAtDraw: Bool
     /// Rules.md §5 item 9: a riichi declared on the discard that completes four winds
-    /// pays its stick. Unverified on both; default off, as libriichi does.
+    /// pays its stick. On for both: in every such hand in the records the next
+    /// header shows the stick on the table (docs/notes/p3-reallogs.md). libriichi
+    /// does not pay it.
     public var fourWindsRiichiStickPaid: Bool
     /// Temporary furiten also ends when the seat makes a call (`furiten_temporary`).
-    /// Off for both: Tenhou's manual and Mahjong Soul's published rules end it at the
-    /// seat's next draw only (design §4.1).
+    /// On for both: in both clients' records a seat that passed a winning tile,
+    /// then called, wins on a discard before its next draw (docs/notes/p3-reallogs.md;
+    /// design §4.1 had it ending at the next draw only).
     public var temporaryFuritenEndsOnCall: Bool
     /// A seat not in riichi that could win on its own draw and does anything else is
     /// temporarily furiten until its next live-wall draw (design §4.2; Tenhou's
@@ -129,22 +144,39 @@ public struct Rules: Sendable, Hashable {
         self.temporaryFuritenOnDeclinedTsumo = temporaryFuritenOnDeclinedTsumo
     }
 
+    /// Every point setting within ±1,000,000 (non-negative where it must be) and the
+    /// double-wind fu 2 or 4, so that no intermediate of the payment and game-end
+    /// arithmetic can leave 32-bit `Int` (wasm32) when scores, honba and sticks
+    /// also keep within `RoundState`'s bounds (Codex C/D finding 5).
+    public var isValid: Bool {
+        let p = 0...1_000_000
+        return p.contains(startingPoints) && p.contains(returnPoints) && p.contains(targetPoints)
+            && uma.count == 4 && uma.allSatisfy { (-1_000_000...1_000_000).contains($0) }
+            && [2, 4].contains(doubleWindPairFu)
+    }
+
     /// The bonus to first place: what the four seats put in above `startingPoints`
     /// to reach `returnPoints` (`oka`; 0 on Mahjong Soul, 20,000 on Tenhou).
     public var oka: Int { 4 * (returnPoints - startingPoints) }
 }
 
 extension Rules {
-    /// Mahjong Soul four-player ranked, hanchan. The default everywhere.
-    public static let mahjongSoul = Rules(
-        startingPoints: 25_000, returnPoints: 25_000, uma: [15_000, 5_000, -5_000, -15_000],
-        targetPoints: 30_000, length: .south, dealerRepeatBeforeTarget: true,
-        allLastTestAfterNagashi: true,
-        doubleYakuman: true, tenhouAnyWinningTile: true, kuitan: true, doubleWindPairFu: 4,
-        tripleRonAborts: false, honbaToEveryRonWinner: false, kokushiRobsClosedKan: true,
-        openKanDoraBeforeRon: false, paoCoversWholeHand: false, riichiOnFifthCopyWait: false,
-        fifthCopyTenpaiAtDraw: false, fourWindsRiichiStickPaid: false,
-        temporaryFuritenEndsOnCall: false, temporaryFuritenOnDeclinedTsumo: false)
+    /// Mahjong Soul four-player ranked, hanchan. The default everywhere. The kan
+    /// dora timing, fifth-copy and furiten fields are as its records show
+    /// (docs/notes/p3-reallogs.md), not as first published in rules.md.
+    public static let mahjongSoul: Rules = {
+        var r = Rules(
+            startingPoints: 25_000, returnPoints: 25_000, uma: [15_000, 5_000, -5_000, -15_000],
+            targetPoints: 30_000, length: .south, dealerRepeatBeforeTarget: true,
+            allLastTestAfterNagashi: true,
+            doubleYakuman: true, tenhouAnyWinningTile: true, kuitan: true, doubleWindPairFu: 4,
+            tripleRonAborts: false, honbaToEveryRonWinner: false, kokushiRobsClosedKan: true,
+            openKanDoraBeforeRon: true, paoCoversWholeHand: false, riichiOnFifthCopyWait: true,
+            fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
+            temporaryFuritenEndsOnCall: true, temporaryFuritenOnDeclinedTsumo: false)
+        r.owedDoraAtChainedAddedKan = true
+        return r
+    }()
 
     /// Tenhou four-player ranked, hanchan, red fives on.
     public static let tenhou = Rules(
@@ -153,7 +185,7 @@ extension Rules {
         allLastTestAfterNagashi: true,
         doubleYakuman: false, tenhouAnyWinningTile: false, kuitan: true, doubleWindPairFu: 4,
         tripleRonAborts: true, honbaToEveryRonWinner: false, kokushiRobsClosedKan: false,
-        openKanDoraBeforeRon: true, paoCoversWholeHand: true, riichiOnFifthCopyWait: false,
-        fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: false,
-        temporaryFuritenEndsOnCall: false, temporaryFuritenOnDeclinedTsumo: true)
+        openKanDoraBeforeRon: true, paoCoversWholeHand: true, riichiOnFifthCopyWait: true,
+        fifthCopyTenpaiAtDraw: true, fourWindsRiichiStickPaid: true,
+        temporaryFuritenEndsOnCall: true, temporaryFuritenOnDeclinedTsumo: true)
 }

@@ -105,8 +105,12 @@ import Testing
         #expect(!ms.tripleRonAborts && th.tripleRonAborts)
         #expect(ms.kokushiRobsClosedKan && !th.kokushiRobsClosedKan)
         #expect(!ms.paoCoversWholeHand && th.paoCoversWholeHand)
-        #expect(!ms.openKanDoraBeforeRon && th.openKanDoraBeforeRon)
-        #expect(!ms.fifthCopyTenpaiAtDraw && th.fifthCopyTenpaiAtDraw)
+        // Settled from real logs to agree (docs/notes/p3-reallogs.md).
+        #expect(ms.openKanDoraBeforeRon && th.openKanDoraBeforeRon)
+        #expect(ms.owedDoraAtChainedAddedKan && !th.owedDoraAtChainedAddedKan)
+        #expect(ms.fifthCopyTenpaiAtDraw && th.fifthCopyTenpaiAtDraw)
+        #expect(ms.riichiOnFifthCopyWait && th.riichiOnFifthCopyWait)
+        #expect(ms.temporaryFuritenEndsOnCall && th.temporaryFuritenEndsOnCall)
         #expect(ms.tenhouAnyWinningTile && !th.tenhouAnyWinningTile)
         #expect(ms.uma.reduce(0, +) == 0 && th.uma.reduce(0, +) == 0)
     }
@@ -130,14 +134,20 @@ import Testing
     }
 
     @Test func riichiOnFifthCopyWait() {
-        // Discarding 9p leaves 234567789m1111z, whose only wait is a fifth 1z.
+        // Discarding 9p leaves 234567789m1111z, whose only wait is a fifth 1z, all
+        // four concealed: refused even where fifth-copy riichi is allowed.
         let draw = Situation.draw(t1("1z"))
         let hand = "234567789m9p111z"
-        #expect(!actions(hand, draw, rules: .mahjongSoul).contains("riichi:9p"))
-        #expect(!actions(hand, draw, rules: .tenhou).contains("riichi:9p"))
-        var loose = Rules.mahjongSoul
-        loose.riichiOnFifthCopyWait = true
-        #expect(actions(hand, draw, rules: loose).contains("riichi:9p"))
+        var strict = Rules.mahjongSoul
+        strict.riichiOnFifthCopyWait = false
+        for r in [Rules.mahjongSoul, .tenhou, strict] { #expect(!actions(hand, draw, rules: r).contains("riichi:9p")) }
+        // A kanchan on 4m whose four copies are the seat's closed kan (as in the
+        // real-log cases): allowed by both clients, refused by the strict reading.
+        let kan = "35m123p789s22z"
+        let d9p = Situation.draw(t1("9p"))
+        #expect(actions(kan, melds: "a4444m", d9p, rules: .mahjongSoul).contains("riichi:9p"))
+        #expect(actions(kan, melds: "a4444m", d9p, rules: .tenhou).contains("riichi:9p"))
+        #expect(!actions(kan, melds: "a4444m", d9p, rules: strict).contains("riichi:9p"))
     }
 
     @Test func kuitanReachesRon() {
@@ -151,7 +161,10 @@ import Testing
     @Test func formalTenpaiAtDraw() {
         // Only wait a fifth 1m; three copies are in chis, one concealed.
         let open = (Counts(t("1m234p")), melds("c123m,c123m,c123m"))
-        #expect(!isTenpaiAtDraw(open.0, melds: open.1, rules: .mahjongSoul))
+        var strict = Rules.mahjongSoul
+        strict.fifthCopyTenpaiAtDraw = false
+        #expect(!isTenpaiAtDraw(open.0, melds: open.1, rules: strict))
+        #expect(isTenpaiAtDraw(open.0, melds: open.1, rules: .mahjongSoul))
         #expect(isTenpaiAtDraw(open.0, melds: open.1, rules: .tenhou))
         // All four copies concealed: noten under both.
         let closed = Counts(t("234567789m1111z"))

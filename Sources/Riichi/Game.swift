@@ -98,6 +98,8 @@ public enum GameFlow {
         next.sticks = result.sticks
         next.scores = scores
         if !repeats {
+            // North 4 is the last hand there is: never wrap to East (Codex C/D finding 4).
+            if next.kyoku == 4 && next.roundWind == .north { return (nil, .ends(.extensionOver)) }
             if next.kyoku == 4 {
                 next.kyoku = 1
                 next.roundWind = next.roundWind.next
@@ -114,7 +116,8 @@ public enum GameFlow {
             if !abort && ranking(test)[0] == dealer && test[dealer.index] >= rules.targetPoints {
                 return (nil, .ends(.dealerFirst))
             }
-            if target && !rules.dealerRepeatBeforeTarget { return (nil, .ends(.target)) }
+            // An abortive draw in all last always continues (design §5).
+            if !abort && target && !rules.dealerRepeatBeforeTarget { return (nil, .ends(.target)) }
             return (next, .allLastRepeat)
         }
         if target { return (nil, .ends(.target)) }

@@ -481,12 +481,19 @@ at 12,439 of 12,439; council review of the code.
 
 ## 10. Still open
 
-1. **Real logs.** Not needed to start. Options, none chosen: Mortal-against-Mortal
+1. **Real logs.** Done in the real-log campaign (`docs/notes/p3-reallogs.md`):
+   Tenhou houou and Mahjong Soul Throne and Jade records in mjai form, checked
+   with `tools/reallogs.py`. Earlier text: Not needed to start. Options, none chosen: Mortal-against-Mortal
    games generated locally once a checkpoint is running (no terms issue; realistic
    play); mjai conversions of Tenhou records that others have published on Hugging
    Face (Tenhou restricts reuse of its records); the owner's own games.
-2. **Unverified in a Mahjong Soul client**, each a `Rules` field with the default
-   stated above: kan dora on a ron of the post-kan discard, and in chained kans;
+2. **Settled from real logs** (`docs/notes/p3-reallogs.md`, rules.md §5): kan
+   dora on a ron of the post-kan discard (counted, both clients), the owed
+   indicator at a chained added kan (Mahjong Soul shows it before the robbing
+   window), riichi and formal tenpai on a fifth-copy wait whose copies are in a kan
+   (allowed, both), temporary furiten ending on the seat's own call (both). What is
+   still open is listed in those notes. Earlier text: **Unverified in a Mahjong
+   Soul client**, each a `Rules` field with the default stated above: kan dora on a ron of the post-kan discard, and in chained kans;
    the stick on a four-winds riichi discard; dealer repeat against the 30,000 finish
    in the extension; nagashi against a tenpai last dealer; component pao; riichi on
    a fifth-copy wait. Until checked, the claim is "Mahjong Soul rules as published",

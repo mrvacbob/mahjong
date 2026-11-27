@@ -14,6 +14,11 @@ final class ChildProcess {
     let toChild: Int32
     let fromChild: Int32
     var buffer: [UInt8] = []
+    /// Bytes of `buffer` already searched for a newline.
+    var scanned = 0
+    /// A reply longer than this is refused and the bot treated as crashed.
+    static let maxLine = 1 << 20
+    var stopped = false
 
     init(command: String) throws {
         let stdin = Pipe(), stdout = Pipe()
@@ -35,22 +40,26 @@ final class ChildProcess {
         var off = 0
         while off < bytes.count {
             let n = bytes.withUnsafeMutableBytes { write(toChild, $0.baseAddress! + off, $0.count - off) }
+            if n < 0 && errno == EINTR { continue }
             if n <= 0 { return false }
             off += n
         }
         return true
     }
 
-    enum Read { case line(String), timeout, closed }
+    enum Read { case line(String), timeout, closed, tooLong }
 
     func readLine(timeoutMs: Int) -> Read {
         let deadline = ContinuousClock.now + .milliseconds(timeoutMs)
         while true {
-            if let nl = buffer.firstIndex(of: 0x0A) {
+            if let nl = buffer[scanned...].firstIndex(of: 0x0A) {
                 let line = String(decoding: buffer[..<nl], as: UTF8.self)
                 buffer.removeSubrange(...nl)
+                scanned = 0
                 return .line(line)
             }
+            scanned = buffer.count
+            if buffer.count > ChildProcess.maxLine { return .tooLong }
             let left = deadline - ContinuousClock.now
             let ms = Int(left.components.seconds * 1000 + left.components.attoseconds / 1_000_000_000_000_000)
             if ms <= 0 { return .timeout }
@@ -60,14 +69,22 @@ final class ChildProcess {
             if r == 0 { return .timeout }
             var chunk = [UInt8](repeating: 0, count: 4096)
             let n = chunk.withUnsafeMutableBytes { read(fromChild, $0.baseAddress!, 4096) }
+            if n < 0 && errno == EINTR { continue }
             if n <= 0 { return .closed }
             buffer += chunk[..<n]
         }
     }
 
+    /// Ends the child: closes its input, asks it to stop (SIGTERM), and kills it
+    /// (SIGKILL) if it has not exited within half a second. Safe to call twice.
     func stop() {
+        guard !stopped else { return }
+        stopped = true
+        try? handles[0].fileHandleForWriting.close()
         if process.isRunning { process.terminate() }
-        close(toChild)
+        let deadline = ContinuousClock.now + .milliseconds(500)
+        while process.isRunning && ContinuousClock.now < deadline { usleep(5_000) }
+        if process.isRunning { kill(process.processIdentifier, SIGKILL) }
         process.waitUntilExit()
     }
 }
@@ -118,7 +135,8 @@ struct MjaiBot: Player {
             switch child.readLine(timeoutMs: timeoutMs) {
             case .line(let l): if n == events.count - 1 { reply = l }
             case .timeout: dead = .timeout; child.stop()
-            case .closed: dead = .crashed
+            case .closed: dead = .crashed; child.stop()
+            case .tooLong: dead = .crashed; child.stop()
             }
         }
         guard let view else { return nil }
@@ -130,7 +148,8 @@ struct MjaiBot: Player {
             count(.malformed, reply ?? "")
             return Self.substitute(view.legalActions)
         }
-        guard let a = Mjai.action(m, seat: seat, legal: view.legalActions) else {
+        let offered: (tile: Tile, from: Seat)? = if case .discard(let d) = view.table.reacting { (d.tile, d.seat) } else { nil }
+        guard let a = Mjai.action(m, seat: seat, legal: view.legalActions, offered: offered) else {
             count(.illegal, reply)
             return Self.substitute(view.legalActions)
         }

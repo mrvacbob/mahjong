@@ -119,12 +119,15 @@ extension RoundState {
         t.melds = players.map(\.melds)
         t.ponds = players.map(\.pond)
         t.riichi = players.map(\.riichi)
+        let legal = legalActions(for: seat)
+        // The window shows only to a seat asked in it: that a window is open at all
+        // tells that some seat may call (Codex C/D finding 1).
         switch phase {
-        case .reactions(let d): t.reacting = .discard(d)
-        case .robbing(let k): t.reacting = .kan(k)
+        case .reactions(let d) where !legal.isEmpty: t.reacting = .discard(d)
+        case .robbing(let k) where !legal.isEmpty: t.reacting = .kan(k)
         default: t.reacting = nil
         }
-        return PlayerView(table: t, furiten: players[seat.index].isFuriten, legalActions: legalActions(for: seat))
+        return PlayerView(table: t, furiten: players[seat.index].isFuriten, legalActions: legal)
     }
 }
 
@@ -132,6 +135,13 @@ extension RoundState {
 /// folding a seat's masked events rebuilds exactly its view).
 public struct ViewFolder: Sendable {
     public private(set) var table: PlayerView.Table
+    /// The table as `PlayerView` shows it to a seat that is (or is not) asked to
+    /// decide now: a seat not asked sees no open window.
+    public func table(asked: Bool) -> PlayerView.Table {
+        var t = table
+        if !asked { t.reacting = nil }
+        return t
+    }
     /// An announced kan (a closed kan's four tiles, or an added kan's tile), until
     /// it commits; nothing changes until then.
     var pendingKan: (seat: Seat, tiles: [Tile], added: Bool)?
