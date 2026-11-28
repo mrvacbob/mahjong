@@ -421,7 +421,7 @@ def _render(hand_yaku, han, fu, cost, is_open, is_dealer, is_tsumo):
 
 
 def _priority(c):
-    """Spec tie-break (formats.md, score): highest total, then a real yakuman over a
+    """Spec tie-break (Spec/formats.md, score): highest total, then a real yakuman over a
     kazoe one, then higher han, then higher fu, then the yaku list that sorts first
     (applied by the caller). A yakuman answer prints no han or fu, so between two
     yakuman interpretations only total and the yaku list count."""
@@ -508,7 +508,7 @@ def score(kv):
     interpretations with the same total (None when the total alone decided);
     info['alternatives'] lists the losing interpretations at that total.
     With `tenhou`, every distinct tile of hand+win is tried as the winning tile
-    (formats.md: score the best choice); `chiihou` keeps the supplied tile."""
+    (Spec/formats.md: score the best choice); `chiihou` keeps the supplied tile."""
     hand, melds = _hand_and_melds(kv, 0)
     if "win" not in kv:
         raise FormatError("missing win")

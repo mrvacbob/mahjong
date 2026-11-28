@@ -75,7 +75,7 @@ for a, b in merged(eng, lib):
         diffs.append(f)
     parts = a.get("x_furiten", "")
     # A seat that could have declared tsumo and acted otherwise (Tenhou: temporary
-    # furiten until its next draw, design §4.2); decided before comparing the row.
+    # furiten until its next draw, Docs/Design/engine.md §4.2); decided before comparing the row.
     if mine and et in ("dahai", "ankan", "kakan", "reach") and c.last_tsumo_could_win:
         c.last_tsumo_could_win = False
         if "t" in parts:
@@ -119,7 +119,7 @@ for a, b in merged(eng, lib):
                 if k == "target_actor" and not any(x[r] or y[r] for r in REACT):
                     cat("idle_target_actor", a, b, f); continue
                 if k == "can_ron_agari" and not x[k] and y[k] and a.get("x_furiten") == "t" and c.eng_had_t:
-                    # Our temporary furiten survives a call (design §4.1, Tenhou
+                    # Our temporary furiten survives a call (Docs/Design/engine.md §4.1, Tenhou
                     # 「逆巡副露では解消しない」); libriichi cleared it at the discard.
                     cat("temporary_furiten_reset", a, b, f); continue
                 cat("UNEXPLAINED flags." + k, a, b, f)

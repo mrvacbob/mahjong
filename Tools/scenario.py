@@ -121,7 +121,7 @@ def build_wall(
     dora: list[int],
     ura: list[int],
 ) -> list[int]:
-    """Validate 136-tile accounting and build the full wall per engine.md §3."""
+    """Validate 136-tile accounting and build the full wall per Docs/Design/engine.md §3."""
     if len(hands) != 4:
         raise ScenarioError("must specify exactly 4 hands")
     for seat, h in enumerate(hands):

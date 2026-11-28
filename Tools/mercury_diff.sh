@@ -1,5 +1,5 @@
 #!/bin/sh
-# Mercury cross-check (design §8 layer 3) of Mahjong Soul self-play:
+# Mercury cross-check (Docs/Design/engine.md §8 layer 3) of Mahjong Soul self-play:
 #   Tools/mercury_diff.sh WORKDIR FIRST_SEED GAMES [SELFPLAY ARGS...]
 # e.g. Tools/mercury_diff.sh W 1000 300 --scenario pao --check
 # `mj selfplay --requests` dumps every decision as a `legal` request and every win as

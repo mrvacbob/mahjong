@@ -47,7 +47,7 @@ let wallVectors: [WallVector] = [
         #expect(Wall.key(seed: 0, hand: 0) == 0x06F9_D94E_6078_E18F)
         var x = Xoshiro256StarStar(seeding: Wall.key(seed: 0, hand: 0))
         #expect([x.next(), x.next(), x.next()] == [0x3B26_4D20_8BB7_BCCB, 0xB79A_3478_FDF0_C6A6, 0x8D92_42CD_86FF_675C])
-        // The old linear key collided along (seed + G, hand - 1); this one does not.
+        // Non-linear key mixing avoids collisions along (seed + G, hand - 1).
         #expect(Wall.key(seed: 0x9E37_79B9_7F4A_7C15, hand: 0) != Wall.key(seed: 0, hand: 1))
     }
 

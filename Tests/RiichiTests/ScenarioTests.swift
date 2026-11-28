@@ -1,20 +1,16 @@
 // Runs Scenarios/*.scn (expanded to JSON by Tools/scenario.py --json-dir) through
 // the engine: each scenario's round is the first hand of a `GameState` started at
 // the scenario's position, so the game-flow expectations (endgame_*) are checked
-// against the after-round transition. Disputed scenarios are known issues with a one-line reason;
-// Docs/Notes/p3-B.md has the working.
+// against the after-round transition. Disputed scenarios are recorded as known issues.
 
 import Foundation
 import Testing
 @testable import Riichi
 
-/// Scenarios this engine disagrees with: the reason, and the text of the one
-/// difference expected (a problem line containing it). Only that difference is a
-/// known issue: any other problem in the same scenario fails the run, and a
-/// disputed difference that no longer occurs fails it too, so this list cannot go
-/// stale silently (Codex final review, test strength). Empty: the close-out's
-/// dispute (`declined_tsumo_outside_riichi`, Tenhou) was settled by the scenario's
-/// correction.
+/// Scenarios this engine disagrees with: the reason, and a substring of the
+/// expected problem line. Only that difference is treated as a known issue:
+/// any other problem fails the test, and a listed difference that no longer
+/// occurs also fails so this table cannot go stale silently.
 let disputedScenarios: [String: (reason: String, problem: String)] = [:]
 
 enum ScenarioFiles {
@@ -76,9 +72,9 @@ struct ScenarioFailure: Error, CustomStringConvertible {
         }
     }
 
-    /// Gemini final finding 8: a seat asked in a window but not listed in the
-    /// scenario's `window:` line is a difference, not a silent pass. Dropping seat
-    /// 1's chi from a two-seat window makes the scenario fail.
+    /// A seat asked in a window but omitted from the scenario's `window:` line
+    /// fails the scenario rather than silently passing. Dropping seat 1's chi
+    /// from a two-seat window must fail.
     @Test func unlistedAskedSeatFails() throws {
         let json = try ScenarioFiles.load("call_priority_daiminkan_over_chi")
         let runs = json["runs"] as! [String: Any]
@@ -170,10 +166,9 @@ struct ScenarioRunner {
         return problems
     }
 
-    /// What every scenario must satisfy whatever its fixture states (Codex final
-    /// review, test strength): both sides of the point ledger, the final result's
-    /// award of leftover sticks, and each seat's fold of its masked events against
-    /// its view where the game rests (the next hand, or the end of the game).
+    /// Checks invariants that hold for every scenario: both sides of the point
+    /// ledger, awarding leftover sticks on game end, and matching each seat's
+    /// folded masked events against its view where the game rests.
     func checkLedgerAndViews(_ r: RoundResult, _ position: GamePosition, _ g: GameState, _ events: [Event]) -> [String] {
         var p: [String] = []
         if zip(position.scores, r.deltas).map(+) != r.scores { p.append("ledger: scores \(r.scores) ≠ start + deltas") }
@@ -248,9 +243,8 @@ struct ScenarioRunner {
             }
             for s in Seat.all {
                 guard let g = given[String(s.index)] else {
-                    // FORMAT.md: the window lists every seat asked in it. A seat the
-                    // scenario does not list is not silently passed (Gemini final
-                    // finding 8): being asked is a difference.
+                    // Scenarios/FORMAT.md: a window lists every seat asked in it. An
+                    // unlisted seat that is asked is a failure, not a silent pass.
                     if asked.contains(s) {
                         throw ScenarioFailure("seat \(s) is asked but not listed (legal: \(legalSummary(state)))")
                     }

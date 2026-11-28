@@ -164,8 +164,7 @@ let quietHands = [
     }
 
     @Test func canonicalOrderOfTurnActions() throws {
-        // Dealer holds 5m 5m 0m? No: 0m 5m 5m and draws 5m: ankan:5m, and discards
-        // 0m, 5m, then the tsumogiri of 5m.
+        // Dealer holds 0m 5m 5m and draws 5m: ankan:5m, then discards 0m, 5m, and tsumogiri 5m.
         let wall = makeWall(hands: ["055m1p4p7p2s5s8s1z2z3z4z", quietHands[0].replacingOccurrences(of: "5s", with: "6s"),
                                     quietHands[1].replacingOccurrences(of: "5m", with: "6m"), quietHands[2]],
                             draws: "5m")
@@ -203,8 +202,7 @@ let quietHands = [
     }
 
     @Test func fourWindsRiichiStickNotPaid() throws {
-        // Both presets pay the stick (settled from real game records); the field
-        // off gives the old default: no acceptance, no stick.
+        // Both presets pay the stick; with the field off there is no acceptance and no stick.
         var r = Rules.mahjongSoul
         r.fourWindsRiichiStickPaid = false
         let problems = try run("abort_suufon_renda_riichi_stick", rules: r) { e in
@@ -218,10 +216,9 @@ let quietHands = [
         #expect(problems.isEmpty, "\(problems)")
     }
 
-    /// Gemini final finding 6: both presets have `openKanDoraBeforeRon` on, so the
-    /// earlier test here (setting it on) tested nothing. Off, the open kan's
-    /// indicator is still owed when the discard after the kan is ronned: no `dora`
-    /// event, no kan dora, 2 han instead of 4.
+    /// With `openKanDoraBeforeRon` off, the open kan's indicator is still owed
+    /// when the discard after the kan is ronned: no `dora` event, no kan dora,
+    /// 2 han instead of 4.
     @Test(arguments: ["mahjongsoul", "tenhou"]) func openKanDoraAfterTheWindow(_ ruleset: String) throws {
         var r: Rules = ruleset == "tenhou" ? .tenhou : .mahjongSoul
         r.openKanDoraBeforeRon = false
@@ -240,10 +237,9 @@ let quietHands = [
         #expect(!ScenarioRunner(json: json, ruleset: ruleset, spec: runs[ruleset] as! [String: Any], rules: r).run().isEmpty)
     }
 
-    /// Gemini final finding 8: `allLastTestAfterNagashi` off, asserted somewhere. In
-    /// South 4 the tenpai dealer is first on 31,000 before a non-dealer's nagashi
-    /// and fourth after it: with the field off the test reads the scores before the
-    /// payments, so tenpai-yame ends the game.
+    /// With `allLastTestAfterNagashi` off, the all-last check reads scores before
+    /// nagashi payments. In South 4 the tenpai dealer is first on 31,000 before a
+    /// non-dealer's nagashi and fourth after it, so tenpai-yame ends the game.
     @Test func allLastTestBeforeNagashi() throws {
         var r = Rules.mahjongSoul
         r.allLastTestAfterNagashi = false

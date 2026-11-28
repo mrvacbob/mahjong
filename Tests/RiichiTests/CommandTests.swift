@@ -63,9 +63,8 @@ import Testing
         #expect(xs != 0)
     }
 
-    /// Gemini final finding 8: East-only games through `mj selfplay`, with every
-    /// invariant, the trace's `length east` line replayed, and check-log of the logs
-    /// with the same length.
+    /// East-only games through `mj selfplay`, with every invariant, the trace's
+    /// `length east` line replayed, and check-log of the logs with the same length.
     @Test(.enabled(if: mj != nil), arguments: ["tenhou", "mahjongsoul"]) func eastOnlySelfplay(_ rules: String) throws {
         let dir = tempDir("east-\(rules)")
         let (status, out) = try run(["selfplay", "--seed", "21", "--games", "6", "--rules", rules, "--length", "east",
@@ -84,7 +83,7 @@ import Testing
         #expect(bad != 0)
     }
 
-    /// Codex final finding 6: the timeout is checked before any bot starts.
+    /// `--timeout` is validated before any bot starts.
     @Test(.enabled(if: mj != nil)) func timeoutIsChecked() throws {
         for t in ["3000000000", "0", "-5"] {
             let (status, out) = try run(["selfplay", "--games", "1", "--seat", "0=mjai:cat", "--timeout", t])
@@ -122,8 +121,8 @@ import Testing
         #expect(log.contains(#""type":"reach_accepted""#))
     }
 
-    /// Gemini C/D finding 3: a bot that ignores SIGTERM, or floods its output
-    /// without a newline, is killed and its decisions substituted, without hanging.
+    /// A bot that ignores SIGTERM or floods output without a newline is killed
+    /// and its decisions are substituted without hanging.
     @Test(.enabled(if: mj != nil)) func mjaiAdapterHostileBots() throws {
         let bot = Self.root.appendingPathComponent("Tests/Fixtures/fakebot.py").path
         let start = ContinuousClock.now
@@ -137,8 +136,7 @@ import Testing
         #expect(!line.contains("timeout=0") && !line.contains("crashed=0"), "\(line)")
     }
 
-    /// Gemini C/D findings 4, 5 and 7, and the seed options: bad logs and bad
-    /// arguments are errors, not crashes or silent passes.
+    /// Malformed logs and invalid CLI arguments return errors rather than crashing or passing.
     @Test(.enabled(if: mj != nil)) func checkLogRefusesBadLogs() throws {
         let dir = tempDir("badlogs")
         try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
@@ -175,9 +173,9 @@ import Testing
         #expect(s != 0 && !o.contains("Fatal"), "\(o)")
     }
 
-    /// Codex C/D findings 2 and 7: with an external bot and no --seed, each game's
-    /// wall seed is fresh from the system (recorded in the trace only); with --seed
-    /// a warning is printed. The replay check compares bytes.
+    /// With an external bot and no --seed, each game's wall seed is fresh from
+    /// the system (recorded in the trace only); with --seed a warning is printed.
+    /// The replay check compares bytes.
     @Test(.enabled(if: mj != nil)) func externalBotSeeds() throws {
         let bot = Self.root.appendingPathComponent("Tests/Fixtures/fakebot.py").path
         var seeds: [String] = []
@@ -216,10 +214,10 @@ import Testing
         }
     }
 
-    /// Directed self-play (Docs/Notes/p3-closeout.md): each scenario reaches its
-    /// branch with every invariant on, its traces replay to the same bytes (the
-    /// trace names the scenario, which rebuilds the walls and the starting
-    /// position), and check-log accepts the logs.
+    /// Directed self-play: each scenario reaches its target branch with every
+    /// invariant on, its traces replay to the same bytes (the trace names the
+    /// scenario, which rebuilds the walls and starting position), and check-log
+    /// accepts the logs.
     @Test(.enabled(if: mj != nil), arguments: ["tenhou", "mahjongsoul"]) func directedScenarios(_ rules: String) throws {
         let tenhou = rules == "tenhou"
         let branches: [(String, [String])] = [
@@ -248,10 +246,9 @@ import Testing
         #expect(bs != 0 && bo.contains("unknown scenario"), "\(bo)")
     }
 
-    /// check-log on the reduced format of the real-log campaign (Docs/Notes/p3-reallogs.md):
-    /// our own logs stripped to it (no deltas, scores, dora events or ura; the
-    /// dealer's first draw dealt as a 14th tile) still check, the hidden
-    /// indicators being searched for against the next hand's scores.
+    /// check-log on the reduced real-log format (no deltas, scores, dora events,
+    /// or ura; the dealer's first draw dealt as a 14th tile): hidden indicators
+    /// are solved against the next hand's scores.
     @Test(.enabled(if: mj != nil), arguments: ["tenhou", "mahjongsoul"]) func checkLogReducedFormat(_ rules: String) throws {
         let dir = tempDir("lite-\(rules)")
         let (s0, o0) = try run(["selfplay", "--seed", "40", "--games", "6", "--rules", rules, "--bots", "eager", "--out", dir, "--quiet"])

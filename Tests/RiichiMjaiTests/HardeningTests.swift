@@ -1,13 +1,12 @@
-// Hostile input to the JSON reader and the mjai decoder (Gemini's C/D review,
-// Docs/Reviews/p3/CD-agy.md findings 1, 2, 8–11): nothing a bot or a log can send
-// may crash; it must come back as an error.
+// Malformed input to the JSON reader and mjai decoder must return an error rather
+// than crash.
 
 import Testing
 import Riichi
 @testable import RiichiMjai
 
 @Suite struct HardeningTests {
-    /// Finding 1: a high surrogate followed by an escape that is not a low surrogate.
+    /// A high surrogate followed by an escape that is not a low surrogate.
     @Test func unpairedSurrogates() throws {
         let o = try JSONObject(parsing: #"{"a":"\uD800\u0000","b":"🀄","c":"\uDC00x"}"#)
         #expect(o["a"]?.string == "\u{FFFD}\u{0}")
@@ -15,7 +14,7 @@ import Riichi
         #expect(o["c"]?.string == "\u{FFFD}x")
     }
 
-    /// Finding 2: deep nesting is refused, not recursed into.
+    /// Deep nesting is refused rather than recursed into.
     @Test func deepNesting() {
         let deep = #"{"type":"none","meta":"# + String(repeating: "[", count: 100_000) + String(repeating: "]", count: 100_000) + "}"
         #expect(throws: JSONError.self) { try JSONObject(parsing: deep) }
@@ -24,8 +23,8 @@ import Riichi
         #expect((try? JSONObject(parsing: ok)) != nil)
     }
 
-    /// Finding 8: escapes, control characters and numbers are validated at parse
-    /// time, also inside values that are only skipped.
+    /// Escapes, control characters, and numbers are validated at parse time,
+    /// including inside skipped values.
     @Test func strictGrammar() {
         for bad in [#"{"a":"\q"}"#, #"{"a":"x\#u{1}y"}"#, #"{"a":1..2e+-3}"#, #"{"a":01}"#, #"{"a":.5}"#,
                     #"{"a":-}"#, #"{"a":1e}"#, #"{"a":[1,"\x"]}"#, #"{"a":{"b":"\u12"}}"#] {
@@ -37,12 +36,12 @@ import Riichi
         #expect(throws: MjaiError.self) { try Mjai.decode(#"{"type":"dahai","actor":0,"pai":"\q","tsumogiri":false}"#) }
     }
 
-    /// Finding 9: the last of repeated keys wins, as in other JSON readers.
+    /// The last of repeated keys wins, as in other JSON readers.
     @Test func duplicateKeysLastWins() throws {
         #expect(try Mjai.decode(#"{"type":"none","type":"dahai","actor":0,"pai":"1m","tsumogiri":true}"#).type == "dahai")
     }
 
-    /// Finding 10: a present field of the wrong type is an error.
+    /// A present field of the wrong type is an error.
     @Test func wrongTypes() {
         for bad in [#"{"type":"dahai","actor":0,"pai":123,"tsumogiri":false}"#,
                     #"{"type":"dahai","actor":0,"pai":"1m","tsumogiri":"nope"}"#,
@@ -56,8 +55,7 @@ import Riichi
         #expect((try? Mjai.decode(#"{"type":"hora","actor":0,"target":0,"uradora_markers":["1m"]}"#))?.uraMarkers == [Tile(Kind(.man, 1))])
     }
 
-    /// Finding 11: a closed kan names four tiles of one kind; a call names the
-    /// discard it takes.
+    /// A closed kan names four tiles of one kind; a call names the discard it takes.
     @Test func callFieldsValidated() throws {
         let k = Kind(.man, 1)
         let turn = Mjai.Decision(seat: Seat(0), legal: [.ankan(k), .discard(Tile(k), tsumogiri: true)],
@@ -81,8 +79,8 @@ import Riichi
         #expect(try act(#"{"type":"pon","actor":0,"target":1,"pai":"5p","consumed":["5p","5p"]}"#) == nil)
     }
 
-    /// Gemini final finding 3: a kan names the very tiles it uses, so impossible red
-    /// fives are refused; an added kan's `consumed`, when given, is the pon.
+    /// A kan names the exact tiles it uses, so impossible red fives are refused;
+    /// an added kan's `consumed`, when given, must match the pon.
     @Test func kanTilesAreTheHand() throws {
         let five = Kind(.man, 5)
         let ankan = Mjai.Decision(seat: Seat(0), legal: [.ankan(five), .discard(Tile(five), tsumogiri: true)],

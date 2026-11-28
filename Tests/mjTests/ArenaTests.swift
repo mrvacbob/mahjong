@@ -1,6 +1,6 @@
-// The mjai adapter in a whole game (Codex final finding 1): a bot's reply is bound
-// to the event that asks for the decision, through the indicator Mahjong Soul shows
-// after a chained added kan; a reply the adapter cannot bind is counted.
+// The mjai adapter in a whole game: a bot's reply is bound to the event that asks
+// for the decision, even when Mahjong Soul reveals a dora indicator after a chained
+// added kan; a reply the adapter cannot bind is counted.
 
 import Testing
 import Riichi

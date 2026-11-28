@@ -1,4 +1,4 @@
-"""Compare mj-rs with paired shootout corpus files."""
+"""Compare mj-rs against paired corpus files."""
 import argparse
 from pathlib import Path
 import subprocess

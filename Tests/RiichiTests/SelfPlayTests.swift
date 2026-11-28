@@ -1,4 +1,4 @@
-// Invariants of design §8 layer 4 that apply to one round, over thousands of rounds
+// Invariants of Docs/Design/engine.md §8 layer 4 that apply to one round, over thousands of rounds
 // of random and eager play driven directly through the step API.
 
 import Testing
@@ -295,7 +295,7 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
     }
 
     /// The `Rules` fields are independent: random combinations of every Boolean
-    /// field (and of the double-wind fu) keep the invariants (Gemini's review of B).
+    /// field (and of `doubleWindPairFu`) preserve the invariants.
     @Test func mixedRules() throws {
         var rng = TestRNG(state: 99)
         var coverage = Coverage()
@@ -309,8 +309,7 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
             r.fifthCopyTenpaiAtDraw = flip(); r.fourWindsRiichiStickPaid = flip()
             r.temporaryFuritenEndsOnCall = flip(); r.temporaryFuritenOnDeclinedTsumo = flip()
             r.owedDoraAtChainedAddedKan = flip()
-            // The game-flow fields, played through `GameState` below (Gemini final
-            // finding 8, Codex final review: test strength).
+            // Game-flow fields, exercised through `GameState` below.
             r.dealerRepeatBeforeTarget = flip(); r.allLastTestAfterNagashi = flip()
             r.length = flip() ? .east : .south
             for i in 0..<250 {
@@ -331,8 +330,7 @@ func checkEveryLegalApplies(_ s: RoundState, _ seat: Seat, _ legal: [Action]) th
         print("coverage mixed rules: \(coverage)")
     }
 
-    /// A round replays exactly from its wall and its recorded decisions alone (no
-    /// bot, Gemini final test audit: the old test re-ran the bot).
+    /// A round replays identically from its wall and recorded decisions alone.
     @Test func replayIsExact() throws {
         var coverage = Coverage()
         for i in 0..<200 {

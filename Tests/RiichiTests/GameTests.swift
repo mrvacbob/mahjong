@@ -1,5 +1,4 @@
-// Package C (GameState, the after-round transition, GameResult) and the parts of
-// package D that live in Riichi (masked events, PlayerView and its fold).
+// GameState, after-round transitions, GameResult, masked events, PlayerView, and ViewFolder.
 
 import Testing
 @testable import Riichi
@@ -103,11 +102,11 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         r2.dealerRepeatBeforeTarget = false
         (n, t) = try GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true), at: s4, rules: r2)
         #expect(t == .ends(.target))
-        // ... but an abortive draw in all last still repeats (Gemini C/D finding 12).
+        // ... but an abortive draw in all last still repeats.
         (n, t) = try GameFlow.next(after: result([31_000, 21_000, 25_000, 23_000], dealer: 3, repeats: true,
                                              outcome: .abortiveDraw(.kyuushu)), at: s4, rules: r2)
         #expect(t == .allLastRepeat && n?.kyoku == 4)
-        // North 4 never wraps to East 1 (Codex C/D finding 4).
+        // North 4 never wraps to East 1.
         (n, t) = try GameFlow.next(after: result(even, dealer: 3, repeats: false),
                                at: try GamePosition(roundWind: .north, kyoku: 4, scores: even), rules: rules)
         #expect(n == nil && t == .ends(.extensionOver))
@@ -125,7 +124,8 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
     }
 
     /// Folding each seat's masked events rebuilds its view at every point where the
-    /// game rests (design §8 layer 4); masked events show no other hand or draw.
+    /// game rests (Docs/Design/engine.md §8 layer 4); masked events show no other
+    /// hand or draw.
     @Test(arguments: [Bot.eager, .random]) func viewsFoldFromMaskedEvents(_ bot: Bot) throws {
         for seed in 0..<12 as Range<UInt64> {
             var rng = TestRNG(state: seed &+ 77)
@@ -143,8 +143,7 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
                         }
                         folders[seat.index].apply(m)
                     }
-                    // Also once the game is over: the final scores, no sticks left
-                    // (Codex final finding 4).
+                    // Also once the game is over: the final scores and no sticks left.
                     let v = g.view(of: seat)
                     #expect(folders[seat.index].table(asked: !v.legalActions.isEmpty) == v.table, "seed \(seed) seat \(seat)")
                     if v.legalActions.isEmpty { #expect(v.table.reacting == nil) }
@@ -158,12 +157,11 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         }
     }
 
-    /// Found by the close-out's directed self-play (Docs/Notes/p3-closeout.md): under
-    /// Mahjong Soul the owed indicator of an earlier added kan is shown right after a
-    /// chained added kan, before its robbing window; the folder took that `dora` for
-    /// the commit and so showed the kan made, the drawn tile gone and one live tile
-    /// fewer while the window was still open. Folds every step of such a hand, robbed
-    /// and not robbed, for all four seats.
+    /// Under Mahjong Soul, the owed indicator of an earlier added kan is shown
+    /// right after a chained added kan, before its robbing window. `ViewFolder`
+    /// must not treat that `dora` event as committing the kan while the window is
+    /// still open. Folds every step of such a hand, robbed and not robbed, for all
+    /// four seats.
     @Test(arguments: [true, false]) func foldChainedAddedKanOwedDoraBeforeRob(_ robbed: Bool) throws {
         let wall = makeWall(hands: ["1p1p234m678m567s33z", "1m4m7m9p1p2s5s8s1z2z3z4z5z",
                                     "1m4m7m5p9p2s5s8s9s1z2z4z6z", "23p456m789m340s99s"],
@@ -200,8 +198,7 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         #expect((s.result?.wins.first?.robbedKan == .added) == robbed)
     }
 
-    /// Codex C/D finding 5: rules are bounded so that the game-end arithmetic fits
-    /// 32-bit Int at the extremes allowed.
+    /// Rules are bounded so that game-end arithmetic fits in 32-bit Int at the extremes.
     @Test func rulesBounds() throws {
         #expect(Rules.mahjongSoul.isValid && Rules.tenhou.isValid)
         var r = Rules.tenhou

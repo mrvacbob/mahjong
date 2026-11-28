@@ -1,5 +1,5 @@
-// The bot's process: its whole process group is stopped (Gemini final finding 4),
-// and a long timeout cannot trap (Codex final finding 6).
+// Bot child process lifecycle: stopping kills the whole process group, and long
+// timeouts do not trap.
 
 import Foundation
 import Testing
@@ -55,8 +55,7 @@ import Testing
     }
 
     @Test func longTimeoutsDoNotTrap() throws {
-        // The review's probe: three billion milliseconds, and a child that says
-        // nothing and exits after a second.
+        // Three billion milliseconds, with a child that exits after a second without output.
         let child = try ChildProcess(command: "exec /bin/sleep 1")
         let r = child.readLine(timeoutMs: 3_000_000_000)
         guard case .closed = r else { Issue.record("\(r)"); return }

@@ -1,13 +1,13 @@
-// The final Phase 3 reviews (Docs/Reviews/p3/final-codex.md, final-agy.md): input
-// checked at every public entry point, the running game's counters, the scorer's
-// requests, `winRequest(for:)` honba, the terminal view, East-only games.
+// Input validation at public entry points, running game counters, scorer and
+// legal-action requests, `winRequest(for:)` honba, terminal views, East-only
+// games, and composite yakuman pao payments.
 
 import Testing
 @testable import Riichi
 
 @Suite struct InputCheckTests {
-    /// Codex final finding 2: a game started at the largest honba it admits plays
-    /// on past it (the dealer's nine terminals repeats the hand with one more).
+    /// A game started at the largest honba it admits plays on past it (the dealer's
+    /// nine terminals repeats the hand with one more).
     @Test func gameAdvancesFromTheLargestAdmittedHonba() throws {
         let wall = makeWall(hands: ["19m19p19s1234567z"] + quietHands, draws: "5z")
         var events: [Event] = []
@@ -55,8 +55,7 @@ import Testing
         #expect(throws: InputError.self) { try GameFlow.result(scores: even, sticks: 0, rules: r, end: .target) }
         #expect(throws: InputError.self) { try GameFlow.result(scores: [1], sticks: 0, rules: .tenhou, end: .target) }
         #expect(throws: InputError.self) { try GameFlow.ranking([1, 2]) }
-        // The memberwise initializer has every field, `owedDoraAtChainedAddedKan`
-        // included (Codex final audit), so copying the presets' arguments gives them.
+        // The memberwise initializer exposes every field, including `owedDoraAtChainedAddedKan`.
         let copy = Rules(startingPoints: 25_000, returnPoints: 25_000, uma: [15_000, 5_000, -5_000, -15_000],
                          targetPoints: 30_000, length: .south, dealerRepeatBeforeTarget: true,
                          allLastTestAfterNagashi: true, doubleYakuman: true, tenhouAnyWinningTile: true,
@@ -68,7 +67,7 @@ import Testing
         #expect(copy == .mahjongSoul)
     }
 
-    /// Gemini final finding 1: only ASCII digits are digits.
+    /// Only ASCII digits are accepted in tile strings.
     @Test func tileTextIsAscii() {
         for bad in ["⑽m", "１m", "Ⅻp", "٣s", "1⑽m"] { #expect(parseTiles(Substring(bad)) == nil, "\(bad)") }
         #expect(parseTiles("19m0p7z") == t("19m0p7z"))
@@ -76,7 +75,7 @@ import Testing
         #expect(Meld(kind: .pon, tiles: t("111m"))!.kuikaeForbidden(took: Kind(.man, 2)).isEmpty)
     }
 
-    /// Codex final finding 3: the public scorer checks its request.
+    /// The public scorer validates its request.
     @Test func scoreRequestsAreChecked() throws {
         var req = ScoreRequest(hand: t("123456m789p23s99s"), melds: [], win: t1("1s"), context: WinContext(tsumo: false))
         #expect(try score(req, rules: .mahjongSoul).payment == .ron(1500))
@@ -109,8 +108,7 @@ import Testing
         #expect(error(req) == .badHandSize)
     }
 
-    /// `LegalRequest.actions` checks its request (Codex final finding 3, the same
-    /// for the other hypothetical entry point).
+    /// `LegalRequest.actions` validates its request.
     @Test func legalRequestsAreChecked() {
         let draw = Situation.draw(t1("1m"))
         #expect(throws: InputError.self) { try LegalRequest(hand: t("1m"), melds: [], situation: draw, rules: .tenhou).actions }
@@ -125,8 +123,7 @@ import Testing
 }
 
 @Suite struct WinRequestTests {
-    /// Gemini final finding 2 (its reproduction): seats 1 and 2 both may ron seat
-    /// 0's 4s with two honba.
+    /// Seats 1 and 2 both may ron seat 0's 4s with two honba.
     static let wall = makeWall(hands: ["1m4m7m1p4p7p2s5s8s1z2z3z4z", "234m567p234s56s88p",
                                        "234m567p234s56s88m", "3m6m9m3p6p9p1s9s1z2z3z4z6z"], draws: "4s")
 
@@ -137,7 +134,7 @@ import Testing
         func answers(_ a1: Action, _ a2: Action) -> Answers {
             var a = Answers(); a[Seat(1)] = a1; a[Seat(2)] = a2; return a
         }
-        // Seat 2 alone wins: it is paid the honba (the old request said 0).
+        // Seat 2 alone wins: it is paid the honba.
         #expect(s.winRequest(for: Seat(2), answers: answers(.pass, .ron))?.honba == 2)
         #expect(s.winRequest(for: Seat(2))?.honba == 2)
         // Both win: the nearest (seat 1) takes them.
@@ -159,10 +156,10 @@ import Testing
 }
 
 @Suite struct EastGameTests {
-    /// Codex final finding 4 (its probe): an East-only game with two sticks carried
-    /// in and an unreachable target plays East and South and ends at
-    /// `extensionOver`; the sticks go to first place, and both the seat's folded
-    /// table and `GameState.view(of:)` show the final scores and no sticks.
+    /// An East-only game with two sticks carried in and an unreachable target plays
+    /// East and South and ends at `extensionOver`; the sticks go to first place,
+    /// and both the seat's folded table and `GameState.view(of:)` show the final
+    /// scores and no sticks.
     @Test func terminalViewHasTheFinalScores() throws {
         var rules = Rules.mahjongSoul
         rules.length = .east
@@ -197,9 +194,9 @@ import Testing
         }
     }
 
-    /// Gemini final finding 8: whole East-only games through `GameState` with the
-    /// test bots: only East and South are played, South only as the extension, and
-    /// every game ends by a rule of design §5.
+    /// Whole East-only games through `GameState` with the test bots: only East
+    /// and South are played, South only as the extension, and every game ends by
+    /// a rule of Docs/Design/engine.md §5.
     @Test(arguments: [Bot.eager, .random]) func wholeEastGames(_ bot: Bot) throws {
         for ruleset in [Rules.mahjongSoul, .tenhou] {
             var rules = ruleset
@@ -237,10 +234,10 @@ import Testing
 }
 
 @Suite struct PaoTransactionTests {
-    /// Codex final review, test strength: exact payments for a composite yakuman
-    /// under pao, by `paoCoversWholeHand`, on a ron from a third seat and on a tsumo.
-    /// The dealer (seat 0) wins daisangen + tsuuiisou (96,000) with two honba; seat 2
-    /// fed the third dragon. The liable seat pays the honba.
+    /// Exact payments for a composite yakuman under pao, by `paoCoversWholeHand`,
+    /// on a ron from a third seat and on a tsumo. The dealer (seat 0) wins
+    /// daisangen + tsuuiisou (96,000) with two honba; seat 2 fed the third dragon.
+    /// The liable seat pays the honba.
     @Test(arguments: [false, true]) func compositeYakuman(_ whole: Bool) throws {
         let wall = makeWall(hands: ["234m1112556677z", "147m147p258s2356z", "258m258p369s2347z", "369m369p147s1344z"],
                             draws: "8p8s9s5p6p6s8m7s2z")

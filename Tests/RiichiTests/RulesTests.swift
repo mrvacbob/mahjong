@@ -30,7 +30,7 @@ import Testing
             #expect(r.value == .yakuman(2))
             #expect(r.yaku == "daisangen:1,tsuuiisou:1")
         }
-        // Daisuushii + tsuuiisou: 3x on Mahjong Soul, 2x on Tenhou (rules.md §1).
+        // Daisuushii + tsuuiisou: 3x on Mahjong Soul, 2x on Tenhou (Spec/rules.md §1).
         let hand = "222333444z5z", m = "p111z"
         #expect(scored(hand: hand, melds: m, win: "5z", tsumo: false, rules: .mahjongSoul).value == .yakuman(3))
         #expect(scored(hand: hand, melds: m, win: "5z", tsumo: false, rules: .tenhou).value == .yakuman(2))
@@ -106,7 +106,7 @@ import Testing
         #expect(!ms.tripleRonAborts && th.tripleRonAborts)
         #expect(ms.kokushiRobsClosedKan && !th.kokushiRobsClosedKan)
         #expect(!ms.paoCoversWholeHand && th.paoCoversWholeHand)
-        // Settled from real logs to agree (Docs/Notes/p3-reallogs.md).
+        // Kan dora, fifth-copy, furiten, and tenhou preset fields.
         #expect(ms.openKanDoraBeforeRon && th.openKanDoraBeforeRon)
         #expect(ms.owedDoraAtChainedAddedKan && !th.owedDoraAtChainedAddedKan)
         #expect(ms.fifthCopyTenpaiAtDraw && th.fifthCopyTenpaiAtDraw)
@@ -142,8 +142,8 @@ import Testing
         var strict = Rules.mahjongSoul
         strict.riichiOnFifthCopyWait = false
         for r in [Rules.mahjongSoul, .tenhou, strict] { #expect(try !actions(hand, draw, rules: r).contains("riichi:9p")) }
-        // A kanchan on 4m whose four copies are the seat's closed kan (as in the
-        // real-log cases): allowed by both clients, refused by the strict reading.
+        // A kanchan on 4m whose four copies are the seat's closed kan: allowed by
+        // both presets, refused when `riichiOnFifthCopyWait` is off.
         let kan = "35m123p789s22z"
         let d9p = Situation.draw(t1("9p"))
         #expect(try actions(kan, melds: "a4444m", d9p, rules: .mahjongSoul).contains("riichi:9p"))
@@ -178,9 +178,9 @@ import Testing
     }
 }
 
-/// `Spec/rules.md` §1.1 and `Rules.swift` agree field by field (brief
-/// p3-final-fixes, documentation drift): every stored field of `Rules` is listed
-/// once, with both presets' values, and names a row of §1 that exists.
+/// `Spec/rules.md` §1.1 and `Rules.swift` agree field by field: every stored
+/// field of `Rules` is listed once with both presets' values and names a row
+/// of §1 that exists.
 @Suite struct RulesSpecTests {
     @Test func specTableMatchesPresets() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()

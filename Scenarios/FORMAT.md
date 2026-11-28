@@ -36,7 +36,7 @@ Required metadata for the scenario.
 
 ### `[round]`
 
-Initial round and game context. All keys except `scores` have defaults.
+Initial round and game context. All keys have defaults.
 
 | Key | Default | Values |
 |---|---|---|

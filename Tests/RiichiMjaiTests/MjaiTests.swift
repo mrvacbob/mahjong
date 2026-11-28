@@ -103,7 +103,7 @@ import Riichi
                 case .reachAccepted(_, let s): #expect(m.scores == s)
                 case .hora(_, let tg, let t, let d, let u, let h, let sc, let s):
                     #expect(m.target == tg.index && m.pai == t && m.deltas == d && m.uraMarkers == u && m.scores == s)
-                    // The winning hand and its scoring (Codex final review, test strength).
+                    // Winning hand and scoring fields.
                     #expect(m.horaTehais == h)
                     #expect(m.yakus == sc.yaku.map { YakuText($0.name.text, $0.value) })
                     switch sc.value {
@@ -166,14 +166,14 @@ import Riichi
         #expect(try act(#"{"type":"pon","actor":1,"consumed":["5p","5p"]}"#, [.ron, .pass], .kan(tile: five, from: Seat(0), kind: .added)) == nil)
     }
 
-    /// Codex final finding 5, Gemini final finding 3: a `hora` must name what was
-    /// offered (the discarder or kan seat and its tile; on a tsumo the seat itself
-    /// and its drawn tile), when it names anything.
+    /// A `hora` reply must match the offered target and tile (discarder or kan seat
+    /// and its tile; on a tsumo, the seat itself and its drawn tile) when those fields
+    /// are present.
     @Test func winRepliesMatchTheOffer() throws {
         let p1 = Tile(Kind(.pin, 1))
         let ron = Mjai.Decision(seat: Seat(3), legal: [.ron, .pass], trigger: .discard(tile: p1, from: Seat(0)))
         func act(_ json: String, _ d: Mjai.Decision) throws -> Action? { Mjai.action(try Mjai.decode(json), for: d) }
-        #expect(try act(#"{"type":"hora","actor":3,"target":2,"pai":"9s"}"#, ron) == nil)  // the review's probe
+        #expect(try act(#"{"type":"hora","actor":3,"target":2,"pai":"9s"}"#, ron) == nil)  // wrong target and tile
         #expect(try act(#"{"type":"hora","actor":3,"target":2}"#, ron) == nil)
         #expect(try act(#"{"type":"hora","actor":3,"pai":"9s"}"#, ron) == nil)
         #expect(try act(#"{"type":"hora","actor":3,"target":0,"pai":"1p"}"#, ron) == .ron)
@@ -188,9 +188,8 @@ import Riichi
         #expect(try act(#"{"type":"hora","actor":3,"target":3,"pai":"2p"}"#, tsumo) == nil)
     }
 
-    /// Gemini final finding 5: `Mjai.reply` writes every field of a call or win,
-    /// and every legal action of real games, written as a bot would reply with it,
-    /// reads back as that action in its decision (`Mjai.Decision(view)`).
+    /// `Mjai.reply` writes every field of a call or win, and every legal action
+    /// from real games round-trips through `Mjai.decode` and `Mjai.action`.
     @Test func replyRoundTripsEveryOffer() throws {
         let pon = Mjai.reply(.pon(Tile(Kind(.man, 5)), Tile(Kind(.man, 5))), seat: Seat(0), target: Seat(1), tile: Tile(Kind(.man, 5)))
         #expect(pon == #"{"type":"pon","actor":0,"target":1,"pai":"5m","consumed":["5m","5m"]}"#)

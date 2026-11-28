@@ -1,4 +1,4 @@
-// Cases the package A review (Docs/Reviews/p3/A-agy.md, item 5) found untested.
+// TableMeld red fives, scoring and legality edge cases, dealing, and the `mj` line protocol.
 
 import Foundation
 import Testing
@@ -68,7 +68,7 @@ import Testing
         let concealed = Counts(t("46m123p456s99s"))
         let m = melds("a5555m")
         #expect(isTenpaiAtDraw(concealed, melds: m, rules: .tenhou))
-        // Mahjong Soul too, from its records (Docs/Notes/p3-reallogs.md).
+        // Mahjong Soul as well.
         #expect(isTenpaiAtDraw(concealed, melds: m, rules: .mahjongSoul))
         var strict = Rules.mahjongSoul
         strict.fifthCopyTenpaiAtDraw = false
@@ -157,11 +157,9 @@ import Testing
         #expect(out[8] == "9 error=bad_called")
     }
 
-    /// Gemini final finding 1 and Codex final finding 3: hostile requests are
-    /// answered with an error, never a crash. The two reproductions, then a
-    /// deterministic batch of malformed and physically impossible requests (non-ASCII
-    /// digits, 16 copies of a kind, too many melds, honba past `Int`, sizes far from
-    /// 13), every one answered.
+    /// Malformed and physically impossible requests (non-ASCII digits, 16 copies
+    /// of a kind, too many melds, honba past `Int`, invalid hand sizes) return an
+    /// error rather than crashing.
     @Test(.enabled(if: mjPath != nil)) func hostileRequestsAreAnswered() throws {
         let fixed = [
             "1 shanten hand=⑽m",

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Differential run against libriichi (design §8 layer 2), in batches so the
+# Differential run against libriichi (Docs/Design/engine.md §8 layer 2), in batches so the
 # legality rows (≈3 MB per game per side) never pile up on disk.
 #   Tools/libriichi_diff.sh WORKDIR BOTS FIRST_SEED BATCHES [GAMES_PER_BATCH [EXTRA]]
 # BOTS is random, eager, or scenario:NAME (directed self-play, `mj selfplay

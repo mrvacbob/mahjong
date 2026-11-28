@@ -1,4 +1,4 @@
-// The Phase 4 view API (Docs/Design/engine.md §6.3): every helper checked against
+// PlayerView analysis helpers (Docs/Design/engine.md §6.3): checked against
 // the engine's own state in whole games, and the defensive facts on built tables.
 
 import Testing
@@ -124,8 +124,7 @@ import Testing
         #expect(throws: InputError.self) {
             try discardAnalysis(concealed: t("123456789m12344p"), meldCount: 0, visible: none, candidates: t("9s"))
         }
-        // 123456789m 12344p: discarding 1p leaves 234p 4p (tanki on 4p, or nobetan
-        // 1p/4p? no: 2344p waits 1p? 234p + 4p tanki waits 4p; 44p + 23p waits 1p/4p).
+        // 123456789m 12344p: discarding 1p leaves 2344p, waiting on 1p and 4p (44p + 23p).
         let hand = t("123456789m12344p")
         let options = try discardAnalysis(concealed: hand, meldCount: 0, visible: Counts(hand))
         #expect(options.map(\.tile) == t("123456789m1234p"))

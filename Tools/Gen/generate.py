@@ -391,7 +391,7 @@ def score_case(rng, b, *, by=None, flags_force=(), seat=None, rnd=None, win_pick
     if "ippatsu" in flags and not flags & {"riichi", "double_riichi"}:
         return None
     if "ippatsu" in flags and "chankan" in flags and not {"ippatsu", "chankan"} <= set(flags_force):
-        # ippatsu + chankan is a legal combination (formats.md: a robbed kan was never
+        # ippatsu + chankan is a legal combination (Spec/formats.md: a robbed kan was never
         # completed). It is generated only in its own targeted section; the random flag
         # draw still skips it so that the earlier sections, and their case ids, stay
         # as they were before the combination was allowed.
@@ -963,8 +963,7 @@ def gen_score(rng, out):
 
     emit_test_requests(e, "score")
 
-    # Sections added after the Phase 1 review (Docs/Reviews/p1/synthesis.md). They come
-    # last so that the case ids above are unchanged.
+    # Extra targeted sections; kept at the end so the case ids above stay unchanged.
     e.section("targeted: ippatsu with chankan (a robbed added kan was never completed, so ippatsu survives)")
     got = 0
     for _ in range(4000):

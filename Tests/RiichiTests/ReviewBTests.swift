@@ -1,16 +1,15 @@
-// Findings of the package B review (Docs/Reviews/p3/B-codex.md), each fixed and
-// tested here; the probes are adapted from Docs/Reviews/p3/B-codex-repro.
+// Round state edge cases: declined tsumo furiten, robbed closed kans, and
+// fourth-kan dora reveal before abort.
 
 import Testing
 @testable import Riichi
 
 @Suite struct ReviewBTests {
-    /// Finding 1, as settled by the real logs (Docs/Notes/p3-closeout.md): a seat
-    /// that declines a tsumo by a closed kan may ron before its next live draw on
-    /// both clients (Tenhou's records have such rons, 2010–18), so neither preset
-    /// sets `temporaryFuritenOnDeclinedTsumo`. With the field on (the strict
-    /// reading of Tenhou's manual) the furiten lasts through the kan's replacement
-    /// draw until the next live draw.
+    /// A seat that declines a tsumo by a closed kan may ron before its next live
+    /// draw on both Mahjong Soul and Tenhou, so neither preset sets
+    /// `temporaryFuritenOnDeclinedTsumo`. With the field on (the strict reading of
+    /// Tenhou's manual) the furiten lasts through the kan's replacement draw until
+    /// the next live draw.
     @Test func declinedTsumoThenAnkan() throws {
         let wall = makeWall(hands: ["4444s56s678m234p8p",
                                     "1m4m7m1p4p7p2s5s8s1z2z3z4z",
@@ -66,8 +65,8 @@ import Testing
         }
     }
 
-    /// Finding 2: a robbed closed kan is never a meld; the declarer keeps three
-    /// copies concealed and the fourth is the winning tile.
+    /// A robbed closed kan is never a meld; the declarer keeps three copies
+    /// concealed and the fourth is the winning tile.
     @Test func robbedClosedKanIsNotAMeld() throws {
         let wall = makeWall(hands: ["1111m456p789p234s", "99m19p19s1234567z",
                                     "23m678m234p567s88p", "234m678m234p56s88s"],
@@ -90,7 +89,7 @@ import Testing
         #expect(events.map(\.text).suffix(2) == ["hora(1)", "end_kyoku"])
     }
 
-    /// Finding 3: the fourth kan's owed indicator is shown before the four-kan abort
+    /// The fourth kan's owed indicator is shown before the four-kan abort
     /// (Mahjong Soul: after the ron window; Tenhou: at the discard).
     @Test func fourthOpenKanDoraBeforeAbort() throws {
         let wall = makeWall(hands: ["1111m9999m1111p2z", "999p234m678m234p6z",
@@ -114,9 +113,8 @@ import Testing
         }
     }
 
-    /// Gemini finding 1: nothing about a closed kan changes until its window
-    /// closes, so no cache is stale during it; after the commit the waits are the
-    /// new hand's.
+    /// Nothing about a closed kan changes until its window closes, so no cache
+    /// is stale during it; after the commit the waits reflect the new hand.
     @Test func closedKanWindowLeavesHandAndWaitsAsBefore() throws {
         let wall = makeWall(hands: ["1111m234p567p88s4z", "99m19p19s1234567z",
                                     "234m567m234s567s2z", "345m678m345s678s2z"],
@@ -138,8 +136,8 @@ import Testing
         try checkInvariants(s, total: 100_000)
     }
 
-    /// Gemini finding 2: three kokushi rons on a closed kan with both
-    /// kokushiRobsClosedKan and tripleRonAborts: the abort keeps every tile.
+    /// Three kokushi rons on a closed kan with both `kokushiRobsClosedKan` and
+    /// `tripleRonAborts`: the abort conserves all tiles.
     @Test func sanchahouOnClosedKanConservesTiles() throws {
         let wall = makeWall(hands: ["1111m234p567p234s", "99m19p19s1234567z",
                                     "9m119p19s1234567z", "9m19p119s1234567z"],
