@@ -139,6 +139,9 @@ public struct RoundState: Sendable {
     public private(set) var anyCallMade = false
     /// The open window's choices per seat (empty when no window is open).
     var offers: [[Action]] = []
+    /// Set only on the copies shown to an event observer, taken while a step is
+    /// part-applied: such a state offers no actions and accepts none.
+    var advancing = false
 
     // MARK: start
 
@@ -212,12 +215,19 @@ public struct RoundState: Sendable {
     }
 
     /// Appends an event to the caller's buffer (building nothing if there is none)
-    /// and shows the observer, if any, the state as of this event.
+    /// and shows the observer, if any, the state as of this event. The step is not
+    /// finished, so the observer gets a copy marked as advancing: its
+    /// `legalActions` and `seatsToAnswer` are empty and `apply` and `resolve` throw
+    /// `wrongPhase`.
     @inline(__always) func emit(_ ev: @autoclosure () -> Event, _ e: inout Emitter) {
         guard e.on else { return }
         let event = ev()
         e.events.append(event)
-        e.observe?(self, event)
+        if let observe = e.observe {
+            var snapshot = self
+            snapshot.advancing = true
+            observe(snapshot, event)
+        }
     }
 
     // MARK: queries
@@ -251,7 +261,7 @@ public struct RoundState: Sendable {
 
     /// Seats that must answer the open window, ascending.
     public var seatsToAnswer: [Seat] {
-        offers.isEmpty ? [] : Seat.all.filter { !offers[$0.index].isEmpty }
+        offers.isEmpty || advancing ? [] : Seat.all.filter { !offers[$0.index].isEmpty }
     }
 
     // MARK: stepping
@@ -260,6 +270,7 @@ public struct RoundState: Sendable {
     /// action is in `legalActions(for: seat)`.
     /// `observe`, if given, is shown the state as of each event as it is emitted
     /// (tools that need per-event snapshots; the engine itself never calls out).
+    /// That state is mid-step: it offers no actions and accepts none (`emit`).
     public mutating func apply(_ action: Action, by seat: Seat, events: inout [Event],
                                observe: ((RoundState, Event) -> Void)? = nil) throws(RoundError) {
         var e = Emitter(on: true, events: events, observe: observe)
@@ -301,7 +312,7 @@ public struct RoundState: Sendable {
     }
 
     mutating func apply(_ action: Action, by seat: Seat, _ e: inout Emitter) throws(RoundError) {
-        guard case .turn(let s, let start) = phase else { throw .wrongPhase }
+        guard !advancing, case .turn(let s, let start) = phase else { throw .wrongPhase }
         guard s == seat else { throw .notYourTurn(seat) }
         guard isLegalTurnAction(action, seat: seat, start: start) else { throw .illegal(seat, action) }
         let i = seat.index
@@ -331,6 +342,7 @@ public struct RoundState: Sendable {
     }
 
     mutating func resolve(_ answers: Answers, _ e: inout Emitter) throws(RoundError) {
+        guard !advancing else { throw .wrongPhase }
         switch phase {
         case .reactions, .robbing: break
         default: throw .wrongPhase

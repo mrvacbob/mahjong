@@ -6,7 +6,8 @@
 // the log cannot show (passes, calls that lost, unseen ura) is counted, not checked.
 //
 // Bulk use: `--stdin` reads games framed as
-// `NAME LENGTH\n` followed by LENGTH bytes of mjai text; `--json` prints one JSON
+// `NAME LENGTH\n` followed by LENGTH bytes of mjai text (a malformed header or a
+// truncated frame stops the run with exit status 2); `--json` prints one JSON
 // line per game (differences, named conventions, unchecked counts, situation tags).
 // `Tools/reallogs.py` feeds tar shards to parallel workers this way.
 //
@@ -929,34 +930,51 @@ extension CheckReport {
     }
 }
 
-/// Framed games on standard input: `NAME LENGTH\n` then LENGTH bytes.
-struct FramedInput: IteratorProtocol {
+/// Framed games on standard input: `NAME LENGTH\n` then LENGTH bytes. The input
+/// may end only between frames; a malformed header, a truncated frame or a failed
+/// read is a `FrameError`.
+struct FramedInput {
+    /// The descriptor read (standard input).
+    var fd: Int32 = 0
     var buffer: [UInt8] = []
     var start = 0
     var eof = false
 
-    mutating func fill() -> Bool {
+    struct FrameError: Error, CustomStringConvertible { let description: String }
+
+    mutating func fill() throws(FrameError) -> Bool {
         if eof { return false }
         if start > 0 { buffer.removeFirst(start); start = 0 }
         var chunk = [UInt8](repeating: 0, count: 1 << 20)
         var n: Int
-        repeat { n = read(0, &chunk, chunk.count) } while n < 0 && errno == EINTR
-        if n <= 0 { eof = true; return false }
+        repeat { n = read(fd, &chunk, chunk.count) } while n < 0 && errno == EINTR
+        if n < 0 { throw FrameError(description: "--stdin: read failed: errno \(errno)") }
+        if n == 0 { eof = true; return false }
         buffer += chunk[0..<n]
         return true
     }
 
-    mutating func next() -> (String, String)? {
+    /// The next frame's name and text; nil at the end of the input.
+    mutating func next() throws(FrameError) -> (String, String)? {
         var nl: Int? = nil
         while true {
             if let k = buffer[start...].firstIndex(of: 10) { nl = k; break }
-            if !fill() { return nil }
+            if try !fill() {
+                if buffer.count == start { return nil }
+                throw FrameError(description: "--stdin: input ends inside a frame header")
+            }
         }
         let header = String(decoding: buffer[start..<nl!], as: UTF8.self)
         let parts = header.split(separator: " ")
-        guard parts.count == 2, let len = Int(parts[1]) else { return nil }
+        guard parts.count == 2, let len = Int(parts[1]), len >= 0 else {
+            throw FrameError(description: "--stdin: bad frame header \(jsonString(String(header.prefix(200)))) (want NAME LENGTH)")
+        }
         start = nl! + 1
-        while buffer.count - start < len { if !fill() { return nil } }
+        while buffer.count - start < len {
+            if try !fill() {
+                throw FrameError(description: "--stdin: frame \(jsonString(String(parts[0]))) ends after \(buffer.count - start) of \(len) bytes")
+            }
+        }
         let text = String(decoding: buffer[start..<start + len], as: UTF8.self)
         start += len
         return (String(parts[0]), text)
@@ -987,7 +1005,8 @@ func checkLogCommand(_ args: [String]) throws -> Int32 {
     }
     if o.flags.contains("stdin") {
         var input = FramedInput()
-        while let (name, text) = input.next() { take(checkLog(text: text, rules: rules, path: name)) }
+        // A framing error is thrown (exit 2) after the games before it are reported.
+        while let (name, text) = try input.next() { take(checkLog(text: text, rules: rules, path: name)) }
     }
     for path in o.positional { take(checkLog(text: try readFile(path), rules: rules, path: path)) }
     if json { return 0 }

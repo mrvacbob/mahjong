@@ -3,6 +3,7 @@
 
 import Foundation
 import Testing
+import Riichi
 @testable import mj
 
 @Suite struct ChildProcessTests {
@@ -68,5 +69,35 @@ import Testing
         _ = quiet.readLine(timeoutMs: -5)
         quiet.stop()
         _ = quiet.readLine(timeoutMs: Int.max / 2)
+    }
+
+    /// A bot that writes `none` lines without ever reading its input: once the pipe
+    /// to it fills, the send has to give up at the same deadline as the read.
+    @Test func aBotThatNeverReadsTimesOut() throws {
+        var bot = MjaiBot(seat: Seat(0), command: #"exec yes '{"type":"none"}'"#, names: [], timeoutMs: 200)
+        let e = Event.dora(marker: t1("1m")).masked(for: Seat(0))
+        let start = ContinuousClock.now
+        for _ in 0..<100_000 where bot.dead == nil { bot.receive(e, prompt: nil) }
+        #expect(bot.dead == .timeout)
+        #expect(ContinuousClock.now - start < .seconds(10))
+        bot.finish()
+    }
+
+    /// A reply one byte over `maxLine` is refused even when its newline arrives in
+    /// the read that crosses the limit.
+    @Test func anOversizedReplyIsRefused() throws {
+        let n = ChildProcess.maxLine + 1
+        let cmd = #"exec python3.14 -c "import sys; sys.stdin.readline(); sys.stdout.write('a' * "#
+            + "\(n)" + #" + '\n'); sys.stdout.flush(); sys.stdin.read()""#
+        var bot = MjaiBot(seat: Seat(0), command: cmd, names: [], timeoutMs: 10_000)
+        bot.receive(Event.dora(marker: t1("1m")).masked(for: Seat(0)), prompt: nil)
+        #expect(bot.dead == .crashed)
+        bot.finish()
+        // Exactly `maxLine` bytes is still a line.
+        let child = try ChildProcess(command: #"exec python3.14 -c "import sys; sys.stdout.write('a' * "#
+            + "\(ChildProcess.maxLine)" + #" + '\n'); sys.stdout.flush(); sys.stdin.read()""#)
+        guard case .line(let l) = child.readLine(timeoutMs: 10_000) else { Issue.record("no line"); return }
+        #expect(l.utf8.count == ChildProcess.maxLine)
+        child.stop()
     }
 }

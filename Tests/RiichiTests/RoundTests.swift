@@ -252,3 +252,41 @@ let quietHands = [
         #expect(problems.isEmpty, "\(problems)")
     }
 }
+
+/// A state shown to an event observer is mid-transition: whatever the observer asks
+/// of it (legal actions, a view, a step on a copy), it answers without trapping, and
+/// it offers and accepts no actions.
+@Suite struct ObserverSnapshotTests {
+    @Test(arguments: [Rules.mahjongSoul, Rules.tenhou])
+    func observerCannotAskForDecisions(rules: Rules) throws {
+        var seen = 0, offered = 0, accepted = 0
+        let observe: (RoundState, Event) -> Void = { s, _ in
+            seen += 1
+            for seat in Seat.all {
+                offered += s.legalActions(for: seat).count
+                offered += s.view(of: seat).legalActions.count
+                var copy = s
+                if (try? copy.apply(.discard(t1("1m"), tsumogiri: true), by: seat)) != nil { accepted += 1 }
+            }
+            var copy = s
+            if (try? copy.resolve(Answers())) != nil { accepted += 1 }
+        }
+        var events: [Event] = []
+        var game = try GameState(rules: rules, seed: 3, events: &events, observe: observe)
+        var steps = 0
+        while !game.isOver && steps < 3000 {
+            steps += 1
+            if case .turn(let s, _) = game.phase {
+                try game.apply(game.legalActions(for: s)[0], by: s, events: &events, observe: observe)
+            } else {
+                var answers = Answers()
+                for s in game.seatsToAnswer { answers[s] = game.legalActions(for: s)[0] }
+                try game.resolve(answers, events: &events, observe: observe)
+            }
+        }
+        #expect(game.isOver)
+        #expect(seen > 100)
+        #expect(offered == 0)
+        #expect(accepted == 0)
+    }
+}

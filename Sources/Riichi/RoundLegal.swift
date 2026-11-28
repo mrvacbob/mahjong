@@ -23,9 +23,11 @@ extension Kind {
 }
 
 extension RoundState {
-    /// Empty if the seat has nothing to decide now.
+    /// Empty if the seat has nothing to decide now, and on a state shown to an event
+    /// observer (the step is still being applied).
     public func legalActions(for seat: Seat) -> [Action] {
-        switch phase {
+        if advancing { return [] }
+        return switch phase {
         case .turn(let s, let start): s == seat ? turnActions(seat, start) : []
         case .reactions, .robbing: offers.isEmpty ? [] : offers[seat.index]
         case .ended: []

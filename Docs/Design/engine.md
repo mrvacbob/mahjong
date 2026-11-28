@@ -164,7 +164,11 @@ mutating func apply(_ action: Action, by seat: Seat, events: inout [Event]) thro
 mutating func resolve(_ answers: Answers, events: inout [Event]) throws(RoundError)              // .reactions, .robbing
 ```
 
-Each also has a form without events, which builds none.
+Each also has a form without events, which builds none. The forms with events take
+an optional observer, shown the state as of each event as it is emitted (tools such
+as the legality dump). That state is part-way through a step, so it is marked as
+advancing: it offers no actions (`legalActions` and `seatsToAnswer` are empty) and
+`apply` and `resolve` on it throw `wrongPhase`.
 
 `Answers` is a fixed four-slot value, one optional action per seat, not a dictionary.
 Non-mutating wrappers that copy exist for tests and tools. An action that is not in
@@ -466,8 +470,10 @@ own, JSON lines):
 - performs riichi as mjai does: the bot answers `reach`, is shown the `reach` event,
   and answers its `dahai`;
 - treats a bot's `ryukyoku` reply as nine terminals;
-- has a timeout (1 ms to an hour), and stops a bot (SIGTERM, then SIGKILL, to its
-  whole process group) when it times out, exits, floods its output or the game ends;
+- has a timeout (1 ms to an hour), one deadline covering both sending an event and
+  reading its reply (a bot that stops reading its input times out), and stops a bot
+  (SIGTERM, then SIGKILL, to its whole process group) when it times out, exits,
+  floods its output (a reply over 1 MiB) or the game ends;
 - substitutes the first legal action of `pass`, tsumogiri, the first legal discard
   for a decision it cannot take from the bot, and counts why: *malformed* (not a
   message), *illegal* (does not fit the decision, or a notification answered with

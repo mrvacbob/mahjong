@@ -72,6 +72,9 @@ final class ChildProcess {
         // Our ends stay out of later children (another seat's bot).
         _ = fcntl(toPipe[1], F_SETFD, FD_CLOEXEC)
         _ = fcntl(fromPipe[0], F_SETFD, FD_CLOEXEC)
+        // Writes never block: a child that stops reading fills the pipe, and `send`
+        // then waits for room only until its deadline.
+        _ = fcntl(toPipe[1], F_SETFL, fcntl(toPipe[1], F_GETFL) | O_NONBLOCK)
         pid = child
         toChild = toPipe[1]
         fromChild = fromPipe[0]
@@ -79,29 +82,52 @@ final class ChildProcess {
 
     deinit { stop() }
 
-    /// False if the child has gone away.
-    func send(_ line: String) -> Bool {
-        guard !stopped else { return false }
+    /// The deadline `timeoutMs` from now (`mj selfplay` bounds this to
+    /// 1...`maxTimeoutMs`; larger values simply wait longer).
+    static func deadline(_ timeoutMs: Int) -> ContinuousClock.Instant {
+        ContinuousClock.now + .milliseconds(max(0, timeoutMs))
+    }
+
+    /// The time left before `deadline` as a `poll` timeout: whole milliseconds,
+    /// rounded up and capped at `maxPollMs` (poll takes an Int32); nil once it has passed.
+    static func pollMs(until deadline: ContinuousClock.Instant) -> Int32? {
+        let left = deadline - ContinuousClock.now
+        guard left > .zero else { return nil }
+        let seconds = min(left.components.seconds, Int64(maxPollMs / 1000))
+        return Int32(min(maxPollMs, Int(seconds) * 1000 + Int(left.components.attoseconds / 1_000_000_000_000_000) + 1))
+    }
+
+    enum Send { case sent, timeout, closed }
+
+    /// Writes `line` and a newline, waiting for room in the pipe until `deadline`.
+    func send(_ line: String, until deadline: ContinuousClock.Instant) -> Send {
+        guard !stopped else { return .closed }
         var bytes = Array((line + "\n").utf8)
         var off = 0
         while off < bytes.count {
             let n = bytes.withUnsafeMutableBytes { write(toChild, $0.baseAddress! + off, $0.count - off) }
+            if n > 0 { off += n; continue }
             if n < 0 && errno == EINTR { continue }
-            if n <= 0 { return false }
-            off += n
+            guard n < 0 && errno == EAGAIN else { return .closed }
+            guard let ms = ChildProcess.pollMs(until: deadline) else { return .timeout }
+            var p = pollfd(fd: toChild, events: Int16(POLLOUT), revents: 0)
+            if poll(&p, 1, ms) < 0 && errno != EINTR { return .closed }
         }
-        return true
+        return .sent
     }
 
     enum Read { case line(String), timeout, closed, tooLong }
 
-    /// Reads the next line within `timeoutMs` (`mj selfplay` bounds this to
-    /// 1...`maxTimeoutMs`; larger values simply wait longer).
-    func readLine(timeoutMs: Int) -> Read {
+    /// Reads the next line within `timeoutMs`.
+    func readLine(timeoutMs: Int) -> Read { readLine(until: ChildProcess.deadline(timeoutMs)) }
+
+    /// Reads the next line before `deadline`. A line longer than `maxLine` bytes is
+    /// `tooLong`, however the reads that brought it were split.
+    func readLine(until deadline: ContinuousClock.Instant) -> Read {
         guard !stopped else { return .closed }
-        let deadline = ContinuousClock.now + .milliseconds(max(0, timeoutMs))
         while true {
             if let nl = buffer[scanned...].firstIndex(of: 0x0A) {
+                guard nl <= ChildProcess.maxLine else { return .tooLong }
                 let line = String(decoding: buffer[..<nl], as: UTF8.self)
                 buffer.removeSubrange(...nl)
                 scanned = 0
@@ -109,14 +135,9 @@ final class ChildProcess {
             }
             scanned = buffer.count
             if buffer.count > ChildProcess.maxLine { return .tooLong }
-            let left = deadline - ContinuousClock.now
-            guard left > .zero else { return .timeout }
-            // Whole milliseconds, rounded up, and capped: poll takes an Int32.
-            let seconds = min(left.components.seconds, Int64(ChildProcess.maxPollMs / 1000))
-            let ms = min(ChildProcess.maxPollMs,
-                         Int(seconds) * 1000 + Int(left.components.attoseconds / 1_000_000_000_000_000) + 1)
+            guard let ms = ChildProcess.pollMs(until: deadline) else { return .timeout }
             var p = pollfd(fd: fromChild, events: Int16(POLLIN), revents: 0)
-            let r = poll(&p, 1, Int32(ms))
+            let r = poll(&p, 1, ms)
             if r < 0 { if errno == EINTR { continue }; return .closed }
             if r == 0 { continue }  // the loop decides whether the deadline has passed
             var chunk = [UInt8](repeating: 0, count: 4096)
@@ -211,8 +232,14 @@ struct MjaiBot: Player {
     mutating func receive(_ e: MaskedEvent, prompt: PlayerView?) {
         if prompt != nil { prompted = true }
         guard dead == nil, let child else { return }
-        guard child.send(Mjai.encode(e, names: names)) else { dead = .crashed; child.stop(); return }
-        switch child.readLine(timeoutMs: timeoutMs) {
+        // One deadline covers sending the event and reading the reply.
+        let deadline = ChildProcess.deadline(timeoutMs)
+        switch child.send(Mjai.encode(e, names: names), until: deadline) {
+        case .sent: break
+        case .timeout: dead = .timeout; child.stop(); return
+        case .closed: dead = .crashed; child.stop(); return
+        }
+        switch child.readLine(until: deadline) {
         case .line(let l):
             if prompt != nil {
                 promptReply = l
@@ -252,7 +279,7 @@ struct MjaiBot: Player {
 
     mutating func finish() {
         if dead == nil, let child {
-            _ = child.send(#"{"type":"end"}"#)
+            _ = child.send(#"{"type":"end"}"#, until: ChildProcess.deadline(timeoutMs))
         }
         child?.stop()
     }
