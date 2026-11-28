@@ -23,7 +23,7 @@ implementation of the hand-analysis core is kept as an independent cross-check.
 | `Tools/oracle_mj.py`, `Tools/Gen/` | Reference implementation and corpus generators built on the [mahjong](https://github.com/MahjongRepository/mahjong) Python library (MIT) |
 | `AGPL/` | Tools built on Mortal's libriichi: two reference checkers and the Mortal bot wrapper. **AGPL-3.0, separate from everything else here.** See each README. |
 | `Docs/Design/` | Design documents: the engine as built, the bot plan |
-| `Docs/Notes/`, `Docs/Briefs/`, `Docs/Reviews/` | Working record: implementation notes, task briefs given to coding agents, and their reviews |
+| `Docs/Evidence/` | What the validation runs found: real-log replay, directed self-play, the libriichi and Mercury comparisons |
 
 The language comparison that chose Swift (Swift, Mercury, Python and Haskell
 entries, with its briefs and reviews) is on the `shootout` branch.
@@ -40,7 +40,7 @@ entries, with its briefs and reviews) is on the `shootout` branch.
 reach rare branches in bulk (four winds, four riichi, triple ron, a robbed closed kan,
 pao, nagashi, four kans by one seat, all-last positions). `Tools/libriichi_diff.sh`
 and `Tools/mercury_diff.sh` run those games through the two cross-checks (see
-`Docs/Notes/p3-closeout.md`).
+`Docs/Evidence/closeout.md`).
 
 `mj selfplay` writes referee-only files: the unmasked mjai log (`.jsonl`, with every
 wall and hand), the trace (`.trace`, with the game seed and every decision), `--legal`
@@ -50,7 +50,7 @@ from the system unless `--seed` is given (which makes the walls predictable to t
 bot and is for tests only).
 
 `mj check-log` checks mjai logs from elsewhere; `Tools/reallogs.py` runs it over tar
-shards of real game records (see `Docs/Notes/p3-reallogs.md`).
+shards of real game records (see `Docs/Evidence/real-logs.md`).
 
 The reference tools expect the third-party sources checked out beside this repo, in
 `../3p/mahjong` and `../3p/Mortal` (or set `MJ_ORACLE_PATH`).

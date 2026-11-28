@@ -17,7 +17,7 @@
 name: kakan_robbing_pass_furiten
 title: Passing a legal kakan rob completes the kan and triggers temporary furiten until own draw
 rules: mahjongsoul
-source: engine.md §4.1, §4.2, rules.md §4.28; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.1, §4.2, rules.md §4.28; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

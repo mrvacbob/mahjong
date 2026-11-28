@@ -23,8 +23,8 @@
 name: riichi_ankan_of_winning_tile
 title: Riichi closed kan of a waited winning tile is legal when structural waits match and sets riichi furiten
 rules: both
-source: Spec/formats.md, engine.md §4.2, rules.md §4.14, §4.28, Docs/Notes/p3-closeout.md
-unverified: rules.md §5.3, Docs/Notes/p3-closeout.md (riichi closed kan of a waited tile)
+source: Spec/formats.md, engine.md §4.2, rules.md §4.14, §4.28, Docs/Evidence/closeout.md
+unverified: rules.md §5.3, Docs/Evidence/closeout.md (riichi closed kan of a waited tile)
 
 [round]
 scores: 25000 25000 25000 25000

@@ -17,7 +17,7 @@
 name: declined_tsumo_outside_riichi
 title: Declining a tsumo by a kan leaves no temporary furiten on either client
 rules: both
-source: engine.md §4.2, rules.md §5.13, Docs/Notes/p3-closeout.md
+source: engine.md §4.2, rules.md §5.13, Docs/Evidence/closeout.md
 
 [round]
 scores: 25000 25000 25000 25000

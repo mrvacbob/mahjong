@@ -12,7 +12,7 @@
 name: endgame_extension_dealer_repeat_priority
 title: Dealer repeat takes priority over non-dealer passing 30000 in West extension
 rules: mahjongsoul
-source: engine.md §5 step 4, rules.md §5.8; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §5 step 4, rules.md §5.8; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 game_length: south

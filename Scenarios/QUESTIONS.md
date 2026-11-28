@@ -9,7 +9,7 @@ scenarios follow `Spec/rules.md` and list the item here.
 In both clients, a seat's own chi, pon, or open kan clears temporary furiten.
 `furiten_cleared_by_own_call.scn` checks the flag immediately before and after
 the pon and takes a legal ron before the seat draws again. Confirmed in real
-game logs (`Docs/Notes/p3-reallogs.md`).
+game logs (`Docs/Evidence/real-logs.md`).
 
 ## 2. Pao on Ron honba in Mahjong Soul vs `engine.md` §4.2 (resolved)
 
@@ -21,7 +21,7 @@ game logs (`Docs/Notes/p3-reallogs.md`).
   only in the Tenhou clause, leaving Mahjong Soul honba payment implicit.
 - Action taken: `Scenarios/pao_ron_third_party.scn` follows `Spec/rules.md`
   (liable seat pays the honba in Mahjong Soul as well). Real game logs
-  (`Docs/Notes/p3-reallogs.md`) are consistent with this settlement.
+  (`Docs/Evidence/real-logs.md`) are consistent with this settlement.
 
 ## 3. Open kan → closed kan owed-indicator order if robbed by Kokushi (Mahjong Soul)
 
@@ -47,7 +47,7 @@ game logs (`Docs/Notes/p3-reallogs.md`).
 
 ## 5. Client behavior checked in real game logs
 
-Real game logs (`Docs/Notes/p3-reallogs.md`) settle these questions:
+Real game logs (`Docs/Evidence/real-logs.md`) settle these questions:
 
 - Both clients reveal the owed indicator just before the post-kan discard, and
   ron counts that indicator and its ura.
@@ -75,16 +75,16 @@ Still open:
   The heavenly-hand scenario tests the yakuman award only, and no scenario
   asserts either unresolved behavior.
 
-## 6. Physically impossible coverage gaps (`Docs/Reviews/p3/F-codex.md`)
+## 6. Physically impossible coverage gaps
 
-Two items listed in the scenario coverage table in `Docs/Reviews/p3/F-codex.md` cannot arise in legal 4-player Riichi Mahjong and therefore have no scenario file:
+Two items a reviewer asked for cannot arise in legal 4-player Riichi Mahjong and therefore have no scenario file:
 
 - Dead-end Pon (`rules.md` §4 item 13): A seat with $k \in \{0,1,2,3\}$ melds holds $13 - 3k \ge 4$ concealed tiles. Calling Pon on tile kind $X$ uses 2 copies of $X$ from hand plus 1 discarded, leaving $11 - 3k \ge 2$ concealed tiles and at most 1 remaining copy of $X$ in the 4-copy deck. Because Pon kuikae forbids only kind $X$, at least one tile of a different kind always remains to discard.
 - Submitted call losing to Four Riichi (`engine.md` §4.1 row 5): When the 4th seat declares riichi, all three other seats are already in riichi and cannot legally submit `pon`, `chi`, or `daiminkan`. Only `ron` (covered by `suucha_riichi_discard_ron.scn`) can legally be submitted on the 4th riichi discard.
 
 ## 7. Format limitation: post-robbed-kakan meld and kan-count state
 
-As noted in `Docs/Reviews/p3/F-codex.md` (§4.2 Kan transactions), after a robbed added kan (`added_kan_robbed_ippatsu_alive.scn`), the surviving pon and unchanged kan count are not directly observable from `Scenarios/FORMAT.md` assertions. Because a robbed `kakan` ends the round immediately on `ron`, no subsequent turn exists to probe legality, and `FORMAT.md` has no `assert_melds` or `assert_kan_count` directive. Exact `events:` already verifies that no `dora` or replacement `tsumo` event is emitted.
+After a robbed added kan (`added_kan_robbed_ippatsu_alive.scn`), the surviving pon and unchanged kan count are not directly observable from `Scenarios/FORMAT.md` assertions. Because a robbed `kakan` ends the round immediately on `ron`, no subsequent turn exists to probe legality, and `FORMAT.md` has no `assert_melds` or `assert_kan_count` directive. Exact `events:` already verifies that no `dora` or replacement `tsumo` event is emitted.
 
 ## 8. West 4 dealer repeat below 30,000 (resolved)
 

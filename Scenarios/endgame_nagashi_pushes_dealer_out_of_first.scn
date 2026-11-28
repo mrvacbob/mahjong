@@ -13,7 +13,7 @@
 name: endgame_nagashi_pushes_dealer_out_of_first
 title: All Last Nagashi Mangan pushing tenpai dealer out of 1st prevents tenpai-yame
 rules: mahjongsoul
-source: engine.md §5, rules.md §5.6; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §5, rules.md §5.6; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 game_length: south

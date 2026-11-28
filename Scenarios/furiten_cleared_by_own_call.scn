@@ -13,7 +13,7 @@
 name: furiten_cleared_by_own_call
 title: Temporary furiten holds until the seat calls pon and can ron before its next draw
 rules: both
-source: engine.md §4.1, rules.md §1 (furiten_temporary), §4.28; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.1, rules.md §1 (furiten_temporary), §4.28; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

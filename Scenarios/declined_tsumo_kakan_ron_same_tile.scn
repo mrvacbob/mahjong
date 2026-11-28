@@ -17,7 +17,7 @@
 name: declined_tsumo_kakan_ron_same_tile
 title: Declining tsumo by added kan leaves no temporary furiten and allows ron on the same tile
 rules: both
-source: engine.md §4.2, rules.md §4.17, §5.4, §5.13, Docs/Notes/p3-closeout.md
+source: engine.md §4.2, rules.md §4.17, §5.4, §5.13, Docs/Evidence/closeout.md
 
 [round]
 scores: 25000 25000 25000 25000

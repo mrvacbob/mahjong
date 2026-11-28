@@ -1,6 +1,6 @@
-# Phase 3 real-log campaign — notes
+# Real game records replayed through the engine
 
-Brief: `Docs/Briefs/p3-reallogs.md`. Nothing is staged or committed. The game records
+The game records
 and everything derived from single games (per-game result lines, examples, tar
 indexes, helper scripts) are in `/Volumes/Psyche/mahjong/work/reallogs/`, outside the
 repository. Cases are named C1, C2, …; their game ids are listed in
@@ -376,42 +376,6 @@ situation of ruling 1.
 | Yakuman: suukantsu | 3 | 0.5 | 3 | 0.1 | 3 | 0.1 | 3 | 0.1 |
 | Yakuman: tenhou | 17 | 3.0 | 85 | 3.2 | 101 | 3.1 | 135 | 3.1 |
 | Yakuman: tsuuiisou | 54 | 9.6 | 281 | 10.5 | 829 | 25.3 | 1,103 | 25.5 |
-
-## Review findings (packages C and D)
-
-### Gemini (`Docs/Reviews/p3/CD-agy.md`)
-
-All reproductions in `Docs/Reviews/p3/CD-agy-repro/` were re-run against the new
-build: none crashes or hangs; each now reports a named error.
-
-| # | Finding | Outcome | Test |
-|---|---|---|---|
-| 1 | `\uD800\u0000` traps (surrogate underflow) | Fixed: a high surrogate pairs only with `\uDC00`–`\uDFFF`; otherwise U+FFFD and the next escape is read on its own | `HardeningTests.unpairedSurrogates` |
-| 2 | Deep nesting overflows the stack | Fixed: nesting deeper than 64 is a `JSONError` (skip and value) | `HardeningTests.deepNesting` |
-| 3 | Bot ignoring SIGTERM hangs `stop()`; unbounded, quadratic line buffer | Fixed: `stop()` closes the pipe through its `FileHandle` (no double close), sends SIGTERM, waits 0.5 s, then SIGKILL; a reply over 1 MiB is refused (bot counted as crashed); the newline scan covers new bytes only; EINTR on read/write is retried (suggestion 14). Grandchildren of `/bin/sh -c` are not killed (no process group with Foundation's `Process`); noted, not fixed | `CommandTests.mjaiAdapterHostileBots` (fake bot modes `stubborn=N`, `flood=N`) |
-| 4 | Empty log, events outside hands accepted | Fixed: `no_hands` and `outside_hand` errors (only `start_game` first and `end_game` last are allowed outside a hand) | `CommandTests.checkLogRefusesBadLogs` |
-| 5 | Negative honba/kyotaku trap | Fixed in check-log (`format` error for honba or sticks outside 0…1,000 or a score beyond ±10⁸) and bounded in `RoundState.init` (`RoundState.maxCount`, `maxScore`) | same |
-| 6 | `uradora_markers` ignored; omitted ura filled arbitrarily | Fixed: `uradora_markers` is read when `ura_markers` is absent; a win whose payment depends on indicators the log does not show is re-run over every assignment of the unseen tiles (`hidden_indicators`), as for the reduced format | repro no longer fails; `CommandTests.checkLogReducedFormat` |
-| 7 | `ryukyoku.reason`/`tenpais`, hora fields unchecked | Fixed: `reason` (with tenhou.net names `yao9`, `kaze4`, `reach4`, `kan4`, `ron3`), `tenpais`, `hora_tehais`, and `fan`/`fu` of an ordinary hand are compared when present. `yakus` and yakuman `fan` are not (writers name and count them differently) | `checkLogRefusesBadLogs` (bogus reason) |
-| 8 | Escapes not validated in skip; `try?` hides errors; loose numbers; control characters | Fixed: skipped strings are read by `string()`; control characters refused; RFC 8259 number grammar. Since parsing validates every value, the subscript's `try?` can no longer hide one | `HardeningTests.strictGrammar` |
-| 9 | Duplicate keys first-wins | Fixed: last wins | `HardeningTests.duplicateKeysLastWins` |
-| 10 | Wrong-typed fields ignored | Fixed: a present, non-null field of the wrong type is an `MjaiError` (malformed) | `HardeningTests.wrongTypes` |
-| 11 | `ankan` with a short or mixed `consumed`; calls not checked | Fixed: `ankan` needs four of one kind; `Mjai.action` takes the offered discard and checks a call's `pai`, `target` and a `daiminkan`'s `consumed` (the adapter passes it) | `HardeningTests.callFieldsValidated` |
-| 12 | `dealerRepeatBeforeTarget = false` ends the game on an all-last abort | Fixed (an abortive draw always repeats) | `GameTests.transitions` |
-| 13 | Encode field order vs. design table | Not changed: the order is fixed and deterministic; the design table lists fields, not an order. Rebuttal | – |
-| 14 | EINTR; `--seed -1`, `--games -1` trap; seeds above `Int.max` | Fixed: EINTR retried; `--seed` parsed as `UInt64`; `--games` must be ≥ 0 | `checkLogRefusesBadLogs` |
-
-### Codex (`Docs/Reviews/p3/CD-codex.md`)
-
-| # | Finding | Outcome | Test |
-|---|---|---|---|
-| 2 (blocker) | Default seeds make walls predictable to an external bot | Fixed: with any `mjai:` seat and no `--seed`, each game's wall seed and the built-in bots' seed are fresh `SystemRandomNumberGenerator` values, recorded only in the trace; `--seed` with an external bot prints a warning. Built-in bot seeds are no longer an affine function of the wall seed (`botSeed`: the sum of two unrelated SplitMix64 mixes). This changes which games a given `--seed` produces for the built-in bots | `CommandTests.externalBotSeeds` |
-| 1 | Callback batching and `table.reacting` reveal another seat's offer | Fixed: the driver delivers one event per `receive` call (the view only with the last); `RoundState.view(of:)` shows `reacting` only to a seat with an action; the fold invariant compares `ViewFolder.table(asked:)` | `GameTests.viewsFoldFromMaskedEvents` (asserts `reacting == nil` for a seat not asked); driver change has no unit test (the driver is in the `mj` target) |
-| 5 | Score arithmetic can trap on wasm32 | Fixed: `Rules.isValid` bounds every point setting to ±1,000,000 and the double-wind fu to 2 or 4; `RoundState.init` requires it and bounds honba, sticks (≤ 1,000) and scores (±10⁸); `check-log --set` refuses invalid rules | `GameTests.rulesBounds` (extremes fit `Int32`) |
-| 4 | North 4 wraps to East 1 | Fixed: the deal passing beyond North 4 ends the game (`extension_over`) | `GameTests.transitions` |
-| 6 | Custom rules recorded as `mahjongsoul` in the trace | Fixed by refusal: `playGame` throws for rules other than the two presets (trace version 1 names a preset only) | – |
-| 7 (their 7) | Replay compares Strings, not bytes | Fixed: `mj replay` and `selfplay --check` compare UTF-8 bytes (the file read as raw bytes) | `CommandTests.externalBotSeeds` (a combining accent inserted into the log is a difference) |
-| 3 | Referee-only files not labelled | Documented in the usage text and README | – |
 
 ## Open
 

@@ -1,6 +1,6 @@
-# Phase 3 close-out — notes
+# Directed self-play, unexplained cases and the completion gate
 
-Brief: `Docs/Briefs/p3-closeout.md`. Nothing is staged or committed. The game records,
+The game records,
 everything derived from single games, and the original Tenhou records used here are
 outside the repository (`/Volumes/Psyche/mahjong/work/closeout/`, raw Tenhou XML in
 `/Volumes/Psyche/mahjong/work/rawdb/`); case ids are in
@@ -333,7 +333,7 @@ Rows by category, eager / random (hands in brackets): `visible_exhausted_waits`
 248,900 (134,385) / 40,995 (38,854); `kakan_eager_commit` 39,588 (30,632) / 16,435
 (15,937); `ankan_eager_commit` 14,096 (12,462) / 5,274 (5,192);
 `four_concealed_shanten` 8,441 (1,236) / 688 (152); `riichi_ankan_waited_tile` 2 (1) / 0.
-All as described in `Docs/Notes/p3-CD.md` and `AGPL/libriichi-check/NOTES.md`. No
+All as described in `AGPL/libriichi-check/NOTES.md`. No
 selfplay invariant was on in the gate (as in the design: board replay and rows); the
 invariants ran in the directed games and in `swift test`.
 
@@ -361,7 +361,7 @@ directed code, neither of which check-log uses):
   no automatic agari-yame, old rules, as before), C2 (defective original), C7 (2),
   C8 (2), C9 (the 2022 red-five slip). The four declined-tsumo rons of 2010–18 pass.
 - Mahjong Soul 2019–2026: 4,113,772 games, 43,212,223 hands, shard for shard the same
-  differences as the campaign's final table (`Docs/Notes/p3-reallogs.md`), all
+  differences as the campaign's final table (`Docs/Evidence/real-logs.md`), all
   explained there: the 2019–20 dragon mapping (180 in the four 2019–20 shards), the
   pao deltas that do not add up (24 in Throne 2022–24, 2 in Jade 2020), the Throne 2026
   dropped pao `hora`, and C3; the Jade 2023 four-winds riichi hand passes, as it did

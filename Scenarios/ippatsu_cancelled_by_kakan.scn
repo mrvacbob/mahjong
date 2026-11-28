@@ -13,7 +13,7 @@
 name: ippatsu_cancelled_by_kakan
 title: A completed added kan cancels another seat's ippatsu
 rules: mahjongsoul
-source: engine.md §4.2, rules.md §4.26, §5.4; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.2, rules.md §4.26, §5.4; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

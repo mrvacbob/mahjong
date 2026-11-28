@@ -9,7 +9,7 @@
 name: open_kan_discard_called_dora
 title: Post-open-kan discard called by pon reveals the owed kan dora
 rules: both
-source: engine.md §4.2, rules.md §4.17, §5.4; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.2, rules.md §4.17, §5.4; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

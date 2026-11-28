@@ -12,7 +12,7 @@
 name: triple_ron_rulesets
 title: Triple ron pays all three on Mahjong Soul and aborts (sanchahou) on Tenhou
 rules: both
-source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

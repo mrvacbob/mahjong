@@ -15,7 +15,7 @@
 name: open_kan_discard_riichi_ron_ura
 title: Post-open-kan riichi ron counts both ura indicators
 rules: both
-source: engine.md §4.2, rules.md §1, §4.17, §5.4; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.2, rules.md §1, §4.17, §5.4; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

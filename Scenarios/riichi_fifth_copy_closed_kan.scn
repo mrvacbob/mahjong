@@ -10,7 +10,7 @@
 name: riichi_fifth_copy_closed_kan
 title: Both rulesets allow riichi on a fifth-copy wait when the four copies form a closed kan
 rules: both
-source: rules.md §1 riichi_karaten_allowed, §5.7; real-log campaign, Docs/Notes/p3-reallogs.md
+source: rules.md §1 riichi_karaten_allowed, §5.7; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 scores: 25000 25000 25000 25000

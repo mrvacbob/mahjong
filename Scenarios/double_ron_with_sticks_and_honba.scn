@@ -13,7 +13,7 @@
 name: double_ron_with_sticks_and_honba
 title: Double ron gives sticks and honba only to closest CCW winner and repeats dealer
 rules: mahjongsoul
-source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21, §5.2; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.1 row 1, §4.2, rules.md §1, §4.21, §5.2; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

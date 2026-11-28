@@ -7,7 +7,7 @@
 name: abort_suufon_renda_riichi_stick
 title: Riichi on the fourth-wind discard pays its stick before the abort
 rules: both
-source: engine.md §4.1 row 2, §4.2, rules.md §5.9; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.1 row 2, §4.2, rules.md §5.9; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

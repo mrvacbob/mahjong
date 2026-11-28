@@ -8,7 +8,7 @@
 name: suukaikan_open_kan_owed_dora
 title: Fourth open kan reveals owed dora at the discard before the four-kan abort
 rules: both
-source: rules.md §1 kan_dora_daiminkan_timing, §4.22, engine.md §4.2; real-log campaign, Docs/Notes/p3-reallogs.md
+source: rules.md §1 kan_dora_daiminkan_timing, §4.22, engine.md §4.2; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E

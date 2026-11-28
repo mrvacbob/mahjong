@@ -3,9 +3,8 @@
 This document describes the full-game engine as built. Beyond single-hand
 analysis (`agari`, `shanten`, `waits`, `score`, `legal` in `Spec/formats.md`),
 it implements everything needed to play a complete game: the wall, turns, calls,
-riichi, furiten, draws, payments, dealer rotation, and game end. Design reviews
-are in `Docs/Reviews/p3/design-*.md` (section 11 lists what changed after the
-first draft) and implementation notes in `Docs/Notes/p3-*.md`. Rules are defined
+riichi, furiten, draws, payments, dealer rotation, and game end. Section 11
+lists what changed after the first draft. Rules are defined
 in `Spec/rules.md`; where this document and `rules.md` disagree, `rules.md` wins
 and this document has a bug.
 
@@ -303,7 +302,7 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
   the nagashi seats are listed in the result, and the point changes show the payment.
 - **A robbed kan never counts** toward four kans.
 - **Declining a self-drawn win outside riichi** and then keeping the wait: no
-  temporary furiten on either client (see `Docs/Notes/p3-closeout.md`). Declining by a discard leaves the seat furiten on
+  temporary furiten on either client (see `Docs/Evidence/closeout.md`). Declining by a discard leaves the seat furiten on
   the discarded tile anyway (the 13 tiles left wait on it); declining by a closed or
   added kan, Tenhou's records show the seat winning by ron before its next live
   draw. `Rules.temporaryFuritenOnDeclinedTsumo` (off for both) keeps the strict
@@ -497,7 +496,7 @@ Subcommands of `mj` (with no subcommand, it runs the line protocol on stdin):
   declare riichi when legal, call and kan with probability 60%, and otherwise
   discard to the lowest shanten; `--seat` puts another bot (or an mjai child
   process) at one seat. `--scenario NAME` plays directed bots on arranged walls that
-  reach one rare branch in bulk (`Docs/Notes/p3-closeout.md`). `--legal` writes every
+  reach one rare branch in bulk (`Docs/Evidence/closeout.md`). `--legal` writes every
   seat's legality rows for the libriichi comparison, `--requests` the Mercury dump,
   `--check` runs the invariants of section 8 on every game. In the unmasked log each
   `start_kyoku` also carries `wall`: the 136 tiles in the layout of section 3, so a
@@ -574,7 +573,7 @@ Subcommands of `mj` (with no subcommand, it runs the line protocol on stdin):
    (each abort, chankan, rinshan, each pao case, double and triple ron, nagashi,
    riichi kan, four kans by one seat, each end-of-game branch). The gate is on
    branches reached, not only on games played.
-6. **Real logs** (`Tools/reallogs.py`, `Docs/Notes/p3-reallogs.md`): `check-log` over
+6. **Real logs** (`Tools/reallogs.py`, `Docs/Evidence/real-logs.md`): `check-log` over
    millions of Tenhou houou and Mahjong Soul Throne and Jade games. The external
    evidence for Mahjong Soul's payments and legality, as far as a log records them;
    it cannot show passes, losing calls or what a client would have offered.
@@ -584,10 +583,10 @@ Subcommands of `mj` (with no subcommand, it runs the line protocol on stdin):
    hostile bots (silent, flooding, exiting, ignoring SIGTERM) are substituted and
    counted.
 
-What the runs found is in `Docs/Notes/p3-CD.md` (the libriichi legality comparison is
-judged on action flags; furiten and waits are compared as evidence only, because
-libriichi updates them at different moments from ours), `Docs/Notes/p3-reallogs.md`
-and `Docs/Notes/p3-closeout.md` (directed play: every rare branch reached hundreds to
+The libriichi legality comparison is judged on action flags; furiten and waits are
+compared as evidence only, because libriichi updates them at different moments from
+ours. What the runs found is in `Docs/Evidence/real-logs.md`
+and `Docs/Evidence/closeout.md` (directed play: every rare branch reached hundreds to
 thousands of times under both rulesets, through libriichi and Mercury). Mahjong
 Soul-only behaviour (double yakuman, triple ron, robbing a closed kan, component
 pao, the chained-kan indicator) has external evidence only from the real logs, where
@@ -606,17 +605,16 @@ it occurs; component pao on a composite yakuman has none.
 
 A came first because it fixed the shared types; B–D followed in order; E and F were
 written alongside A, from this document, without reading the engine's source.
-Real-log verification, directed play, and final review fixes followed
-(`Docs/Notes/p3-final-fixes.md`).
+Real-log verification, directed play, and final review fixes followed.
 
-Completion gate (passed, `Docs/Notes/p3-closeout.md`): every scenario test
+Completion gate (passed, `Docs/Evidence/closeout.md`): every scenario test
 passes; 50,000 `eager` and 50,000 random self-play games under Tenhou rules with no
 unexplained difference from libriichi; the coverage report shows every listed branch
 reached; the corpus stays at 12,439 of 12,439; code review completed.
 
 ## 10. Still open
 
-1. **Rules no record decides** (`Docs/Notes/p3-reallogs.md`, `p3-closeout.md`,
+1. **Rules no record decides** (`Docs/Evidence/real-logs.md`, `closeout.md`,
    rules.md §5 item 12): pao on a composite yakuman, the winning tile of a heavenly
    hand, kan dora on a rinshan win after an open kan, leftover sticks at the end of
    a game, the riichi kan of a waited tile. Each is the published rule or a `Rules`

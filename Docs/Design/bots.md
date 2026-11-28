@@ -1,9 +1,22 @@
 # Bot ladder and arena design
 
-Status: draft, awaiting go-ahead (reviews in `Docs/Reviews/p4/design-*.md`;
-section 9 lists revisions from the first draft). Only the `random` and `eager`
-test bots, the mjai adapter, and a Mortal wrapper (`AGPL/strong/`) are
-implemented so far.
+Status: shelved. Only the `random` and `eager` test bots, the mjai adapter, and a
+Mortal wrapper (`AGPL/strong/`) are implemented. Section 9 lists revisions from the
+first draft.
+
+Owner's direction (2026-11-27), which overrides the text below where they differ:
+
+- More than a simple bot is low priority. First measure how good the existing bots
+  (Mortal, akochan) and general-purpose LLMs are.
+- The ladder was meant as steps of implementation complexity and rule coverage
+  (a bot that can fold, one that can aim for a yaku, one that can call), not as a
+  strength ranking where each rung must beat the last. The arena statistics below
+  are heavier than that needs.
+- Rivalling Mortal is not excluded as a later aim, and some opponent modelling is
+  acceptable at some point.
+- If `digital` is built: use binary fixed point (parts per 2^16) in place of parts
+  per ten thousand, with tables written as decimals and converted on load.
+- akochan may be built and run in Docker or on GCP spot instances.
 
 This covers a ladder of bots of known, increasing strength, an arena that
 measures them, and Mortal and akochan as the ceiling. The ladder serves as the
@@ -203,7 +216,7 @@ them.
   trained to handle): run the strong bots through the directed rare-situation
   games and score what they do where the right answer is known (take the win,
   declare the abort, do not kan into a changed wait), alongside how often each
-  situation occurs in a million real hands (`Docs/Notes/p3-reallogs.md`).
+  situation occurs in a million real hands (`Docs/Evidence/real-logs.md`).
 
 ## 7. Who does what
 

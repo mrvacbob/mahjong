@@ -14,7 +14,7 @@
 name: formal_tenpai_fifth_copy
 title: Exhaustive draw counts a fifth-copy wait when the four copies are not all concealed
 rules: both
-source: engine.md §4.2, rules.md §5.7; real-log campaign, Docs/Notes/p3-reallogs.md
+source: engine.md §4.2, rules.md §5.7; real-log campaign, Docs/Evidence/real-logs.md
 
 [round]
 wind: E
