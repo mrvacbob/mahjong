@@ -1,8 +1,8 @@
-// Runs scenarios/*.scn (expanded to JSON by tools/scenario.py --json-dir) through
+// Runs Scenarios/*.scn (expanded to JSON by Tools/scenario.py --json-dir) through
 // the engine: each scenario's round is the first hand of a `GameState` started at
 // the scenario's position, so the game-flow expectations (endgame_*) are checked
 // against the after-round transition. Disputed scenarios are known issues with a one-line reason;
-// docs/notes/p3-B.md has the working.
+// Docs/Notes/p3-B.md has the working.
 
 import Foundation
 import Testing
@@ -22,7 +22,7 @@ enum ScenarioFiles {
         .deletingLastPathComponent().deletingLastPathComponent()
 
     static let names: [String] = {
-        let dir = root.appendingPathComponent("scenarios")
+        let dir = root.appendingPathComponent("Scenarios")
         let files = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
         return files.filter { $0.hasSuffix(".scn") }.map { String($0.dropLast(4)) }.sorted()
     }()
@@ -33,8 +33,8 @@ enum ScenarioFiles {
             .appendingPathComponent("riichi-scenarios-\(ProcessInfo.processInfo.processIdentifier)")
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        p.arguments = ["python3.14", root.appendingPathComponent("tools/scenario.py").path,
-                       "--json-dir", out.path, root.appendingPathComponent("scenarios").path]
+        p.arguments = ["python3.14", root.appendingPathComponent("Tools/scenario.py").path,
+                       "--json-dir", out.path, root.appendingPathComponent("Scenarios").path]
         do { try p.run() } catch { return .failure(ScenarioFailure("cannot run python3.14: \(error)")) }
         p.waitUntilExit()
         return .success(out)

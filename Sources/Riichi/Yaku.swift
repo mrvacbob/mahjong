@@ -1,4 +1,4 @@
-// Yaku and yakuman, declared one per row of spec/rules.md section 2.
+// Yaku and yakuman, declared one per row of Spec/rules.md section 2.
 
 public enum YakuName: String, Sendable, Hashable, CaseIterable {
     case riichi, double_riichi, ippatsu, tsumo, pinfu, tanyao, iipeikou

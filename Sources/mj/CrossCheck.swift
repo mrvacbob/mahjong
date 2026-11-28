@@ -1,6 +1,6 @@
 // The Mercury cross-check dump (design §8 layer 3): every decision as a `legal`
 // line request and every win as a `score` request, each with the answer the round
-// engine gives, so that `./mj`, `crosscheck/mercury/mj` and the round can be
+// engine gives, so that `./mj`, `Sources/Mercury/mj` and the round can be
 // compared (`mj crosscheck`).
 
 import Riichi

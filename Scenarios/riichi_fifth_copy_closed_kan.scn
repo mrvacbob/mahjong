@@ -1,0 +1,52 @@
+# Seat 0 draws the second 8s, closes 3333m, then discards its replacement 7z
+# in riichi. The 24m kanchan needs a fifth 3m, and all four copies are in the kan.
+# Both rulesets accept riichi and count Seat 0 as the only tenpai seat at exhaustive draw.
+# Seat 0 pays 1000 for riichi and collects the 3000 noten pool (1000 from each opponent).
+# Net deltas are +2000, -1000, -1000, -1000. The 1000 stick carries over.
+# Seat 3 holds four pairs and five loose tiles (not six pairs: that would be a
+# seven-pairs tenpai and a second tenpai seat, as an earlier draft had it).
+
+[meta]
+name: riichi_fifth_copy_closed_kan
+title: Both rulesets allow riichi on a fifth-copy wait when the four copies form a closed kan
+rules: both
+source: rules.md §1 riichi_karaten_allowed, §5.7; real-log campaign, Docs/Notes/p3-reallogs.md
+
+[round]
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 3333m 24m 234p 567p 8s
+hand 1: 147m 147p 147s 2346z
+hand 2: 258m 369p 259s 1235z
+hand 3: 6699m 1188p 1469s 6z
+dora: 1z 2z
+rinshan: 7z
+draws: 8s
+
+[steps]
+0 ankan 3m
+assert_legal 0: riichi
+0 riichi
+0 tsumogiri 7z
+auto_tsumogiri 68
+
+[expect.mahjongsoul]
+outcome: exhaustive_draw
+tenpai: 0
+deltas: 2000 -1000 -1000 -1000
+scores: 27000 24000 24000 24000
+sticks: 1
+honba: 1
+dealer_repeats: true
+events_order: ankan(0), dora(2z), tsumo(0), reach(0), dahai(0), reach_accepted(0), ryukyoku(exhaustive), end_kyoku
+
+[expect.tenhou]
+outcome: exhaustive_draw
+tenpai: 0
+deltas: 2000 -1000 -1000 -1000
+scores: 27000 24000 24000 24000
+sticks: 1
+honba: 1
+dealer_repeats: true
+events_order: ankan(0), dora(2z), tsumo(0), reach(0), dahai(0), reach_accepted(0), ryukyoku(exhaustive), end_kyoku

@@ -1,11 +1,11 @@
-// Findings of the package B review (docs/reviews/p3/B-codex.md), each fixed and
-// tested here; the probes are adapted from docs/reviews/p3/B-codex-repro.
+// Findings of the package B review (Docs/Reviews/p3/B-codex.md), each fixed and
+// tested here; the probes are adapted from Docs/Reviews/p3/B-codex-repro.
 
 import Testing
 @testable import Riichi
 
 @Suite struct ReviewBTests {
-    /// Finding 1, as settled by the real logs (docs/notes/p3-closeout.md): a seat
+    /// Finding 1, as settled by the real logs (Docs/Notes/p3-closeout.md): a seat
     /// that declines a tsumo by a closed kan may ron before its next live draw on
     /// both clients (Tenhou's records have such rons, 2010–18), so neither preset
     /// sets `temporaryFuritenOnDeclinedTsumo`. With the field on (the strict

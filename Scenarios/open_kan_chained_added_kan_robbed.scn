@@ -1,0 +1,66 @@
+# Seat 2 passes the first 9p, then draws to clear temporary furiten.
+# Seat 1 calls an open kan on 5z and adds the replacement 9p to its pon.
+# Seat 2 robs 9p. Mahjong Soul reveals owed indicator 7p after kakan, before ron.
+# Tenhou reaches ron before revealing 7p. Neither reveals the added kan's indicator.
+# Chankan (1) + pinfu (1) + Mahjong Soul dora (1 for 8p) gives 3 han vs 2.
+# Closed pinfu ron is 20 + 10 = 30 fu. Nondealer ron is 30 × 2^(han+2) × 4,
+# rounded up to 3900 (3840) or 2000 (1920), paid by Seat 1 to Seat 2.
+
+[meta]
+name: open_kan_chained_added_kan_robbed
+title: A robbed chained added kan counts the owed indicator only on Mahjong Soul
+rules: both
+source: rules.md §5.10; real-log campaign, Docs/Notes/p3-reallogs.md
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 9p 5z 111p 111s 999s 1m 9m
+hand 1: 99p 555z 1s 1199m 556p
+hand 2: 234m 678m 78p 567s 88s
+hand 3: 3344m 6677p 3344s 6z
+dora: 3z 7p 1p
+rinshan: 9p 7s
+draws: 4z 4z 4z 2z
+
+[steps]
+0 discard 9p
+assert_legal 2: ron
+window: 1=pon:99p, 2=pass
+1 discard 1s
+window: 0=pass
+2 tsumogiri 4z
+3 tsumogiri 4z
+0 discard 5z
+window: 1=daiminkan
+1 kakan 9p
+assert_legal 2: ron
+window: 2=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 2
+win 2: han=3 fu=30 yaku=chankan,dora:1,pinfu
+deltas: 0 -3900 3900 0
+scores: 25000 21100 28900 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(7p), hora(2), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 2
+win 2: han=2 fu=30 yaku=chankan,pinfu
+deltas: 0 -2000 2000 0
+scores: 25000 23000 27000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), hora(2), end_kyoku

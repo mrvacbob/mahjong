@@ -1,4 +1,4 @@
-// Unmasked events, one per mjai message (docs/design/engine.md §6). The mjai JSON
+// Unmasked events, one per mjai message (Docs/Design/engine.md §6). The mjai JSON
 // codec is in RiichiMjai; the masked per-seat form is `MaskedEvent` (View.swift).
 
 public enum AbortReason: String, Hashable, Sendable {

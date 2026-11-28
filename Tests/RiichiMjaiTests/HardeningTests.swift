@@ -1,5 +1,5 @@
 // Hostile input to the JSON reader and the mjai decoder (Gemini's C/D review,
-// docs/reviews/p3/CD-agy.md findings 1, 2, 8–11): nothing a bot or a log can send
+// Docs/Reviews/p3/CD-agy.md findings 1, 2, 8–11): nothing a bot or a log can send
 // may crash; it must come back as an error.
 
 import Testing

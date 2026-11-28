@@ -1,4 +1,4 @@
-// The wall: 136 tiles in a fixed layout, and the seeded shuffle of spec/wall.md.
+// The wall: 136 tiles in a fixed layout, and the seeded shuffle of Spec/wall.md.
 
 /// SplitMix64 (Steele, Lea and Flood), used only to seed `Xoshiro256StarStar`.
 struct SplitMix64 {
@@ -78,7 +78,7 @@ public struct Wall: Sendable, Hashable {
     }
 
     /// The seeded wall for the hand numbered `hand` (the count of hands dealt so far
-    /// in this game, from 0). `spec/wall.md` gives the algorithm and test vectors.
+    /// in this game, from 0). `Spec/wall.md` gives the algorithm and test vectors.
     public init(seed: UInt64, hand: Int) {
         precondition(hand >= 0, "hand number must be non-negative")
         var rng = Xoshiro256StarStar(seeding: Wall.key(seed: seed, hand: hand))
@@ -90,7 +90,7 @@ public struct Wall: Sendable, Hashable {
         tiles = t
     }
 
-    /// The generator key of spec/wall.md §2: `mix(seed) ^ mix(~hand)`, where `mix`
+    /// The generator key of Spec/wall.md §2: `mix(seed) ^ mix(~hand)`, where `mix`
     /// is one SplitMix64 output step from that state.
     static func key(seed: UInt64, hand: Int) -> UInt64 {
         var a = SplitMix64(state: seed), b = SplitMix64(state: ~UInt64(hand))

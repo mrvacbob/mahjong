@@ -1,0 +1,81 @@
+# Riichi closed kan of a waited (winning) tile — pins the Spec/formats.md rule choice.
+# Seat 0 in riichi holds 12305567888s 66z, waiting structurally on 5s, 8s, and 6z:
+#   5s: 123s 555s 567s 888s 66z
+#   8s: 123s 555s 678s 888s 66z
+#   6z: 123s 55s 567s 888s 666z
+# Seat 0 draws the fourth 8s (a winning tile; tsumo is legal).
+# After ankan 8s, 12305567s 66z + a8888s still has structural waits {5s, 8s (5th copy), 6z}.
+# By Spec/formats.md (comparing structural wait kinds before draw and after kan),
+# ankan:8s is legal on both rulesets. Choosing it declines a winning draw in riichi
+# and sets permanent riichi furiten, so seat 0 cannot ron seat 1's 6z discard.
+# (libriichi forbids kanning any waited tile; no real-log record can decide client behavior.)
+# Seat 2 rons seat 1's 6z instead and takes seat 0's riichi stick.
+# Scoring for Seat 2 (non-dealer, West):
+#   Hand: 123m 456m 234p 777z 6z + ron 6z (tanki).
+#   Yaku: yakuhai_chun (1 han). Dora indicators 3z -> 4z, 4z -> 1z (0 dora).
+#   Fu: 20 base + 10 menzen ron + 8 closed honor triplet (777z) + 2 dragon pair (66z)
+#       + 2 tanki (66z) = 42 -> 50 fu.
+#   Base 50 * 2^(1+2) = 400; non-dealer ron = 4 * 400 = 1600.
+#   Seat 2 also takes seat 0's 1000-point riichi stick (+2600 total).
+#   Seat 0: -1000 (riichi). Seat 1: -1600 (ron). Seat 2: +2600.
+
+[meta]
+name: riichi_ankan_of_winning_tile
+title: Riichi closed kan of a waited winning tile is legal when structural waits match and sets riichi furiten
+rules: both
+source: Spec/formats.md, engine.md §4.2, rules.md §4.14, §4.28, Docs/Notes/p3-closeout.md
+unverified: rules.md §5.3, Docs/Notes/p3-closeout.md (riichi closed kan of a waited tile)
+
+[round]
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 12305567888s 66z
+hand 1: 148m 158p 249s 2346z
+hand 2: 123456m 234p 6777z
+hand 3: 279m 158p 149s 1345z
+dora: 3z 4z
+ura: 5z 5z
+rinshan: 9p
+draws: 1z 1z 1z 2z 8s 2z
+
+[steps]
+0 riichi
+0 tsumogiri 1z
+1 tsumogiri 1z
+2 tsumogiri 1z
+3 tsumogiri 2z
+assert_furiten 0: false
+assert_legal 0: tsumo
+assert_legal 0: ankan:8s
+0 ankan 8s
+assert_furiten 0: true
+0 tsumogiri 9p
+1 discard 6z
+assert_furiten 0: true
+assert_illegal 0: ron
+assert_not_asked 0
+assert_legal 2: ron
+window: 2=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 2
+win 2: han=1 fu=50 yaku=yakuhai_chun
+deltas: -1000 -1600 2600 0
+scores: 24000 23400 27600 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: reach_accepted(0), ankan(0), dora(4z), tsumo(0), dahai(0), dahai(1), hora(2), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 2
+win 2: han=1 fu=50 yaku=yakuhai_chun
+deltas: -1000 -1600 2600 0
+scores: 24000 23400 27600 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events_order: reach_accepted(0), ankan(0), dora(4z), tsumo(0), dahai(0), dahai(1), hora(2), end_kyoku

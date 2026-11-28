@@ -1,0 +1,35 @@
+# Hand-derived cases where the oracle LIBRARY (3p/mahjong) disagrees with the hand
+# derivation. The '= ' line is the hand-derived answer. The library's answer is in the
+# comment above each case.
+#
+# All three are hands holding all four copies of one kind, where the only way to reach
+# tenpai or to complete the hand would need a fifth copy. By hand, from the definition
+# "shanten = how many tiles must be replaced to reach tenpai, ignoring availability",
+# they are tenpai, and the `waits` op lists nothing because no live copy exists. That
+# is what the spec's waits rule ("a kind is listed only if at least one copy is outside
+# this hand and melds") seems to expect. The library's regular shanten
+# (_RegularShanten: _flag_four_copies / _number_jidahai) adds Tenhou-style penalties
+# for such hands and calls them 1-shanten.
+#
+# Tools/oracle_mj.py goes with the hand derivation (RULES["pure_shanten"] = True: its
+# own standard-shanten search, checked against the library on every hand without a
+# four-of-a-kind), so oracle_mj passes these cases and the library itself does not.
+# libriichi (AGPL/mj-rs/ mj-rs) agrees with the hand derivation. Generated cases where
+# this choice matters carry a '# rule-sensitive (oracle library's own 4-copy shanten)'
+# note in Corpus/shanten.txt and Corpus/waits.txt (16 and 14 cases).
+
+# Library: std=1 min=1 (1111z counted as a set plus a "jidahai" penalty).
+# By hand: 234 567 789m + 111z + lone 1z = four sets + tanki, so std 0.
+# Chiitoi: pairs 1z and 7m, 9 kinds -> 4. Kokushi: 9m, 1z (pair) -> 10.
+hw15 shanten hand=234567789m1111z melds=-
+= hw15 std=0 chiitoi=4 kokushi=10 min=0
+
+# Library: shanten=1 tiles=123456789m123456789p123456789s234567z count=123.
+# By hand: tenpai, waiting only on a fifth 1z, so nothing is listed.
+hw25 waits hand=234567789m1111z melds=-
+= hw25 shanten=0 tiles=- count=0
+
+# Library: shanten=1 tiles=123456789m12346789p123456789s1234567z count=123.
+# By hand: 123m 456m 123s + 555p + 5p (or 55p+55p) waits only on a fifth 5p.
+hw30 waits hand=123456m0555p123s melds=-
+= hw30 shanten=0 tiles=- count=0

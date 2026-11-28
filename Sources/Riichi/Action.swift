@@ -1,4 +1,4 @@
-// What a seat may do, and the phases of a round (docs/design/engine.md §4).
+// What a seat may do, and the phases of a round (Docs/Design/engine.md §4).
 
 /// One decision. Red fives make calls distinct: a pon of 5m using `0m 5m` and one
 /// using `5m 5m` are two actions. The two tiles of `pon` and `chi` are the ones from

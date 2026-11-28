@@ -1,4 +1,4 @@
-// The round state machine (docs/design/engine.md §4).
+// The round state machine (Docs/Design/engine.md §4).
 //
 // `RoundState` is a value. `apply` handles the turn player's action, `resolve` the
 // answers to a window; both run on through draws and through windows nobody can

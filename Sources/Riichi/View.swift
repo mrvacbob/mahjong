@@ -1,4 +1,4 @@
-// What one seat may see (docs/design/engine.md §6): masked events and `PlayerView`.
+// What one seat may see (Docs/Design/engine.md §6): masked events and `PlayerView`.
 // Code that plays a seat is handed these, never a `RoundState` or an `Event`.
 
 /// An event as one seat sees it. A distinct type from `Event`, so an unmasked event

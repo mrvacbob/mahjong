@@ -10,7 +10,7 @@ public enum Situation: Sendable {
     case called(Meld, took: Tile)
 }
 
-/// One `legal` question (`spec/formats.md`).
+/// One `legal` question (`Spec/formats.md`).
 public struct LegalRequest: Sendable {
     public var hand: [Tile]
     public var melds: [Meld]

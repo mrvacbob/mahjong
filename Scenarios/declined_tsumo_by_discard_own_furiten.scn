@@ -1,0 +1,67 @@
+# Declining a legal tsumo by discarding a tile always leaves own-discard furiten:
+# the 14 tiles were a winning hand, so the 13 tiles left wait on the discarded tile.
+# Seat 0 holds 23456m 456p 789s 55z (waits 1m/4m/7m) and draws 7m (menzen tsumo legal).
+# Seat 0 declines by discarding 2m, leaving 34567m 456p 789s 55z (waits 2m/5m/8m).
+# Because 2m is now in seat 0's own discards, seat 0 is own-discard furiten.
+# Seat 1 discards 5m: seat 0 is furiten and not asked.
+# On seat 0's next draw (8m), seat 0 is still own-discard furiten but may tsumo.
+# Scoring for Seat 0 (dealer, East):
+#   Hand: 345m 678m 456p 789s 55z, tsumo on 8m (ryanmen).
+#   Yaku: tsumo (1 han). 55z is a value pair, so no pinfu. Dora indicator 2z -> 3z (0 dora).
+#   Fu: 20 base + 2 tsumo + 2 dragon pair (55z) = 24 -> 30 fu.
+#   Base 30 * 2^(1+2) = 240; dealer tsumo rounds 2 * 240 = 480 up to 500 each (1500 total).
+#   Dealer repeats East 1 at honba 1.
+
+[meta]
+name: declined_tsumo_by_discard_own_furiten
+title: Declining a tsumo by discard always creates own-discard furiten
+rules: both
+source: engine.md §4.1, §4.2, rules.md §4.27, §5.13, Docs/Notes/p3-closeout.md
+
+[round]
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 23456m 456p 789s 55z
+hand 1: 159m 179p 135s 2367z
+hand 2: 19m 138p 135s 23467z
+hand 3: 19m 138p 246s 23467z
+dora: 2z
+draws: 7m 1z 1z 1z 8m
+
+[steps]
+assert_furiten 0: false
+assert_legal 0: tsumo
+0 discard 2m
+assert_furiten 0: true
+1 discard 5m
+assert_furiten 0: true
+assert_illegal 0: ron
+assert_not_asked 0
+2 tsumogiri 1z
+3 tsumogiri 1z
+assert_furiten 0: true
+assert_legal 0: tsumo
+0 tsumo
+
+[expect.mahjongsoul]
+outcome: tsumo
+winners: 0
+win 0: han=1 fu=30 yaku=tsumo
+deltas: 1500 -500 -500 -500
+scores: 26500 24500 24500 24500
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku
+
+[expect.tenhou]
+outcome: tsumo
+winners: 0
+win 0: han=1 fu=30 yaku=tsumo
+deltas: 1500 -500 -500 -500
+scores: 26500 24500 24500 24500
+sticks: 0
+honba: 1
+dealer_repeats: true
+events_order: tsumo(0), dahai(0), tsumo(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), hora(0), end_kyoku

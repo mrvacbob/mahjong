@@ -1,4 +1,4 @@
-// Game flow (docs/design/engine.md §5): a sequence of rounds, the after-round
+// Game flow (Docs/Design/engine.md §5): a sequence of rounds, the after-round
 // transition, and the final result.
 
 /// Where the game stands at the start of a hand: what `start_kyoku` announces.

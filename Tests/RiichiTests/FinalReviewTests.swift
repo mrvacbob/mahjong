@@ -1,4 +1,4 @@
-// The final Phase 3 reviews (docs/reviews/p3/final-codex.md, final-agy.md): input
+// The final Phase 3 reviews (Docs/Reviews/p3/final-codex.md, final-agy.md): input
 // checked at every public entry point, the running game's counters, the scorer's
 // requests, `winRequest(for:)` honba, the terminal view, East-only games.
 

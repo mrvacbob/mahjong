@@ -1,0 +1,57 @@
+# Seat 0 closes 1m, 9m and 1p, then feeds seat 1 the fourth 9p.
+# Seat 1 discards its replacement 5z. Seat 2 submits pon and nobody rons.
+# Both rulesets reveal 7z immediately before the discard and the four-kan abort.
+# The abort overrides the pon, moves zero points or sticks and repeats East 1
+# with honba increasing from 0 to 1.
+
+[meta]
+name: suukaikan_open_kan_owed_dora
+title: Fourth open kan reveals owed dora at the discard before the four-kan abort
+rules: both
+source: rules.md §1 kan_dora_daiminkan_timing, §4.22, engine.md §4.2; real-log campaign, Docs/Notes/p3-reallogs.md
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+
+[wall]
+hand 0: 1111m 9999m 1111p 2z
+hand 1: 999p 234m 679s 234p 6z
+hand 2: 55z 258m 367p 147s 67z
+hand 3: 258m 247p 258s 1267z
+dora: 1z 2z 3z 4z 7z
+rinshan: 3z 4z 4z 5z
+draws: 9p
+
+[steps]
+0 ankan 1m
+0 ankan 9m
+0 ankan 1p
+0 discard 9p
+window: 1=daiminkan
+1 tsumogiri 5z
+assert_legal 2: pon:55z
+window: 2=pon:55z
+
+[expect.mahjongsoul]
+outcome: abortive_draw
+abort_reason: suukaikan
+deltas: 0 0 0 0
+scores: 25000 25000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(3z), tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7z), dahai(1), ryukyoku(suukaikan), end_kyoku
+
+[expect.tenhou]
+outcome: abortive_draw
+abort_reason: suukaikan
+deltas: 0 0 0 0
+scores: 25000 25000 25000 25000
+sticks: 0
+honba: 1
+dealer_repeats: true
+events: start_kyoku, tsumo(0), ankan(0), dora(2z), tsumo(0), ankan(0), dora(3z), tsumo(0), ankan(0), dora(4z), tsumo(0), dahai(0), daiminkan(1), tsumo(1), dora(7z), dahai(1), ryukyoku(suukaikan), end_kyoku

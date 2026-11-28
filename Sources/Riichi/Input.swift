@@ -1,4 +1,4 @@
-// Checking values that come from outside the library (docs/design/engine.md §2.1).
+// Checking values that come from outside the library (Docs/Design/engine.md §2.1).
 //
 // Every public entry point that takes such a value (a ruleset, a starting position,
 // a score request, text) checks it and returns an error; `precondition` is kept for

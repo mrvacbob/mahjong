@@ -1,0 +1,69 @@
+# Chained kans: open kan, replacement draw, added kan, discard, ron
+# (engine.md §4.2, rules.md §4.17, §5 items 4 & 10).
+# Setup: Seat 0 discards 9p -> Seat 1 pons 9p (using 99p), discards 1s.
+# Seats 2, 3 tsumogiri; Seat 0 draws 2z, discards 5z -> Seat 1 calls daiminkan on 5z
+# (owes kan dora #1: 1p -> dora 2p), draws rinshan[0] (4th 9p), declares kakan 9p!
+# Mahjong Soul reveals the owed 1p indicator immediately after kakan, before its
+# robbing window. Tenhou reveals it once that window passes. Both do so before
+# the replacement draw, and both reveal 7p immediately before the 7s discard.
+# Seat 2 rons on 7s with pinfu (1) + tanyao (1) + dora (1 from 2p, 2 from 88p) = 5 han.
+# Closed pinfu ron is 20 + 10 = 30 fu. Nondealer mangan is 2000 × 4 = 8000.
+# Seat 1 pays (17000) and Seat 2 receives (33000).
+
+[meta]
+name: open_kan_chained_kan_discard_ron
+title: Open kan -> replacement draw -> added kan -> discard -> ron (owed dora ordering)
+rules: both
+source: engine.md §4.2, rules.md §4.17, §5.4, §5.10; real-log campaign, Docs/Notes/p3-reallogs.md
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 9p 5z 111p 111s 999s 1m 9m
+hand 1: 99p 555z 1s 1199m 556p
+hand 2: 234m 678m 234p 56s 88p
+hand 3: 3344m 6677p 3344s 6z
+dora: 3z 1p 7p
+rinshan: 9p 7s
+draws: 4z 4z 4z 2z
+
+[steps]
+0 discard 9p
+window: 1=pon:99p
+1 discard 1s
+window: 0=pass
+2 tsumogiri 4z
+3 tsumogiri 4z
+0 discard 5z
+window: 1=daiminkan
+1 kakan 9p
+1 tsumogiri 7s
+window: 2=ron
+
+[expect.mahjongsoul]
+outcome: ron
+winners: 2
+win 2: han=5 fu=30 yaku=dora:3,pinfu,tanyao
+deltas: 0 -8000 8000 0
+scores: 25000 17000 33000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dora(7p), dahai(1), hora(2), end_kyoku
+
+[expect.tenhou]
+outcome: ron
+winners: 2
+win 2: han=5 fu=30 yaku=dora:3,pinfu,tanyao
+deltas: 0 -8000 8000 0
+scores: 25000 17000 33000 25000
+sticks: 0
+honba: 0
+dealer_repeats: false
+events: start_kyoku, tsumo(0), dahai(0), pon(1), dahai(1), tsumo(2), dahai(2), tsumo(3), dahai(3), tsumo(0), dahai(0), daiminkan(1), tsumo(1), kakan(1), dora(1p), tsumo(1), dora(7p), dahai(1), hora(2), end_kyoku

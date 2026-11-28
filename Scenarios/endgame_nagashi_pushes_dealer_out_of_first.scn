@@ -1,0 +1,73 @@
+# Game end: All Last Nagashi Mangan pushes a tenpai dealer out of 1st / below 30,000
+# (engine.md §5, rules.md §5 item 6).
+# Unverified for both clients; design default tests scores AFTER round payments.
+# South 4, dealer=3, scores: 25000 25000 19000 31000.
+# Seat 3 (dealer) is tenpai; Seat 0 (non-dealer) achieves Nagashi Mangan!
+# (Dealer=3 draws indices 0, 4, 8, ...; Seat 0 draws indices 1, 5, 9, ..., 69 -> all terminals/honors.)
+# Nagashi Mangan payment: Seat 0 gets +8000 (4000 from dealer Seat 3, 2000 each from Seats 1, 2).
+# Post-payment scores: 33000 23000 17000 27000.
+# Dealer (Seat 3) is tenpai so dealer repeats, and post-payment is NO LONGER 1st or >= 30,000 ->
+# tenpai-yame does NOT end the game; dealer repeats South 4 honba 1!
+
+[meta]
+name: endgame_nagashi_pushes_dealer_out_of_first
+title: All Last Nagashi Mangan pushing tenpai dealer out of 1st prevents tenpai-yame
+rules: mahjongsoul
+source: engine.md §5, rules.md §5.6; real-log campaign, Docs/Notes/p3-reallogs.md
+
+[round]
+game_length: south
+wind: S
+round: 4
+honba: 0
+sticks: 0
+dealer: 3
+scores: 25000 25000 19000 31000
+
+[wall]
+hand 0: 2233m 4455p 2234s 7z
+hand 1: 4455m 6677p 4456s 7z
+hand 2: 6677m 2233p 6678s 7z
+hand 3: 234m 678m 234p 56s 88p
+dora: 5m
+# Ensure Seats 3, 1, 2 each discard at least one simple on turn 1:
+draw_at 0: 5p
+draw_at 2: 0s
+draw_at 3: 8m
+# All 18 draws for Seat 0 (indices 1, 5, 9, ..., 69 since dealer=3) are terminals/honors:
+draw_at 1: 1m
+draw_at 5: 1m
+draw_at 9: 9m
+draw_at 13: 9m
+draw_at 17: 1p
+draw_at 21: 1p
+draw_at 25: 9p
+draw_at 29: 9p
+draw_at 33: 1s
+draw_at 37: 1s
+draw_at 41: 9s
+draw_at 45: 9s
+draw_at 49: 1z
+draw_at 53: 2z
+draw_at 57: 3z
+draw_at 61: 4z
+draw_at 65: 5z
+draw_at 69: 6z
+
+[steps]
+auto_tsumogiri 70
+
+[expect]
+outcome: exhaustive_draw
+tenpai: 3
+nagashi: 0
+deltas: 8000 -2000 -2000 -4000
+scores: 33000 23000 17000 27000
+sticks: 0
+honba: 1
+dealer_repeats: true
+game_ended: false
+next_wind: S
+next_round: 4
+next_dealer: 3
+events_order: start_kyoku, ryukyoku(exhaustive), end_kyoku

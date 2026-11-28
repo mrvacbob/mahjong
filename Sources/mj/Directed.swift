@@ -1,4 +1,4 @@
-// Directed self-play (docs/notes/p3-closeout.md): games that reach rare branches on
+// Directed self-play (Docs/Notes/p3-closeout.md): games that reach rare branches on
 // purpose and in bulk. A `Scenario` arranges some hands' walls for one branch
 // (perturbed at random from the game seed and hand number, so every game is
 // different) and gives each seat a scripted goal for those hands; the other hands

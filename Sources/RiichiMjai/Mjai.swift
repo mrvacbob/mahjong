@@ -1,4 +1,4 @@
-// mjai JSON for events and bot replies (docs/design/engine.md §6). Field order
+// mjai JSON for events and bot replies (Docs/Design/engine.md §6). Field order
 // is fixed, so the same events always give the same bytes.
 
 import Riichi
@@ -176,7 +176,7 @@ public struct MjaiMessage: Sendable {
     public var dealerRepeats: Bool?
     public var tenpais: [Bool]?
     public var horaTehais: [Tile]?
-    /// `yakus`: each yaku's name (`spec/formats.md`) and han (or yakuman multiple).
+    /// `yakus`: each yaku's name (`Spec/formats.md`) and han (or yakuman multiple).
     public var yakus: [YakuText]?
     public var fu: Int?
     public var fan: Int?

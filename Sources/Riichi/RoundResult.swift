@@ -1,4 +1,4 @@
-// How a round ended, and who pays whom (docs/design/engine.md §4.3).
+// How a round ended, and who pays whom (Docs/Design/engine.md §4.3).
 
 /// One winner of a round.
 public struct Win: Hashable, Sendable {

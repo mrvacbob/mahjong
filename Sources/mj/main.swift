@@ -41,9 +41,9 @@ struct Request {
     func bool(_ key: Substring) throws(BadInput) -> Bool { try int(key, default: 0, in: 0...1) == 1 }
     func flags() throws(BadInput) -> Set<Flag> { try value("flags", default: "-", parseFlags) }
     /// `rules=mahjongsoul|tenhou`, default Mahjong Soul. The line protocol keeps
-    /// `spec/formats.md`'s definition of a riichi wait (no fifth copy, even of a
+    /// `Spec/formats.md`'s definition of a riichi wait (no fifth copy, even of a
     /// kan's tiles), which the corpus fixes; the clients allow more
-    /// (`Rules.riichiOnFifthCopyWait`, docs/notes/p3-reallogs.md).
+    /// (`Rules.riichiOnFifthCopyWait`, Docs/Notes/p3-reallogs.md).
     func rules() throws(BadInput) -> Rules {
         var r = try value("rules", default: "mahjongsoul") { text -> Rules? in
             switch text {

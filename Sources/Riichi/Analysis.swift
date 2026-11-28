@@ -1,4 +1,4 @@
-// What a bot or a tool needs from one seat's view (docs/design/engine.md §6.1):
+// What a bot or a tool needs from one seat's view (Docs/Design/engine.md §6.1):
 // the seat's wind, hand and waits, tile counts it can see, a per-discard analysis
 // and basic defensive facts. Pure functions of a `PlayerView` (or of tiles and
 // counts); none needs the `RoundState`.

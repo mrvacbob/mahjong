@@ -5,7 +5,7 @@ import Testing
 
 /// A wall with these hands (by seat), live draws from index 0, replacement tiles
 /// and indicators; every other slot filled from the unused tiles in canonical order
-/// (as tools/scenario.py fills them).
+/// (as Tools/scenario.py fills them).
 func makeWall(dealer: Int = 0, hands: [String], draws: String = "", rinshan: String = "",
               dora: String = "", ura: String = "") -> Wall {
     var pool = Wall.sorted

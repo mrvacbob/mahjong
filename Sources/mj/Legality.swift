@@ -1,4 +1,4 @@
-// Legality rows for agpl/libriichi-check/compare.py: for every event of every hand,
+// Legality rows for AGPL/libriichi-check/compare.py: for every event of every hand,
 // from start_kyoku through end_kyoku, and for all four seats, what the seat may do
 // and its waits, shanten and furiten, as the engine has them (README "Legality
 // JSONL").

@@ -216,7 +216,7 @@ import Testing
         }
     }
 
-    /// Directed self-play (docs/notes/p3-closeout.md): each scenario reaches its
+    /// Directed self-play (Docs/Notes/p3-closeout.md): each scenario reaches its
     /// branch with every invariant on, its traces replay to the same bytes (the
     /// trace names the scenario, which rebuilds the walls and the starting
     /// position), and check-log accepts the logs.
@@ -248,7 +248,7 @@ import Testing
         #expect(bs != 0 && bo.contains("unknown scenario"), "\(bo)")
     }
 
-    /// check-log on the reduced format of the real-log campaign (docs/notes/p3-reallogs.md):
+    /// check-log on the reduced format of the real-log campaign (Docs/Notes/p3-reallogs.md):
     /// our own logs stripped to it (no deltas, scores, dora events or ura; the
     /// dealer's first draw dealt as a 14th tile) still check, the hidden
     /// indicators being searched for against the next hand's scores.

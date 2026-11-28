@@ -25,7 +25,7 @@ public enum ScoreError: String, Error, Sendable {
     /// `Rules.validate()`; the hand, winning tile, melds and indicators are not a
     /// possible tile set (`isPossibleTileSet`); the hand is not 13 − 3 × melds tiles
     /// (at most four melds); honba outside 0...`RoundState.maxRunningHonba`. (The
-    /// number of indicators is not checked: `spec/formats.md` leaves it open and
+    /// number of indicators is not checked: `Spec/formats.md` leaves it open and
     /// the corpus has a request with eight.)
     case badRules = "bad_rules", impossibleTiles = "impossible_tiles", badHandSize = "bad_hand_size",
          badHonba = "bad_honba"
@@ -53,7 +53,7 @@ public struct YakuEntry: Sendable, Hashable, CustomStringConvertible {
         /// Indicator dora, red fives, ura dora: han, but not yaku.
         case dora, aka, ura
 
-        /// The name in `spec/formats.md` (`riichi`, `dora`, `kokushi_13`, ...).
+        /// The name in `Spec/formats.md` (`riichi`, `dora`, `kokushi_13`, ...).
         public var text: String {
             switch self {
             case .yaku(let y): y.rawValue
@@ -88,7 +88,7 @@ public struct Scored: Sendable, Hashable {
         self.payment = payment
     }
 
-    /// `name:value,...`, the `yaku=` text of `spec/formats.md` and the last tie-break.
+    /// `name:value,...`, the `yaku=` text of `Spec/formats.md` and the last tie-break.
     public var yakuText: String { yaku.map(\.description).joined(separator: ",") }
 
     /// The value of the named yaku or yakuman in this hand, if present.
@@ -170,7 +170,7 @@ public func doraCount(_ tiles: [Tile], indicators: [Tile]) -> Int {
 private func best(_ all: [Scored]) -> Scored? { all.max { $1.isBetter(than: $0) } }
 
 /// Scores a winning hand under `rules`: the best interpretation by the order of
-/// `spec/formats.md` (`score`). Checks the request first (`ScoreError`).
+/// `Spec/formats.md` (`score`). Checks the request first (`ScoreError`).
 public func score(_ req: ScoreRequest, rules: Rules) throws(ScoreError) -> Scored {
     try req.check(rules: rules)
     return try scoreChecked(req, rules: rules)

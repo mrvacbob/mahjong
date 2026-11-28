@@ -1,4 +1,4 @@
-// The Phase 4 view API (docs/design/engine.md §6.3): every helper checked against
+// The Phase 4 view API (Docs/Design/engine.md §6.3): every helper checked against
 // the engine's own state in whole games, and the defensive facts on built tables.
 
 import Testing

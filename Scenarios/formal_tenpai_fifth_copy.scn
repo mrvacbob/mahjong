@@ -1,0 +1,59 @@
+# Formal tenpai on a fifth copy at exhaustive draw
+# (engine.md §4.2, rules.md §5 item 7).
+# Turn 1: Seat 0 discards 1m -> Seat 1 pons 1m (using 11m), discards 7z.
+# Seat 1 now holds open pon 111m + concealed 234p 567p 234s 1m: its ONLY wait is a 5th 1m,
+# and NOT all 4 copies of 1m are in the concealed hand (3 are in the open pon, 1 in hand).
+# Meanwhile, Seat 2 holds 234m 567m 789s 1111z: all 4 copies of 1z are in its CONCEALED hand,
+# so Seat 2 is NOTEN under BOTH rulesets!
+# Seats 0 and 3 are noten. After 69 more turns (all 70 live draws used) -> exhaustive draw:
+# Both rulesets count only Seat 1 as tenpai. The 3000-point noten pool is
+# split among three noten seats (1000 each), all paid to Seat 1.
+# Scores: 25000 + 3000 = 28000 for Seat 1 and 25000 - 1000 = 24000 for each other seat.
+
+[meta]
+name: formal_tenpai_fifth_copy
+title: Exhaustive draw counts a fifth-copy wait when the four copies are not all concealed
+rules: both
+source: engine.md §4.2, rules.md §5.7; real-log campaign, Docs/Notes/p3-reallogs.md
+
+[round]
+wind: E
+round: 1
+honba: 0
+sticks: 0
+dealer: 0
+scores: 25000 25000 25000 25000
+
+[wall]
+hand 0: 1m 2244m 7799p 1156s
+hand 1: 111m 234p 567p 234s 7z
+hand 2: 234m 567m 789s 1111z
+hand 3: 3388m 1188p 6698s 6z
+dora: 2z
+draws: 3z
+
+[steps]
+0 discard 1m
+window: 1=pon:11m
+1 discard 7z
+auto_tsumogiri 69
+
+[expect.mahjongsoul]
+outcome: exhaustive_draw
+tenpai: 1
+deltas: -1000 3000 -1000 -1000
+scores: 24000 28000 24000 24000
+sticks: 0
+honba: 1
+dealer_repeats: false
+events_order: pon(1), ryukyoku(exhaustive), end_kyoku
+
+[expect.tenhou]
+outcome: exhaustive_draw
+tenpai: 1
+deltas: -1000 3000 -1000 -1000
+scores: 24000 28000 24000 24000
+sticks: 0
+honba: 1
+dealer_repeats: false
+events_order: pon(1), ryukyoku(exhaustive), end_kyoku

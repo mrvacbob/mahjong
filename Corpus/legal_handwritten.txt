@@ -1,0 +1,398 @@
+# Hand-authored `legal` cases with COMPLETE expected action sets.
+# Each answer was derived by hand from Spec/formats.md (draft 2) and Spec/rules.md, without
+# running mj-rs or reading Corpus/legal.txt or AGPL/mj-rs/. The '#' lines above each case give
+# the derivation. Context defaults (formats.md): seat=E round=E wall=70 kans=0 riichi=0
+# furiten=0 first=0. Action lists are sorted as strings, as the spec requires.
+
+
+# ================================================================ responses to a discard: chi shapes, seat direction, red fives
+
+# 2345m + 3m from kamicha. Chi 24m (kanchan; forbids 3m only; 35m19p19s12345z left) and chi 45m
+# (takes 3 with 45: forbids 3m and 6m; 23m19p19s12345z left). One 3m in hand: no pon. Not
+# complete.
+lh001 legal hand=2345m19p19s12345z melds=- discard=3m from=kamicha
+= lh001 actions=chi:24m,chi:45m,pass
+# Same discard from toimen: chi is kamicha only, no pon (one 3m).
+lh002 legal hand=2345m19p19s12345z melds=- discard=3m from=toimen
+= lh002 actions=pass
+# Same discard from shimocha.
+lh003 legal hand=2345m19p19s12345z melds=- discard=3m from=shimocha
+= lh003 actions=pass
+# 4 0 5 6 7m + 6m from kamicha. Chi with 45 (plain or red: 45m, 40m) and with 57 (57m, 07m). No
+# 8m. One 6m in hand: no pon. Every chi leaves several allowed discards.
+lh004 legal hand=40567m19p19s1234z melds=- discard=6m from=kamicha
+= lh004 actions=chi:07m,chi:40m,chi:45m,chi:57m,pass
+# 0 5 5m + 5m from toimen: pon with red (05m) or two plain (55m); three in hand: kan.
+lh005 legal hand=055m19p19s123456z melds=- discard=5m from=toimen
+= lh005 actions=kan:5m,pass,pon:05m,pon:55m
+# Same from shimocha: pon/kan work from any seat.
+lh006 legal hand=055m19p19s123456z melds=- discard=5m from=shimocha
+= lh006 actions=kan:5m,pass,pon:05m,pon:55m
+# Same with kans=4: no fifth kan; pon still fine.
+lh007 legal hand=055m19p19s123456z melds=- discard=5m from=toimen kans=4
+= lh007 actions=pass,pon:05m,pon:55m
+# Same with kans=3: kan allowed (kans<4).
+lh008 legal hand=055m19p19s123456z melds=- discard=5m from=toimen kans=3
+= lh008 actions=kan:5m,pass,pon:05m,pon:55m
+# Same at wall=0 (last discard, houtei flag; the hand is not complete): no calls at wall 0.
+lh009 legal hand=055m19p19s123456z melds=- discard=5m from=toimen wall=0 flags=houtei
+= lh009 actions=pass
+# Same at wall=1: calls need wall>=1, so allowed.
+lh010 legal hand=055m19p19s123456z melds=- discard=5m from=toimen wall=1
+= lh010 actions=kan:5m,pass,pon:05m,pon:55m
+# 0556m + 4m from kamicha: chi with 56 (56m plain, 06m red); takes 4 with adjacent 56: forbids 4m
+# and 7m, neither held, so allowed. No 2m/3m. No pon.
+lh011 legal hand=0556m19p19s12345z melds=- discard=4m from=kamicha
+= lh011 actions=chi:06m,chi:56m,pass
+# 40556m (three fives incl. red) + plain 5m from kamicha: chi 46m (kanchan, forbids 5 only;
+# 055m19p19s1234z left has allowed tiles), pon 05m / 55m, kan 5m.
+lh012 legal hand=40556m19p19s1234z melds=- discard=5m from=kamicha
+= lh012 actions=chi:46m,kan:5m,pass,pon:05m,pon:55m
+# 34556m + red 0m from kamicha: chi 34m (forbids 5 and 2; 556m... left, 6m allowed), chi 46m
+# (forbids 5), pon 55m; only two fives in hand so no kan.
+lh013 legal hand=34556m19p19s1234z melds=- discard=0m from=kamicha
+= lh013 actions=chi:34m,chi:46m,pass,pon:55m
+
+# ================================================================ dead-end chi (every remaining discard would be kuikae)
+
+# 3456s + three dragon/wind pons, 6s from kamicha. Chi 45s takes 6 with 45: forbids 6s and 3s,
+# leaving 36s: dead end, not offered. No 7s. Ron: 34566s = 345s+66s, yakuhai (haku, chun, and East
+# pon for seat/round East).
+lh014 legal hand=3456s melds=p111z,p555z,p777z discard=6s from=kamicha
+= lh014 actions=pass,ron
+# Same with furiten=1: no ron, chi still dead-ended.
+lh015 legal hand=3456s melds=p111z,p555z,p777z discard=6s from=kamicha furiten=1
+= lh015 actions=pass
+# Same hand, 3s from kamicha: chi 45s takes 3 with 45 -> forbids 3s and 6s, leaving 36s: dead end.
+# Ron: 33456s = 33s+456s.
+lh016 legal hand=3456s melds=p111z,p555z,p777z discard=3s from=kamicha
+= lh016 actions=pass,ron
+# 1233m + three open chi, 3m from kamicha. Penchan chi 12m forbids only 3m but leaves 33m: dead
+# end. Pon 33m leaves 12m: allowed. 12333m is complete but has no yaku (open, terminals, no
+# yakuhai): no ron.
+lh017 legal hand=1233m melds=c789p,c234s,c456s discard=3m from=kamicha
+= lh017 actions=pass,pon:33m
+
+# ================================================================ ron: yaku, furiten, flags
+
+# Closed 234567m 234p 55s 78s waits 6s/9s. Riichi=1, 9s from toimen: ron (riichi). No calls in
+# riichi.
+lh018 legal hand=234567m234p5578s melds=- discard=9s from=toimen riichi=1
+= lh018 actions=pass,ron
+# Same, riichi=1, from kamicha: still no chi in riichi.
+lh019 legal hand=234567m234p5578s melds=- discard=9s from=kamicha riichi=1
+= lh019 actions=pass,ron
+# Same, riichi=1, furiten=1: ron blocked.
+lh020 legal hand=234567m234p5578s melds=- discard=9s from=toimen riichi=1 furiten=1
+= lh020 actions=pass
+# Not in riichi, 9s from toimen: closed ron with pinfu (four runs, 55s pair, ryanmen 78s).
+lh021 legal hand=234567m234p5578s melds=- discard=9s from=toimen
+= lh021 actions=pass,ron
+# Not in riichi, 9s from kamicha: also chi 78s (takes 9 with 78: forbids 9s and 6s; rest allowed).
+lh022 legal hand=234567m234p5578s melds=- discard=9s from=kamicha
+= lh022 actions=chi:78s,pass,ron
+# Same, furiten=1: chi only.
+lh023 legal hand=234567m234p5578s melds=- discard=9s from=kamicha furiten=1
+= lh023 actions=chi:78s,pass
+# Open c123m + 567m 234p 55s 78s, 9s from kamicha: complete but no yaku (no tanyao with 1m/9s, no
+# yakuhai): no ron. Chi 78s allowed.
+lh024 legal hand=567m234p5578s melds=c123m discard=9s from=kamicha
+= lh024 actions=chi:78s,pass
+# Same hand, 6s from kamicha: no yaku again. Chi 78s (forbids 6s, 9s) and chi 57s (kanchan,
+# forbids 6s).
+lh025 legal hand=567m234p5578s melds=c123m discard=6s from=kamicha
+= lh025 actions=chi:57s,chi:78s,pass
+# Same hand, 9s from toimen at wall=0 with houtei: houtei is the yaku. No calls at wall 0.
+lh026 legal hand=567m234p5578s melds=c123m discard=9s from=toimen wall=0 flags=houtei
+= lh026 actions=pass,ron
+# Same at wall=0 without the flag: wall=0 grants nothing; no yaku, no calls.
+lh027 legal hand=567m234p5578s melds=c123m discard=9s from=toimen wall=0
+= lh027 actions=pass
+# Same, houtei, furiten=1.
+lh028 legal hand=567m234p5578s melds=c123m discard=9s from=toimen wall=0 flags=houtei furiten=1
+= lh028 actions=pass
+# Same hand, robbed added kan of 9s from kamicha (flags=chankan): chankan is the yaku; only
+# ron/pass, so no chi 78s.
+lh029 legal hand=567m234p5578s melds=c123m discard=9s from=kamicha flags=chankan
+= lh029 actions=pass,ron
+# Same chankan, furiten=1.
+lh030 legal hand=567m234p5578s melds=c123m discard=9s from=kamicha flags=chankan furiten=1
+= lh030 actions=pass
+# Same hand, a closed kan of 9s being declared (ankan_rob): only kokushi may rob it.
+lh031 legal hand=567m234p5578s melds=c123m discard=9s from=kamicha flags=ankan_rob
+= lh031 actions=pass
+# Closed pinfu hand (riichi) against ankan_rob of 9s: still not kokushi, pass.
+lh032 legal hand=234567m234p5578s melds=- discard=9s from=toimen riichi=1 flags=ankan_rob
+= lh032 actions=pass
+# Single-wait kokushi 99m 19p 19s 1234567z waits on 1m. Closed kan of 1m declared: kokushi may
+# rob.
+lh033 legal hand=99m19p19s1234567z melds=- discard=1m from=shimocha flags=ankan_rob
+= lh033 actions=pass,ron
+# Same, furiten=1.
+lh034 legal hand=99m19p19s1234567z melds=- discard=1m from=shimocha flags=ankan_rob furiten=1
+= lh034 actions=pass
+# Same hand, added kan of 1m (chankan): kokushi ron.
+lh035 legal hand=99m19p19s1234567z melds=- discard=1m from=toimen flags=chankan
+= lh035 actions=pass,ron
+# Same hand, ordinary 1m discard from kamicha: ron; no 2m/3m for chi, no 1m for pon.
+lh036 legal hand=99m19p19s1234567z melds=- discard=1m from=kamicha
+= lh036 actions=pass,ron
+# Thirteen-sided kokushi, 5z from kamicha: ron. No pon (one 5z).
+lh037 legal hand=19m19p19s1234567z melds=- discard=5z from=kamicha
+= lh037 actions=pass,ron
+# Chiitoi 11 33m 55 77p 99s 11z + 2z, 2z from kamicha: ron (chiitoi). One 2z: no pon.
+lh038 legal hand=1133m5577p99s112z melds=- discard=2z from=kamicha
+= lh038 actions=pass,ron
+# Same, furiten=1.
+lh039 legal hand=1133m5577p99s112z melds=- discard=2z from=kamicha furiten=1
+= lh039 actions=pass
+# Shanpon 55z/77z with 234m 456p 789s, 5z from toimen: ron (haku triplet), or pon 55z.
+lh040 legal hand=234m456p789s5577z melds=- discard=5z from=toimen
+= lh040 actions=pass,pon:55z,ron
+# Same, 7z from kamicha: ron (chun) or pon; honors cannot be chi'd.
+lh041 legal hand=234m456p789s5577z melds=- discard=7z from=kamicha
+= lh041 actions=pass,pon:77z,ron
+# Same, riichi=1, 5z: ron, no pon.
+lh042 legal hand=234m456p789s5577z melds=- discard=5z from=toimen riichi=1
+= lh042 actions=pass,ron
+# 111m 234p 567s 789s 5z (tanki 5z), 1m from toimen: kan (three held), pon; 1m does not complete.
+lh043 legal hand=111m234p567789s5z melds=- discard=1m from=toimen
+= lh043 actions=kan:1m,pass,pon:11m
+# Same with kans=4: no kan.
+lh044 legal hand=111m234p567789s5z melds=- discard=1m from=toimen kans=4
+= lh044 actions=pass,pon:11m
+# Same, 5z from toimen: complete closed ron but no yaku (tanki, non-value pair, no other yaku).
+# One 5z: no pon.
+lh045 legal hand=111m234p567789s5z melds=- discard=5z from=toimen
+= lh045 actions=pass
+# Same, riichi=1: riichi is the yaku.
+lh046 legal hand=111m234p567789s5z melds=- discard=5z from=toimen riichi=1
+= lh046 actions=pass,ron
+# Riichi=1 with three 1m, 1m from toimen: no kan/pon in riichi.
+lh047 legal hand=111m234p567789s5z melds=- discard=1m from=toimen riichi=1
+= lh047 actions=pass
+
+# ================================================================ own draw: discards, tsumo, riichi, wall limits, situational flags
+
+# 147m 258p 369s 1234z + 5z: nothing connects. Discard each of the 14 distinct tiles.
+lh048 legal hand=147m258p369s1234z melds=- draw=5z
+= lh048 actions=discard:1m,discard:1z,discard:2p,discard:2z,discard:3s,discard:3z,discard:4m,discard:4z,discard:5p,discard:5z,discard:6s,discard:7m,discard:8p,discard:9s
+# Same with first=1: terminal/honor kinds 1m 9s 1z 2z 3z 4z 5z = 7 < 9, no kyuushu.
+lh049 legal hand=147m258p369s1234z melds=- draw=5z first=1
+= lh049 actions=discard:1m,discard:1z,discard:2p,discard:2z,discard:3s,discard:3z,discard:4m,discard:4z,discard:5p,discard:5z,discard:6s,discard:7m,discard:8p,discard:9s
+# Kyuushu boundary, 8 kinds: 12349m 159p 19s 112z + 6p, first=1. Terminal/honor kinds 1m 9m 1p 9p
+# 1s 9s 1z 2z = 8: no kyuushu. Far from tenpai: no riichi.
+lh050 legal hand=12349m159p19s112z melds=- draw=6p first=1
+= lh050 actions=discard:1m,discard:1p,discard:1s,discard:1z,discard:2m,discard:2z,discard:3m,discard:4m,discard:5p,discard:6p,discard:9m,discard:9p,discard:9s
+# Same hand + 3z, first=1: nine kinds (adds 3z): kyuushu. Kokushi is 3-shanten: no riichi.
+lh051 legal hand=12349m159p19s112z melds=- draw=3z first=1
+= lh051 actions=discard:1m,discard:1p,discard:1s,discard:1z,discard:2m,discard:2z,discard:3m,discard:3z,discard:4m,discard:5p,discard:9m,discard:9p,discard:9s,kyuushu
+# Same nine kinds with first=0: no kyuushu.
+lh052 legal hand=12349m159p19s112z melds=- draw=3z
+= lh052 actions=discard:1m,discard:1p,discard:1s,discard:1z,discard:2m,discard:2z,discard:3m,discard:3z,discard:4m,discard:5p,discard:9m,discard:9p,discard:9s
+# 234567m 234p 55s 78s + 9s at wall=4: complete closed hand, tsumo. Every discard leaves tenpai
+# (2m->34567m waits 2/5/8m; 3m->24m+567m; 4m->23m; 5m->67m; 6m->57m kanchan; 7m->23456m; 2p->34p;
+# 3p->24p; 4p->23p; 5s->5s tanki; 7s->55s+89s; 8s->55s+79s; 9s->78s), all with live waits, and
+# wall>=4: riichi on all 13.
+lh053 legal hand=234567m234p5578s melds=- draw=9s wall=4
+= lh053 actions=discard:2m,discard:2p,discard:3m,discard:3p,discard:4m,discard:4p,discard:5m,discard:5s,discard:6m,discard:7m,discard:7s,discard:8s,discard:9s,riichi:2m,riichi:2p,riichi:3m,riichi:3p,riichi:4m,riichi:4p,riichi:5m,riichi:5s,riichi:6m,riichi:7m,riichi:7s,riichi:8s,riichi:9s,tsumo
+# Same at wall=3: riichi needs wall>=4.
+lh054 legal hand=234567m234p5578s melds=- draw=9s wall=3
+= lh054 actions=discard:2m,discard:2p,discard:3m,discard:3p,discard:4m,discard:4p,discard:5m,discard:5s,discard:6m,discard:7m,discard:7s,discard:8s,discard:9s,tsumo
+# Same in riichi: tsumo, or discard only the drawn tile.
+lh055 legal hand=234567m234p5578s melds=- draw=9s riichi=1
+= lh055 actions=discard:9s,tsumo
+# Riichi, last live draw (haitei flag), winning: tsumo still allowed, discard the draw.
+lh056 legal hand=234567m234p5578s melds=- draw=9s riichi=1 wall=0 flags=haitei
+= lh056 actions=discard:9s,tsumo
+# Riichi, non-winning draw 1z: only discard:1z.
+lh057 legal hand=234567m234p5578s melds=- draw=1z riichi=1
+= lh057 actions=discard:1z
+# Open c123m + 567m 234p 55s 78s, draw 9s at wall=0 with haitei: haitei is the yaku -> tsumo.
+# Open: no riichi. Discard any of 10 distinct.
+lh058 legal hand=567m234p5578s melds=c123m draw=9s wall=0 flags=haitei
+= lh058 actions=discard:2p,discard:3p,discard:4p,discard:5m,discard:5s,discard:6m,discard:7m,discard:7s,discard:8s,discard:9s,tsumo
+# Same at wall=0 without the flag: no yaku, no tsumo.
+lh059 legal hand=567m234p5578s melds=c123m draw=9s wall=0
+= lh059 actions=discard:2p,discard:3p,discard:4p,discard:5m,discard:5s,discard:6m,discard:7m,discard:7s,discard:8s,discard:9s
+# Same open shape with an open kan k9999p, rinshan draw 9s (flags=rinshan, kans=1): rinshan is the
+# yaku.
+lh060 legal hand=567m234p5578s melds=k9999p draw=9s kans=1 wall=60 flags=rinshan
+= lh060 actions=discard:2p,discard:3p,discard:4p,discard:5m,discard:5s,discard:6m,discard:7m,discard:7s,discard:8s,discard:9s,tsumo
+# Same without the rinshan flag: no yaku.
+lh061 legal hand=567m234p5578s melds=k9999p draw=9s kans=1 wall=60
+= lh061 actions=discard:2p,discard:3p,discard:4p,discard:5m,discard:5s,discard:6m,discard:7m,discard:7s,discard:8s,discard:9s
+# Open pon of haku + 234m 567p 78s 99s, draw 9s: 789s + 99s, haku yaku: tsumo. No kakan (no 5z).
+lh062 legal hand=234m567p7899s melds=p555z draw=9s
+= lh062 actions=discard:2m,discard:3m,discard:4m,discard:5p,discard:6p,discard:7p,discard:7s,discard:8s,discard:9s,tsumo
+# Dealer first draw, tenhou flag: 123m 456p 789s 11z 222z complete -> tsumo. Kyuushu: 4 kinds, no.
+# Riichi after each discard: 1m->23m, 2m->13m, 3m->12m, 4p->56p, 5p->46p, 6p->45p, 7s->89s,
+# 8s->79s, 9s->78s, 1z->1z tanki, 2z->11z+22z shanpon; all tenpai.
+lh063 legal hand=123m456p789s1122z melds=- draw=2z first=1 flags=tenhou
+= lh063 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:4p,discard:5p,discard:6p,discard:7s,discard:8s,discard:9s,riichi:1m,riichi:1z,riichi:2m,riichi:2z,riichi:3m,riichi:4p,riichi:5p,riichi:6p,riichi:7s,riichi:8s,riichi:9s,tsumo
+# Same hand, non-dealer first draw, chiihou flag: same actions.
+lh064 legal hand=123m456p789s1122z melds=- draw=2z seat=S first=1 flags=chiihou
+= lh064 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:4p,discard:5p,discard:6p,discard:7s,discard:8s,discard:9s,riichi:1m,riichi:1z,riichi:2m,riichi:2z,riichi:3m,riichi:4p,riichi:5p,riichi:6p,riichi:7s,riichi:8s,riichi:9s,tsumo
+# 123m 456p 789s 1122z + 3z, furiten=1: not complete. Only discarding 3z leaves tenpai (11z/22z
+# shanpon); discarding 1z or 2z leaves 3 loose honors. Furiten does not stop riichi.
+lh065 legal hand=123m456p789s1122z melds=- draw=3z furiten=1
+= lh065 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:3z,discard:4p,discard:5p,discard:6p,discard:7s,discard:8s,discard:9s,riichi:3z
+# Kokushi 13 kinds + 1m on a first draw (seat S): tsumo (13-sided), kyuushu (13 kinds), and
+# discarding any single kind leaves kokushi tenpai on that kind (discard 1m: 13-sided), so riichi
+# on all 13.
+lh066 legal hand=19m19p19s1234567z melds=- draw=1m seat=S first=1
+= lh066 actions=discard:1m,discard:1p,discard:1s,discard:1z,discard:2z,discard:3z,discard:4z,discard:5z,discard:6z,discard:7z,discard:9m,discard:9p,discard:9s,kyuushu,riichi:1m,riichi:1p,riichi:1s,riichi:1z,riichi:2z,riichi:3z,riichi:4z,riichi:5z,riichi:6z,riichi:7z,riichi:9m,riichi:9p,riichi:9s,tsumo
+# Chiitoi 11 33m 55 77p 99s 11z 2z + 2z: tsumo. Discarding one of any pair leaves a chiitoi tanki
+# on that kind (a copy is still outside), so riichi on all 7 kinds.
+lh067 legal hand=1133m5577p99s112z melds=- draw=2z
+= lh067 actions=discard:1m,discard:1z,discard:2z,discard:3m,discard:5p,discard:7p,discard:9s,riichi:1m,riichi:1z,riichi:2z,riichi:3m,riichi:5p,riichi:7p,riichi:9s,tsumo
+# 234m 4 0 5 6 7p 55s 789s + 6p: 456p+567p complete, tsumo. Red and plain 5p are separate
+# discards. Riichi: 2m/3m/4m leave a manzu taatsu; 4p->05667p (567+56); 0p or 5p->45667p (456+67
+# or 567+46); 6p->back to waits 3p/6p; 7p->40566p (456+56); 5s->5s tanki; 7s/8s/9s->55s + souzu
+# taatsu. All 12.
+lh068 legal hand=234m40567p55789s melds=- draw=6p
+= lh068 actions=discard:0p,discard:2m,discard:3m,discard:4m,discard:4p,discard:5p,discard:5s,discard:6p,discard:7p,discard:7s,discard:8s,discard:9s,riichi:0p,riichi:2m,riichi:3m,riichi:4m,riichi:4p,riichi:5p,riichi:5s,riichi:6p,riichi:7p,riichi:7s,riichi:8s,riichi:9s,tsumo
+# Closed hand with an ankan (a1111z, East: yakuhai) + 234m 567p 5678s, draw 5s: 55s+678s complete,
+# tsumo. Ankan keeps the hand closed, so riichi: 2m->34m, 3m->24m, 4m->23m, 5p->67p, 6p->57p,
+# 7p->56p, 5s->5678s (5s/8s), 6s->55+78s, 7s->55+68s, 8s->55+67s. All 10.
+lh069 legal hand=234m567p5678s melds=a1111z draw=5s kans=1
+= lh069 actions=discard:2m,discard:3m,discard:4m,discard:5p,discard:5s,discard:6p,discard:6s,discard:7p,discard:7s,discard:8s,riichi:2m,riichi:3m,riichi:4m,riichi:5p,riichi:5s,riichi:6p,riichi:6s,riichi:7p,riichi:7s,riichi:8s,tsumo
+
+# ================================================================ riichi needs a live wait
+
+# 111789m 123p 123s 1z + 1m: four 1m -> ankan:1m. Discarding 1z leaves 1111m 789m 123p 123s, which
+# waits only on a fifth 1m: no riichi:1z. Discarding 1m leaves a live 1z tanki: riichi:1m. Other
+# discards are not tenpai.
+lh070 legal hand=111789m123p123s1z melds=- draw=1m
+= lh070 actions=ankan:1m,discard:1m,discard:1p,discard:1s,discard:1z,discard:2p,discard:2s,discard:3p,discard:3s,discard:7m,discard:8m,discard:9m,riichi:1m
+# 2222m 345p 6789s 11z + 1z: ankan:2m (not in riichi, any quad may be kanned). Riichi: discarding
+# 2m leaves 222m 345p 6789s 111z waiting 6s/9s; discarding 6s or 9s leaves 2222m waiting only on a
+# fifth 2m: no; others not tenpai. So riichi:2m only.
+lh071 legal hand=2222m345p6789s11z melds=- draw=1z
+= lh071 actions=ankan:2m,discard:1z,discard:2m,discard:3p,discard:4p,discard:5p,discard:6s,discard:7s,discard:8s,discard:9s,riichi:2m
+
+# ================================================================ riichi and closed kans
+
+# Riichi: 789m 11123444p 78s waits 6s/9s (pinzu = 111+234+44 or 11+123+444). Draw 4p: after ankan
+# 4444p the pinzu 11123p is 11+123 and the waits are still 6s/9s. The 111+234+44 reading
+# disappears, which is allowed: ankan:4p.
+lh072 legal hand=789m11123444p78s melds=- draw=4p riichi=1
+= lh072 actions=ankan:4p,discard:4p
+# Riichi: 2223m 789p 456s 555z waits 1m (123+22), 3m (222+33), 4m (234+22). Draw 2m: after ankan
+# 2222m only the 3m tanki remains. Waits change: no ankan.
+lh073 legal hand=2223m789p456s555z melds=- draw=2m riichi=1
+= lh073 actions=discard:2m
+# Riichi: 3444m 567p 789s 111z waits 2m/5m (34+44) and 3m (444+3). Draw 4m: ankan leaves 3m tanki
+# only: waits change, no ankan.
+lh074 legal hand=3444m567p789s111z melds=- draw=4m riichi=1
+= lh074 actions=discard:4m
+# Riichi: 111m 234p 567s 789s 5z (5z tanki). Draw 1m: ankan keeps the 5z wait: allowed.
+lh075 legal hand=111m234p567789s5z melds=- draw=1m riichi=1
+= lh075 actions=ankan:1m,discard:1m
+# Same at wall=0 (haitei draw): no kan on the last draw.
+lh076 legal hand=111m234p567789s5z melds=- draw=1m riichi=1 wall=0 flags=haitei
+= lh076 actions=discard:1m
+# Same with kans=4: no kan.
+lh077 legal hand=111m234p567789s5z melds=- draw=1m riichi=1 kans=4
+= lh077 actions=discard:1m
+# Okurikan: riichi on 111123m 567p 789s 5z (111+123m, 5z tanki), draw 9p. The quad 1111m does not
+# use the drawn tile: no ankan.
+lh078 legal hand=111123m567p789s5z melds=- draw=9p riichi=1
+= lh078 actions=discard:9p
+# Same, draw 5z: tsumo. Ankan of 1m still does not use the drawn tile: no.
+lh079 legal hand=111123m567p789s5z melds=- draw=5z riichi=1
+= lh079 actions=discard:5z,tsumo
+# Not in riichi, same 111m 234p 567s 789s 5z + 1m: ankan:1m; riichi:1m leaves a live 5z tanki;
+# discarding 5z leaves only a fifth-1m wait (no); others not tenpai.
+lh080 legal hand=111m234p567789s5z melds=- draw=1m
+= lh080 actions=ankan:1m,discard:1m,discard:2p,discard:3p,discard:4p,discard:5s,discard:5z,discard:6s,discard:7s,discard:8s,discard:9s,riichi:1m
+# Same with kans=4: no ankan, riichi:1m still.
+lh081 legal hand=111m234p567789s5z melds=- draw=1m kans=4
+= lh081 actions=discard:1m,discard:2p,discard:3p,discard:4p,discard:5s,discard:5z,discard:6s,discard:7s,discard:8s,discard:9s,riichi:1m
+# Same at wall=1: ankan needs wall>=1 (ok); riichi needs wall>=4 (no).
+lh082 legal hand=111m234p567789s5z melds=- draw=1m wall=1
+= lh082 actions=ankan:1m,discard:1m,discard:2p,discard:3p,discard:4p,discard:5s,discard:5z,discard:6s,discard:7s,discard:8s,discard:9s
+# Same at wall=0 (haitei draw, not winning): no ankan, no riichi.
+lh083 legal hand=111m234p567789s5z melds=- draw=1m wall=0 flags=haitei
+= lh083 actions=discard:1m,discard:2p,discard:3p,discard:4p,discard:5s,discard:5z,discard:6s,discard:7s,discard:8s,discard:9s
+
+# ================================================================ added kans
+
+# Pon 555m, red 0m in hand, draw 9p: kakan:0m. Not complete; open, no riichi.
+lh084 legal hand=0m234p678s123z melds=p555m draw=9p
+= lh084 actions=discard:0m,discard:1z,discard:2p,discard:2z,discard:3p,discard:3z,discard:4p,discard:6s,discard:7s,discard:8s,discard:9p,kakan:0m
+# Pon 055m (red in the pon), plain 5m in hand: kakan:5m.
+lh085 legal hand=5m234p678s123z melds=p055m draw=9p
+= lh085 actions=discard:1z,discard:2p,discard:2z,discard:3p,discard:3z,discard:4p,discard:5m,discard:6s,discard:7s,discard:8s,discard:9p,kakan:5m
+# Same with kans=4: no kakan.
+lh086 legal hand=0m234p678s123z melds=p555m draw=9p kans=4
+= lh086 actions=discard:0m,discard:1z,discard:2p,discard:2z,discard:3p,discard:3z,discard:4p,discard:6s,discard:7s,discard:8s,discard:9p
+# Pon 777z, draw the fourth 7z: kakan:7z. 234m 567p 5678s 7z is not complete.
+lh087 legal hand=234m567p5678s melds=p777z draw=7z
+= lh087 actions=discard:2m,discard:3m,discard:4m,discard:5p,discard:5s,discard:6p,discard:6s,discard:7p,discard:7s,discard:7z,discard:8s,kakan:7z
+# Same at wall=0 (haitei, not winning): no kakan.
+lh088 legal hand=234m567p5678s melds=p777z draw=7z wall=0 flags=haitei
+= lh088 actions=discard:2m,discard:3m,discard:4m,discard:5p,discard:5s,discard:6p,discard:6s,discard:7p,discard:7s,discard:7z,discard:8s
+# Pon 111z + 2222m 345p 789s, draw 1z: kakan:1z and ankan:2m. Not complete.
+lh089 legal hand=2222m345p789s melds=p111z draw=1z
+= lh089 actions=ankan:2m,discard:1z,discard:2m,discard:3p,discard:4p,discard:5p,discard:7s,discard:8s,discard:9s,kakan:1z
+# Same with kans=4: neither.
+lh090 legal hand=2222m345p789s melds=p111z draw=1z kans=4
+= lh090 actions=discard:1z,discard:2m,discard:3p,discard:4p,discard:5p,discard:7s,discard:8s,discard:9s
+
+# ================================================================ after a call: kuikae
+
+# Chi c345m took 3m (with 45): forbids 3m and 6m. Left 366m 123p 789s 11z.
+lh091 legal hand=366m123p789s11z melds=c345m called=c345m took=3m
+= lh091 actions=discard:1p,discard:1z,discard:2p,discard:3p,discard:7s,discard:8s,discard:9s
+# Chi c345m took 5m (with 34): forbids 5m (red 0m too) and 2m.
+lh092 legal hand=205m123p789s11z melds=c345m called=c345m took=5m
+= lh092 actions=discard:1p,discard:1z,discard:2p,discard:3p,discard:7s,discard:8s,discard:9s
+# Chi c345m took 4m (kanchan 35): forbids 4m only; 7m and 1m stay.
+lh093 legal hand=14679m23p789s1z melds=c345m called=c345m took=4m
+= lh093 actions=discard:1m,discard:1z,discard:2p,discard:3p,discard:6m,discard:7m,discard:7s,discard:8s,discard:9m,discard:9s
+# Penchan chi c123m took 3m: forbids 3m only (no tile beyond 1).
+lh094 legal hand=344m567p789s12z melds=c123m called=c123m took=3m
+= lh094 actions=discard:1z,discard:2z,discard:4m,discard:5p,discard:6p,discard:7p,discard:7s,discard:8s,discard:9s
+# Penchan chi c789m took 7m: forbids 7m only; 6m allowed.
+lh095 legal hand=667m123p456s12z melds=c789m called=c789m took=7m
+= lh095 actions=discard:1p,discard:1z,discard:2p,discard:2z,discard:3p,discard:4s,discard:5s,discard:6m,discard:6s
+# Chi c789m took 9m (with 78): forbids 9m and 6m.
+lh096 legal hand=669m123p456s12z melds=c789m called=c789m took=9m
+= lh096 actions=discard:1p,discard:1z,discard:2p,discard:2z,discard:3p,discard:4s,discard:5s,discard:6s
+# Chi c123m took 1m (with 23): forbids 1m and 4m.
+lh097 legal hand=114m567p789s12z melds=c123m called=c123m took=1m
+= lh097 actions=discard:1z,discard:2z,discard:5p,discard:6p,discard:7p,discard:7s,discard:8s,discard:9s
+# Chi c406s took 6s (with 4 and red 5): forbids 6s and 3s.
+lh098 legal hand=123m789p3368s1z melds=c406s called=c406s took=6s
+= lh098 actions=discard:1m,discard:1z,discard:2m,discard:3m,discard:7p,discard:8p,discard:8s,discard:9p
+# Chi c406s took the red 0s (kanchan 46): forbids the five kind; plain 5s banned too.
+lh099 legal hand=123m789p557s12z melds=c406s called=c406s took=0s
+= lh099 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:7p,discard:7s,discard:8p,discard:9p
+# Chi c406s took 4s (with red 5 and 6): forbids 4s and 7s.
+lh100 legal hand=123m789p447s12z melds=c406s called=c406s took=4s
+= lh100 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:7p,discard:8p,discard:9p
+# Chi c234p took 2p (with 34): forbids 2p and 5p, so both 0p and 5p are banned.
+lh101 legal hand=678m05p789s111z melds=c234p called=c234p took=2p
+= lh101 actions=discard:1z,discard:6m,discard:7m,discard:7s,discard:8m,discard:8s,discard:9s
+# Chi c678m took 6m (with 78): forbids 6m and 9m; 0m and 5m stay, as separate tiles.
+lh102 legal hand=0569m123p78s12z melds=c678m called=c678m took=6m
+= lh102 actions=discard:0m,discard:1p,discard:1z,discard:2p,discard:2z,discard:3p,discard:5m,discard:7s,discard:8s
+# Pon p555p took 5p: the red 0p in hand is the same kind, banned.
+lh103 legal hand=123m0p789s1234z melds=p555p called=p555p took=5p
+= lh103 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:3z,discard:4z,discard:7s,discard:8s,discard:9s
+# Pon p055p took the red 0p: plain 5p in hand banned.
+lh104 legal hand=123m5p789s1234z melds=p055p called=p055p took=0p
+= lh104 actions=discard:1m,discard:1z,discard:2m,discard:2z,discard:3m,discard:3z,discard:4z,discard:7s,discard:8s,discard:9s
+# Pon p777z took 7z: the fourth 7z in hand banned.
+lh105 legal hand=23m456p789s127z melds=p777z called=p777z took=7z
+= lh105 actions=discard:1z,discard:2m,discard:2z,discard:3m,discard:4p,discard:5p,discard:6p,discard:7s,discard:8s,discard:9s
+# Pon p666z, no other 6z: nothing banned.
+lh106 legal hand=23m456p789s123z melds=p666z called=p666z took=6z
+= lh106 actions=discard:1z,discard:2m,discard:2z,discard:3m,discard:3z,discard:4p,discard:5p,discard:6p,discard:7s,discard:8s,discard:9s
+# Kan melds present: a2222m, k9999p, then chi c345s took 3s (with 45): forbids 3s and 6s.
+lh107 legal hand=36789s melds=a2222m,k9999p,c345s called=c345s took=3s kans=2
+= lh107 actions=discard:7s,discard:8s,discard:9s
+# Open kan k8888m then pon p222z took 2z: forbids 2z.
+lh108 legal hand=345p6789s2z melds=k8888m,p222z called=p222z took=2z kans=1
+= lh108 actions=discard:3p,discard:4p,discard:5p,discard:6s,discard:7s,discard:8s,discard:9s

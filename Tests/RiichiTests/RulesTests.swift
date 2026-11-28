@@ -106,7 +106,7 @@ import Testing
         #expect(!ms.tripleRonAborts && th.tripleRonAborts)
         #expect(ms.kokushiRobsClosedKan && !th.kokushiRobsClosedKan)
         #expect(!ms.paoCoversWholeHand && th.paoCoversWholeHand)
-        // Settled from real logs to agree (docs/notes/p3-reallogs.md).
+        // Settled from real logs to agree (Docs/Notes/p3-reallogs.md).
         #expect(ms.openKanDoraBeforeRon && th.openKanDoraBeforeRon)
         #expect(ms.owedDoraAtChainedAddedKan && !th.owedDoraAtChainedAddedKan)
         #expect(ms.fifthCopyTenpaiAtDraw && th.fifthCopyTenpaiAtDraw)
@@ -178,14 +178,14 @@ import Testing
     }
 }
 
-/// `spec/rules.md` §1.1 and `Rules.swift` agree field by field (brief
+/// `Spec/rules.md` §1.1 and `Rules.swift` agree field by field (brief
 /// p3-final-fixes, documentation drift): every stored field of `Rules` is listed
 /// once, with both presets' values, and names a row of §1 that exists.
 @Suite struct RulesSpecTests {
     @Test func specTableMatchesPresets() throws {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .deletingLastPathComponent()
-        let text = try String(contentsOf: root.appendingPathComponent("spec/rules.md"), encoding: .utf8)
+        let text = try String(contentsOf: root.appendingPathComponent("Spec/rules.md"), encoding: .utf8)
         let lines = text.split(separator: "\n").map(String.init)
         let start = try #require(lines.firstIndex { $0.hasPrefix("### 1.1") })
         let end = try #require(lines.firstIndex { $0.hasPrefix("## 2.") })

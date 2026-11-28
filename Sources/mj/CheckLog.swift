@@ -5,10 +5,10 @@
 // match the log's, and every point change and next-hand header must follow. What
 // the log cannot show (passes, calls that lost, unseen ura) is counted, not checked.
 //
-// Bulk use (docs/notes/p3-reallogs.md): `--stdin` reads games framed as
+// Bulk use (Docs/Notes/p3-reallogs.md): `--stdin` reads games framed as
 // `NAME LENGTH\n` followed by LENGTH bytes of mjai text; `--json` prints one JSON
 // line per game (differences, named conventions, unchecked counts, situation tags).
-// `tools/reallogs.py` feeds tar shards to parallel workers this way.
+// `Tools/reallogs.py` feeds tar shards to parallel workers this way.
 //
 // Named converter conventions are counted, not errors:
 // - `ura_on_multi_ron`: on a multi-ron, the log gives `ura_markers` to every

@@ -158,7 +158,7 @@ func playGame(rules: Rules, seed: UInt64, bot: Bot, rng: inout TestRNG,
         }
     }
 
-    /// Found by the close-out's directed self-play (docs/notes/p3-closeout.md): under
+    /// Found by the close-out's directed self-play (Docs/Notes/p3-closeout.md): under
     /// Mahjong Soul the owed indicator of an earlier added kan is shown right after a
     /// chained added kan, before its robbing window; the folder took that `dora` for
     /// the commit and so showed the kan made, the drawn tile gone and one live tile
