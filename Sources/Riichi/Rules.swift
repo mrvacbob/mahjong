@@ -24,15 +24,14 @@ public struct Rules: Sendable, Hashable {
     /// Score that ends the game in all last and in the extension (`target_points`).
     public var targetPoints: Int
     public var length: GameLength
-    /// Rules.md §5 item 8: in all last, a dealer repeat takes priority over another
-    /// seat reaching `targetPoints`, unless the dealer is first with the target
-    /// (Tenhou's manual; both clients' records, Docs/Notes/p3-reallogs.md). On for
-    /// both. Off, another seat on the target ends the game after a dealer repeat
-    /// by a win or tenpai (an abortive draw still always continues).
+    /// Spec/rules.md §5 item 8: in all last, a dealer repeat takes priority over another
+    /// seat reaching `targetPoints`, unless the dealer is first with the target. On for
+    /// Mahjong Soul and Tenhou. Off, another seat on the target ends the game after a
+    /// dealer repeat by a win or tenpai (an abortive draw still always continues).
     public var dealerRepeatBeforeTarget: Bool
-    /// Rules.md §5 item 6: the all-last tests read the scores after nagashi mangan
-    /// payments (both clients' records, Docs/Notes/p3-reallogs.md). On for both.
-    /// Off, they read the scores before those payments.
+    /// Spec/rules.md §5 item 6: the all-last tests read the scores after nagashi mangan
+    /// payments. On for Mahjong Soul and Tenhou. Off, they read the scores before those
+    /// payments.
     public var allLastTestAfterNagashi: Bool
 
     // MARK: scoring
@@ -55,9 +54,8 @@ public struct Rules: Sendable, Hashable {
     /// Three rons on one discard abort the hand (`abort_sanchahou`). Otherwise all
     /// three win (`triple_ron_enabled`).
     public var tripleRonAborts: Bool
-    /// Rules.md §5 item 2: on a multiple ron, every winner collects honba, not only
-    /// the one nearest the discarder (`multi_ron_honba`). Off for both (both
-    /// clients' records pay only the nearest winner, Docs/Notes/p3-reallogs.md).
+    /// Spec/rules.md §5 item 2: on a multiple ron, every winner collects honba, not only
+    /// the one nearest the discarder (`multi_ron_honba`). Off for Mahjong Soul and Tenhou.
     public var honbaToEveryRonWinner: Bool
     /// Kokushi may rob a closed kan (`chankan_ankan_kokushi`).
     public var kokushiRobsClosedKan: Bool
@@ -65,17 +63,15 @@ public struct Rules: Sendable, Hashable {
     // MARK: kans
 
     /// The indicator owed by an open or added kan is revealed immediately before the
-    /// kan seat's discard, so a ron on that discard counts it. On for both: Tenhou's
-    /// manual, and Mahjong Soul's records (rules.md §5 item 4, settled from real
-    /// logs; Docs/Notes/p3-reallogs.md). If false it is revealed only after the
-    /// window passes. `kan_dora_daiminkan_timing`, `kan_dora_shouminkan_timing`.
+    /// kan seat's discard, so a ron on that discard counts it (`kan_dora_daiminkan_timing`,
+    /// `kan_dora_shouminkan_timing`). On for Mahjong Soul and Tenhou (Spec/rules.md §5
+    /// item 4). If false, it is revealed only after the discard window passes.
     public var openKanDoraBeforeRon: Bool
     /// An indicator still owed by an open or added kan is revealed when the same
     /// seat announces another added kan (after the `kakan` event, before that
     /// kan's robbing window), so a chankan on the chained kan counts it (as a
-    /// closed kan always does, design §4.2). Mahjong Soul, from its records; off
-    /// for Tenhou, whose manual flips it only before the next replacement draw
-    /// (Docs/Notes/p3-reallogs.md).
+    /// closed kan always does, Docs/Design/engine.md §4.2). On for Mahjong Soul;
+    /// off for Tenhou, which reveals it only before the next replacement draw.
     public var owedDoraAtChainedAddedKan: Bool
 
     // MARK: pao
@@ -89,34 +85,27 @@ public struct Rules: Sendable, Hashable {
     /// Riichi may be declared on a hand whose only wait is a fifth copy of a kind
     /// the hand and melds already hold four of, as long as the four are not all in
     /// the concealed hand (some are in a kan): the same test as
-    /// `fifthCopyTenpaiAtDraw`. On for both: both clients' records show such riichi,
-    /// each on a wait whose four copies form the seat's own closed kan (rules.md §5
-    /// item 7; Docs/Notes/p3-reallogs.md). A wait on four concealed copies stays
-    /// refused, as `Spec/formats.md` has it.
+    /// `fifthCopyTenpaiAtDraw`. On for Mahjong Soul and Tenhou (Spec/rules.md §5
+    /// item 7). A wait on four concealed copies stays refused, as `Spec/formats.md`
+    /// has it.
     public var riichiOnFifthCopyWait: Bool
     /// At an exhaustive draw, a hand whose only wait is a fifth copy counts as tenpai
-    /// unless all four copies are in the concealed hand (Tenhou, rules.md §5 item 7).
-    /// On for both (Mahjong Soul from its records, Docs/Notes/p3-reallogs.md).
-    /// Otherwise it is noten (as `formats.md` defines tenpai).
+    /// unless all four copies are in the concealed hand (Spec/rules.md §5 item 7).
+    /// On for Mahjong Soul and Tenhou. Otherwise it is noten (as `Spec/formats.md`
+    /// defines tenpai).
     public var fifthCopyTenpaiAtDraw: Bool
-    /// Rules.md §5 item 9: a riichi declared on the discard that completes four winds
-    /// pays its stick. On for both: in every such hand in the records the next
-    /// header shows the stick on the table (Docs/Notes/p3-reallogs.md). libriichi
-    /// does not pay it.
+    /// Spec/rules.md §5 item 9: a riichi declared on the discard that completes four winds
+    /// pays its stick. On for Mahjong Soul and Tenhou (libriichi does not pay it).
     public var fourWindsRiichiStickPaid: Bool
     /// Temporary furiten also ends when the seat makes a call (`furiten_temporary`).
-    /// On for both: in both clients' records a seat that passed a winning tile,
-    /// then called, wins on a discard before its next draw (Docs/Notes/p3-reallogs.md;
-    /// design §4.1 had it ending at the next draw only).
+    /// On for Mahjong Soul and Tenhou.
     public var temporaryFuritenEndsOnCall: Bool
     /// A seat not in riichi that could win on its own draw and does anything else is
     /// temporarily furiten until its next live-wall draw, through a kan's
     /// replacement draw (the strict reading of Tenhou's manual: 「和了放棄…後は同巡
-    /// フリテン」). Off for both: declining by a discard leaves the seat furiten on the
-    /// discarded tile anyway (the 13 tiles left wait on it), so the field shows only
-    /// after a tsumo declined by a kan, and there Tenhou's records have the seat win
-    /// by ron before its next live draw (4 of the 6 chances, 2010–21; the other 2
-    /// passed), as do Mahjong Soul's (Docs/Notes/p3-closeout.md).
+    /// フリテン」). Off for Mahjong Soul and Tenhou: declining by a discard leaves
+    /// the seat furiten on the discarded tile anyway, and declining by a kan does
+    /// not impose temporary furiten on either client.
     public var temporaryFuritenOnDeclinedTsumo: Bool
 
     public init(
@@ -155,7 +144,7 @@ public struct Rules: Sendable, Hashable {
     /// Every point setting within ±1,000,000 (non-negative where it must be), four
     /// uma entries and the double-wind fu 2 or 4, so that no intermediate of the
     /// payment and game-end arithmetic can leave 32-bit `Int` (wasm32) when scores,
-    /// honba and sticks also keep within `RoundState`'s bounds (Codex C/D finding 5).
+    /// honba and sticks also keep within `RoundState`'s bounds.
     /// Every entry point that takes `Rules` checks this and returns the error.
     public func validate() throws(InputError) {
         let p = 0...1_000_000
@@ -180,9 +169,7 @@ public struct Rules: Sendable, Hashable {
 }
 
 extension Rules {
-    /// Mahjong Soul four-player ranked, hanchan. The default everywhere. The kan
-    /// dora timing, fifth-copy and furiten fields are as its records show
-    /// (Docs/Notes/p3-reallogs.md), not as first published in rules.md.
+    /// Mahjong Soul four-player ranked, hanchan. The default everywhere.
     public static let mahjongSoul: Rules = {
         Rules(
             startingPoints: 25_000, returnPoints: 25_000, uma: [15_000, 5_000, -5_000, -15_000],

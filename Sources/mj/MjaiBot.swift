@@ -1,4 +1,4 @@
-// The mjai bot adapter (design §6): a child process speaking JSON lines. Every
+// The mjai bot adapter (Docs/Design/engine.md §6): a child process speaking JSON lines. Every
 // event a seat may see is sent, one per line, and one reply is read per event
 // (`{"type":"none"}` when the bot has nothing to do). Riichi is two steps, as in
 // mjai: the bot answers `reach`, is shown the `reach` event, and answers its
@@ -11,7 +11,7 @@ import Riichi
 import RiichiMjai
 
 /// A bot's process: `/bin/sh -c COMMAND` in a process group of its own, so that
-/// stopping it reaches whatever the command started (Gemini final finding 4).
+/// stopping it reaches whatever the command started.
 final class ChildProcess {
     let pid: pid_t
     let toChild: Int32
@@ -95,8 +95,8 @@ final class ChildProcess {
 
     enum Read { case line(String), timeout, closed, tooLong }
 
-    /// The next line within `timeoutMs` (which `mj selfplay` keeps to
-    /// 1...`maxTimeoutMs`; any larger value just waits longer, Codex final finding 6).
+    /// Reads the next line within `timeoutMs` (`mj selfplay` bounds this to
+    /// 1...`maxTimeoutMs`; larger values simply wait longer).
     func readLine(timeoutMs: Int) -> Read {
         guard !stopped else { return .closed }
         let deadline = ContinuousClock.now + .milliseconds(max(0, timeoutMs))
@@ -152,12 +152,12 @@ final class ChildProcess {
     }
 }
 
-/// An mjai bot (design §6). Each event the seat may see is sent and one reply read.
+/// An mjai bot (Docs/Design/engine.md §6). Each event the seat may see is sent and one reply read.
 /// The reply to the event that asks for a decision (`PlayerView.prompt(in:)`) is
 /// the decision, checked against it (`Mjai.action(_:for:)`); a later event of the
 /// same step (an owed indicator) must be answered `none`. A reply that cannot be
 /// bound to the decision or mapped to one of its actions is substituted and
-/// counted, never taken as a pass (Codex final finding 1).
+/// counted, never taken as a pass.
 struct MjaiBot: Player {
     enum Failure { case malformed, illegal, timeout, crashed, unbound }
 

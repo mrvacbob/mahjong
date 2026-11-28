@@ -149,7 +149,7 @@ extension RoundState {
         t.riichi = players.map(\.riichi)
         let legal = legalActions(for: seat)
         // The window shows only to a seat asked in it: that a window is open at all
-        // tells that some seat may call (Codex C/D finding 1).
+        // reveals that some seat may call.
         switch phase {
         case .reactions(let d) where !legal.isEmpty: t.reacting = .discard(d)
         case .robbing(let k) where !legal.isEmpty: t.reacting = .kan(k)
@@ -160,8 +160,7 @@ extension RoundState {
     }
 }
 
-/// Rebuilds `PlayerView.Table` from one seat's masked events (design §8 layer 4:
-/// folding a seat's masked events rebuilds exactly its view).
+/// Rebuilds `PlayerView.Table` by folding one seat's masked events.
 public struct ViewFolder: Sendable {
     public private(set) var table: PlayerView.Table
     /// The table as `PlayerView` shows it to a seat that is (or is not) asked to
@@ -233,8 +232,7 @@ public struct ViewFolder: Sendable {
         case .startGame:
             break
         case .endGame(let s):
-            // The final scores: leftover sticks paid to first place (Codex final
-            // finding 4), as `GameState.view(of:)` shows them.
+            // Final scores with leftover sticks paid to first place, matching `GameState.view(of:)`.
             table.scores = s
             table.sticks = 0
         case .startKyoku(let b, let k, let h, let s, let o, let d, let sc, let th):

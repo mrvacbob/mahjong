@@ -1,5 +1,5 @@
 // Players for the drivers: built-in random and eager bots, which see only a
-// `PlayerView` (design §1 goal 3), and the interface the mjai adapter also fills.
+// `PlayerView` (Docs/Design/engine.md §1), and the interface the mjai adapter also fills.
 
 import Riichi
 
@@ -38,7 +38,7 @@ extension Player {
     mutating func finish() {}
 }
 
-/// Why a bot's reply was replaced, counted (design §6: the illegal-move rate).
+/// Counts of why a bot's reply was replaced (Docs/Design/engine.md §6).
 /// `unbound` counts replies other than `none` to an event that asked the bot
 /// nothing: they answer no decision, so nothing was played for them.
 struct Substitutions: Sendable {

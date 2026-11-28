@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.14
-"""Shootout test harness (stdlib only).
+"""Corpus test harness (stdlib only).
 
     harness.py <path-to-mj> Corpus/*.txt [--show N] [--time] [--op OP] [--timeout S] [--stall S]
 

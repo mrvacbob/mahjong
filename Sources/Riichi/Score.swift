@@ -21,12 +21,12 @@ public struct ScoreRequest: Sendable {
 
 public enum ScoreError: String, Error, Sendable {
     case notAgari = "not_agari", noYaku = "no_yaku"
-    /// The request itself cannot be scored (Codex final finding 3): the rules fail
-    /// `Rules.validate()`; the hand, winning tile, melds and indicators are not a
-    /// possible tile set (`isPossibleTileSet`); the hand is not 13 − 3 × melds tiles
-    /// (at most four melds); honba outside 0...`RoundState.maxRunningHonba`. (The
-    /// number of indicators is not checked: `Spec/formats.md` leaves it open and
-    /// the corpus has a request with eight.)
+    /// The request itself cannot be scored: the rules fail `Rules.validate()`;
+    /// the hand, winning tile, melds and indicators are not a possible tile set
+    /// (`isPossibleTileSet`); the hand is not 13 − 3 × melds tiles (at most four
+    /// melds); honba outside 0...`RoundState.maxRunningHonba`. (The number of
+    /// indicators is not checked: `Spec/formats.md` leaves it open and the corpus
+    /// has a request with eight.)
     case badRules = "bad_rules", impossibleTiles = "impossible_tiles", badHandSize = "bad_hand_size",
          badHonba = "bad_honba"
 }

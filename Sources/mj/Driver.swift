@@ -1,5 +1,5 @@
 // The game driver: asks each seat that must act, steps the `GameState`, and
-// writes the mjai log and the engine trace (design §6–§7).
+// writes the mjai log and the engine trace (Docs/Design/engine.md §6–§7).
 
 import Riichi
 import RiichiMjai
@@ -91,7 +91,7 @@ struct GameStart {
 func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [String],
               observers: [any GameObserver], botsLabel: String, scenario: Scenario? = nil,
               start: GameStart? = nil) throws -> GameRecord {
-    // A version 1 trace names a preset only (Codex C/D finding 6), and the length.
+    // A version 1 trace records only a preset ruleset and game length.
     guard isRecordable(rules) else {
         throw DriverError.trace("only the two preset rulesets (hanchan or East only) can be recorded in a trace")
     }
@@ -115,10 +115,9 @@ func playGame(rules: Rules, seed: UInt64, players: inout [any Player], names: [S
     if let scenario { trace += "scenario \(scenario.rawValue)\n" }
     var decisions = 0
 
-    /// Each seat is given the step's events one at a time (so where the engine
-    /// paused does not show, Codex C/D finding 1), its view with the event that
-    /// asks it to decide, and then asked for the decision: the decision is bound to
-    /// that event (Codex final finding 1).
+    /// Delivers the step's events to each seat one at a time (hiding where the engine
+    /// paused), attaches the seat's view to the prompting event, and asks for its
+    /// decision bound to that event.
     func deliver(_ events: [Event], _ game: GameState) throws -> [Action?] {
         for o in all { o.step(game, events: events) }
         var out: [Action?] = [nil, nil, nil, nil]

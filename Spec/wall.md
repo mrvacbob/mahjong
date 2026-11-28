@@ -1,8 +1,8 @@
 # The wall and the seeded shuffle
 
-Status: written for Phase 3 package A. The engine (`Sources/Riichi/Wall.swift`)
-implements exactly this; the three vectors at the end are checked by its unit tests
-and were produced by a second, independent implementation written from this text.
+The engine (`Sources/Riichi/Wall.swift`) implements this specification; the three
+vectors at the end are checked by its unit tests and were produced by an independent
+implementation written from this text.
 
 A wall is the 136 tiles of one hand in a fixed order. Seeded play derives every
 hand's wall from a 64-bit game seed and the number of hands dealt so far, so a
@@ -42,10 +42,10 @@ mix(x):                          (one SplitMix64 output step from state x)
 key = mix(seed) ^ mix(~hand)     (~hand: the bitwise complement of hand as a 64-bit value)
 ```
 
-Mixing both inputs before combining them means no simple arithmetic relation
-between two `(seed, hand)` pairs gives them the same key. (An earlier draft used
-`seed + hand * G`, under which `(seed, hand)` and `(seed + G, hand − 1)` collided.)
-`hand` is complemented so that `seed = hand` does not give the key 0.
+Mixing both inputs before combining them prevents simple arithmetic relations between
+`(seed, hand)` pairs from colliding (unlike `seed + hand * G`, where `(seed, hand)`
+and `(seed + G, hand − 1)` share a key). `hand` is complemented so that `seed = hand`
+does not give the key 0.
 
 SplitMix64 produces the four words of the generator state from `key`:
 

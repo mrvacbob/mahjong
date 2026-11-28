@@ -1,4 +1,4 @@
-// A small JSON reader and writer, without Foundation (design §2).
+// A small JSON reader and writer, without Foundation (Docs/Design/engine.md §2).
 //
 // The reader scans one object and records where each top-level value is; values
 // are parsed only when asked for, and anything not asked for (Mortal's `meta`, with

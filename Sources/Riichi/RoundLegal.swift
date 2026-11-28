@@ -1,4 +1,4 @@
-// What each seat may do now: the only place that decides (design §1 goal 1).
+// What each seat may do now (Docs/Design/engine.md §1).
 //
 // Canonical order of `legalActions`:
 // - own turn: `tsumo`, `riichi`, `ankan` (by kind), `kakan` (by tile), `kyuushu`,

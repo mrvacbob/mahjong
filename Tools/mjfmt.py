@@ -1,4 +1,4 @@
-"""Shared helpers for the shootout text format (Spec/formats.md). Stdlib only.
+"""Shared helpers for the line-protocol text format (Spec/formats.md). Stdlib only.
 
 Tile codes used internally:
   0..8   = 1m..9m, 9..17 = 1p..9p, 18..26 = 1s..9s, 27..33 = 1z..7z (34-format kinds)

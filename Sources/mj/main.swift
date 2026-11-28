@@ -43,7 +43,7 @@ struct Request {
     /// `rules=mahjongsoul|tenhou`, default Mahjong Soul. The line protocol keeps
     /// `Spec/formats.md`'s definition of a riichi wait (no fifth copy, even of a
     /// kan's tiles), which the corpus fixes; the clients allow more
-    /// (`Rules.riichiOnFifthCopyWait`, Docs/Notes/p3-reallogs.md).
+    /// (`Rules.riichiOnFifthCopyWait`).
     func rules() throws(BadInput) -> Rules {
         var r = try value("rules", default: "mahjongsoul") { text -> Rules? in
             switch text {
@@ -62,8 +62,7 @@ extension Request {
     /// the physical tile set: at most four of a kind, one red five per suit.
     func hand(plus extra: Tile? = nil) throws(BadInput) -> (tiles: [Tile], melds: [Meld]) {
         let hand = try tiles("hand"), melds = try value("melds", default: "-", parseMelds)
-        // Counted before any `Counts` is built (Gemini final finding 1: `Counts`
-        // holds at most 15 of a kind).
+        // Counted before building `Counts`, which holds at most 15 of a kind.
         guard isPossibleTileSet(hand + (extra.map { [$0] } ?? []) + melds.tiles) else {
             throw BadInput(reason: "impossible_tiles")
         }

@@ -11,7 +11,7 @@ python3.14 -B Tools/harness.py AGPL/mj-rs/target/release/mj-rs AGPL/mj-rs/smoke.
 python3.14 -B AGPL/mj-rs/compare.py
 ```
 
-The runner uses only the standard library and embeds the vendor tables. The build script expands the checked-in gzip files inside Cargo’s output directory. The first build attempt used the Mortal path dependency with default features disabled. Crates.io DNS failed, and this checkout also declares PyO3 and NumPy as unconditional dependencies. The offline crate vendors libriichi's shanten and agari tables and algorithms and its chi decision flags. The snapshot adapter ports the relevant `PlayerState` draw, discard, kan and kuikae decisions. The upstream source does not provide a constructor for arbitrary snapshots. The offline crate omits the full mjai event processor, Python bridge and learned-agent state. `prepare_vendor.py` documents the mechanical transformations. The vendored source is covered by [Mortal's license](LICENSE.libriichi).
+The runner uses only the standard library and embeds the vendor tables; the build script expands the checked-in gzip files inside Cargo's output directory. Because upstream libriichi declares PyO3 and NumPy as unconditional dependencies and has no constructor for arbitrary snapshots, this offline crate vendors only libriichi's shanten and agari tables, algorithms, and chi decision flags, omitting the full mjai event processor, Python bridge, and learned-agent state. The snapshot adapter ports the relevant `PlayerState` draw, discard, kan, and kuikae decisions. `prepare_vendor.py` documents the mechanical transformations. The vendored source is covered by [Mortal's license](LICENSE.libriichi).
 
 ## Score and shape decisions
 

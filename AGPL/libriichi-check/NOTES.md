@@ -34,7 +34,7 @@ Natural yakuman stack in the ordinary scorer, and the four variant double
 yakuman described for Mahjong Soul are not separate multipliers in this
 Tenhou-oriented implementation.
 
-## Draft 2 mjai field and ordering disagreements
+## Engine mjai field and ordering disagreements
 
 These are comparisons with the source's dialect. Engine extensions can still
 be useful to other mjai clients.
@@ -74,8 +74,8 @@ be useful to other mjai clients.
   wrapper may emit a literal `none` event. Normal state updates clear candidates
   on announcements. `update_with_keep_cans` is a special log-validator option
   for `reach_accepted`, `dora` and `hora`.
-- **Playback input.** Draft §8 refers to the decision trace. This package reads
-  the unmasked event log as required by the brief. It cannot recover passes,
+- **Playback input.** `Docs/Design/engine.md` §8 refers to the decision trace,
+  whereas this tool reads the unmasked event log. It cannot recover passes,
   suppressed or losing calls, or competing unlogged winning decisions.
 
 ## Verification status

@@ -1,16 +1,13 @@
-# Phase 4 design: bots and the arena
+# Bot ladder and arena design
 
-Status: **draft 2, awaiting the owner's go-ahead.** Draft 1 was reviewed by Opus,
-Codex and Gemini (`Docs/Reviews/p4/design-*.md`); all three asked for the same three
-things (a ladder precise enough to build, arena statistics fixed in advance, and
-shims for the outside engines), and section 9 lists what changed. Nothing is
-implemented yet except the `random` and `eager` test bots, the mjai adapter, and a
-working Mortal wrapper (`AGPL/strong/`).
+Status: draft, awaiting go-ahead (reviews in `Docs/Reviews/p4/design-*.md`;
+section 9 lists revisions from the first draft). Only the `random` and `eager`
+test bots, the mjai adapter, and a Mortal wrapper (`AGPL/strong/`) are
+implemented so far.
 
-Phase 4 delivers a ladder of bots of known, increasing strength, an arena that
-measures them, and Mortal and akochan as the ceiling. The ladder is what LLM players
-are measured against in Phase 5 and what the teaching site's opponents are in
-Phase 6.
+This covers a ladder of bots of known, increasing strength, an arena that
+measures them, and Mortal and akochan as the ceiling. The ladder serves as the
+benchmark for LLM players and the opponent pool for the teaching site.
 
 ## 1. Goals
 
@@ -54,7 +51,7 @@ is a counted substitution.
 LLM players and mjai processes are not `Bot`s. They implement the existing `Player`
 protocol in `mj`, which has the prompt binding, timeouts and counters.
 
-**Additions to `Riichi` that the ladder needs** (found by the reviewers; done first):
+**Additions to `Riichi` that the ladder needs** (done first):
 
 - the order of calls on `TableMeld` (which meld came when, relative to discards);
 - for a call action, the discards that will be legal after it; for `riichi`, the
@@ -148,8 +145,8 @@ advance.
   once per candidate, with the game count fixed beforehand.
 - **Size.** Placement per game has a standard deviation of about 1.12, so resolving
   a difference `d` needs about 9.8 / d² games: 3,900 for 0.05, 10,900 for 0.03,
-  24,500 for 0.02. Budget: **20,000 hanchan (5,000 blocks) per adjacent pair per
-  ruleset.**
+  24,500 for 0.02. Budget: 20,000 hanchan (5,000 blocks) per adjacent pair per
+  ruleset.
 - **Gate statistic.** One-against-three: the candidate's mean placement minus 2.5.
   A rung passes when the upper end of the 95% interval (a t-interval over block
   means) is below zero, under both rulesets.
@@ -167,9 +164,9 @@ advance.
 - **Throughput target:** 100 hanchan per second per core for rungs up to 5, 20 for
   `digital`; a benchmark reports each.
 
-**Phase gate:** every adjacent pair passes; a rating table for the whole ladder
+**Completion gate:** every adjacent pair passes; a rating table for the whole ladder
 with the controls, `occult` and the strong bots; zero illegal actions from ladder
-bots over 100,000 games including the directed rare-situation games; council review
+bots over 100,000 games including the directed rare-situation games; code review
 of the bot code.
 
 **Agreement with strong humans** (second yardstick, reported beside the arena,
@@ -225,8 +222,8 @@ G first. I continues now, since it needs only what exists.
    needs no permission. The records would give better opponent-behaviour tables,
    and the human-agreement yardstick cannot be done without them. Only aggregate
    tables would enter the repository. Tenhou restricts reuse of its records.
-2. **`occult`**: all three reviewers suggest a one-page parameter wrapper on rung 5
-   in place of a full package. This draft does that.
+2. **`occult`**: implemented as a one-page parameter wrapper on rung 5 rather
+   than a full package.
 3. **Game length**: hanchan for every gate and published number; East-only games
    only as a development convenience.
 

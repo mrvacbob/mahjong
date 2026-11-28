@@ -1,11 +1,11 @@
 // `mj check-log [--rules tenhou] [--set field=value]... [--json] [--stdin] FILE...`
-// (design §7): for mjai logs from elsewhere. Each hand's wall is rebuilt from what
+// (Docs/Design/engine.md §7): for mjai logs from elsewhere. Each hand's wall is rebuilt from what
 // the log reveals (dealt hands, draws, indicators, ura), unseen slots filled with the
 // unused tiles; then every logged action must be legal, every engine event must
 // match the log's, and every point change and next-hand header must follow. What
 // the log cannot show (passes, calls that lost, unseen ura) is counted, not checked.
 //
-// Bulk use (Docs/Notes/p3-reallogs.md): `--stdin` reads games framed as
+// Bulk use: `--stdin` reads games framed as
 // `NAME LENGTH\n` followed by LENGTH bytes of mjai text; `--json` prints one JSON
 // line per game (differences, named conventions, unchecked counts, situation tags).
 // `Tools/reallogs.py` feeds tar shards to parallel workers this way.
@@ -166,7 +166,6 @@ func checkGame(text: String, rules: Rules, path: String) -> CheckReport {
 
 /// The transition after a hand, with the scores the all-last test reads.
 func flow(_ o: HandOutcome, _ rules: Rules) -> (GamePosition?, GameTransition) {
-    // Four test scores, from the engine.
     try! GameFlow.next(after: o.result, at: o.position, rules: rules, testScores: o.testScores(rules))
 }
 

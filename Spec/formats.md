@@ -1,14 +1,13 @@
-# Shootout formats and runner contract
+# Line protocol and runner contract
 
-Status: draft 2, revised after the Phase 1 council review
-(`Docs/Reviews/p1/synthesis.md`). The body of this document is authoritative. The
-Decisions log at the bottom is history; where it and the body differ, the body wins.
+The body of this document is authoritative. The Decisions log at the bottom is
+history from the first corpus build; where it and the body differ, the body wins.
 
 ## Why plain text and not JSON
 
-Mercury has no JSON in its standard library and this machine has GHC without cabal
-(boot packages only). A line-oriented text format keeps the shootout about mahjong
-and not about who has a JSON parser. The full engine (Phase 3) will speak mjai JSON.
+Mercury has no JSON in its standard library, so the line protocol uses plain text to
+keep the hand-analysis runners and corpus easy to implement and diff. Whole-game play
+uses mjai JSON (`Sources/RiichiMjai/`).
 
 ## Runner contract
 
@@ -181,7 +180,7 @@ Yakuman names: `kokushi` `kokushi_13` `suuankou` `suuankou_tanki` `daisangen`
 Which of these are double, whether kazoe yakuman exists, kiriage mangan, and so on
 come from `Spec/rules.md`. The corpus uses the default ruleset, Mahjong Soul.
 
-`rules=tenhou` (added in Phase 3; `score` and `legal` only) answers under Tenhou
+`rules=tenhou` (`score` and `legal` only) answers under Tenhou
 ranked rules instead. For `score` that changes two things: no yakuman is double, so
 `kokushi_13`, `suuankou_tanki`, `junsei_chuuren` and `daisuushii` print `:1`; and
 with `tenhou` the supplied `win` tile is the winning tile, with no free choice

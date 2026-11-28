@@ -5,7 +5,7 @@ waits and score from Spec/formats.md; `legal` answers error=unsupported.
 Run directly as an executable (stdin -> stdout), or import and call `handle(line)`.
 
 Rule settings live in RULES. The library is adjusted (by wrapping, never by editing it)
-where the shootout's assumed rules differ from the library's defaults; every such
+where the project rules (Spec/rules.md) differ from the library's defaults; every such
 adjustment is listed in the Decisions log of Spec/formats.md.
 """
 
@@ -49,8 +49,8 @@ from mjfmt import (  # noqa: E402
 
 RULES = {
     # Fu for a pair that is both seat and round wind. Spec/rules.md (Mahjong Soul
-    # ranked): 4, which is also the library's own behaviour. 2 is the brief's
-    # provisional assumption, kept as a switch for the rule-sensitive notes.
+    # ranked): 4, which is also the library's own behaviour. 2 is an alternative
+    # rule kept as a switch for the rule-sensitive corpus notes.
     "double_wind_fu": 4,
     # kokushi_13 / suuankou_tanki / junsei_chuuren / daisuushii count 2x
     # (Spec/rules.md: natural double yakuman enabled). Kazoe stays 1x.

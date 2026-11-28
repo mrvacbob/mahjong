@@ -1,5 +1,4 @@
-// Self-play invariants that need the whole game (design §8 layer 4), and the
-// coverage report of rare branches (layer 5).
+// Whole-game self-play invariants and rare-branch coverage (Docs/Design/engine.md §8).
 
 import Riichi
 
@@ -18,8 +17,7 @@ final class InvariantChecks: GameObserver {
         steps += 1
         for seat in Seat.all {
             for e in events { folders[seat.index].apply(e.masked(for: seat)) }
-            // Also at the end of the game: the final scores, sticks paid out (Codex
-            // final finding 4).
+            // Also checked at game end (final scores, leftover sticks paid out).
             let view = game.view(of: seat)
             if folders[seat.index].table(asked: !view.legalActions.isEmpty) != view.table {
                 fail("step \(steps): seat \(seat)'s folded view differs from its PlayerView\n  folded \(folders[seat.index].table)\n  engine \(view.table)")
@@ -78,7 +76,7 @@ final class Coverage: GameObserver {
         "end_below_zero", "end_dealer_first", "end_target", "end_extension_over", "all_last_repeat",
         "all_last_advance",
     ]
-    /// Finer game-flow branches (design §5), reported alongside.
+    /// Finer game-flow branches (Docs/Design/engine.md §5), reported alongside.
     static let flow = [
         "all_last_repeat_abort", "all_last_repeat_not_first", "all_last_repeat_below_target",
         "all_last_repeat_other_at_target", "all_last_advance_into_extension", "all_last_advance_in_extension",

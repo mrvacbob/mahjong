@@ -1,4 +1,4 @@
-// The Mercury cross-check dump (design §8 layer 3): every decision as a `legal`
+// The Mercury cross-check dump (Docs/Design/engine.md §8): every decision as a `legal`
 // line request and every win as a `score` request, each with the answer the round
 // engine gives, so that `./mj`, `Sources/Mercury/mj` and the round can be
 // compared (`mj crosscheck`).
@@ -33,8 +33,7 @@ final class RequestDump: GameObserver {
         if s.scores[seat.index] < 1000 { lowPoints.append("\(prefix)\(next)") }
     }
 
-    /// A ron's honba depend on every answer (Gemini final finding 2), so its
-    /// request is made with all of them.
+    /// A ron's honba depends on every answer, so its request is built with all of them.
     func resolving(_ game: GameState, answers: Answers) {
         for seat in game.seatsToAnswer where answers[seat] == .ron {
             if let req = game.round.winRequest(for: seat, answers: answers) { addScore(req) }

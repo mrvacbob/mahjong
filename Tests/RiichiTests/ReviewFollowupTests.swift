@@ -109,7 +109,7 @@ import Testing
 /// The `mj` line protocol, run as a child process. Skipped when the executable has
 /// not been built next to the test bundle.
 @Suite struct LineProtocolTests {
-    /// `.build/debug/mj` (or release), else `./mj` from build.sh, in the package root.
+    /// `.build/debug/mj` (or release), else `./mj` from `make`, in the package root.
     static var mjPath: String? {
         let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent()

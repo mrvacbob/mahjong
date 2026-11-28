@@ -1,4 +1,4 @@
-// `mj selfplay`, `mj replay` (design §7).
+// `mj selfplay` and `mj replay` (Docs/Design/engine.md §7).
 
 import Foundation
 import Riichi
@@ -76,8 +76,8 @@ func mix64(_ x: UInt64) -> UInt64 {
     return z ^ (z >> 31)
 }
 
-/// A built-in bot's RNG seed from a game seed: the sum of two unrelated mixes, so
-/// not an invertible function of the wall seed (Codex C/D finding 2).
+/// Derives a built-in bot's RNG seed from a game seed as the sum of two unrelated
+/// mixes, so it is not an invertible function of the wall seed.
 func botSeed(_ seed: UInt64) -> UInt64 { mix64(seed ^ 0x5DEE_CE66_D1CE_4E5B) &+ mix64(~seed &* 0xD6E8_FEB8_6659_FD93) }
 
 /// The players for one game: `random`, `eager` or `mjai:COMMAND` per seat.
@@ -128,7 +128,7 @@ func selfplay(_ args: [String]) throws -> Int32 {
     let label = specs.map { $0.hasPrefix("mjai:") ? "mjai" : $0 }.joined(separator: ",")
     // With an external bot at the table, walls must not be predictable: each game
     // gets a fresh 64-bit seed from the system unless --seed is given (for tests),
-    // and that seed is recorded only in the trace (Codex C/D finding 2).
+    // and that seed is recorded only in the trace.
     let external = specs.contains { $0.hasPrefix("mjai:") }
     let randomSeeds = external && o.values["seed"] == nil
     if external && !randomSeeds {

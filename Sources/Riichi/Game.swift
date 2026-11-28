@@ -46,7 +46,7 @@ public struct GamePosition: Hashable, Sendable {
 
 /// Why the game ended after a hand.
 public enum GameEnd: String, Hashable, Sendable {
-    /// A score went below zero (step 1).
+    /// A score went below zero.
     case belowZero = "below_zero"
     /// All last: the dealer repeated by winning or by tenpai and is first with at
     /// least the target (agari-yame, tenpai-yame).
@@ -56,8 +56,8 @@ public enum GameEnd: String, Hashable, Sendable {
     case target
     /// All last: the next hand would start a wind beyond the extension.
     case extensionOver = "extension_over"
-    /// The next hand would have more than `RoundState.maxRunningHonba` honba (not a
-    /// rule of either client: the bound that keeps payments in 32-bit `Int`).
+    /// The next hand would exceed `RoundState.maxRunningHonba` (engine bound to
+    /// keep payments in 32-bit `Int`).
     case counterLimit = "counter_limit"
 }
 
@@ -136,7 +136,7 @@ public enum GameFlow {
         next.sticks = result.sticks
         next.scores = scores
         if !repeats {
-            // North 4 is the last hand there is: never wrap to East (Codex C/D finding 4).
+            // North 4 is the last hand: never wrap to East.
             if next.kyoku == 4 && next.roundWind == .north { return (nil, .ends(.extensionOver)) }
             if next.kyoku == 4 {
                 next.kyoku = 1
@@ -167,7 +167,7 @@ public enum GameFlow {
         return (next, .allLastAdvance)
     }
 
-    /// Step 5: leftover sticks to first place, ranks, return points, oka and uma.
+    /// Leftover sticks to first place, ranks, return points, oka and uma.
     public static func result(scores: [Int], sticks: Int, rules: Rules, end: GameEnd) throws(InputError) -> GameResult {
         try rules.validate()
         guard scores.count == 4 else { throw InputError("scores", "\(scores.count) scores, not one per seat") }
@@ -275,7 +275,7 @@ public struct GameState: Sendable {
 
     /// What `seat` may know now (`RoundState.view(of:)`). Once the game is over the
     /// table shows the final scores, leftover sticks paid to first place and none
-    /// left (what folding `end_game` gives, Codex final finding 4).
+    /// left (matching what folding `end_game` gives).
     public func view(of seat: Seat) -> PlayerView {
         var v = round.view(of: seat)
         if let result {
@@ -289,7 +289,7 @@ public struct GameState: Sendable {
     public mutating func apply(_ action: Action, by seat: Seat, events: inout [Event],
                                observe: ((RoundState, Event) -> Void)? = nil) throws(RoundError) {
         var e = Emitter(on: true, events: events, observe: observe)
-        events = []  // the emitter owns the buffer: no copy on append (Gemini final finding 9)
+        events = []  // the emitter owns the buffer: no copy on append
         defer { events = e.events }
         try round.apply(action, by: seat, &e)
         advance(&e)

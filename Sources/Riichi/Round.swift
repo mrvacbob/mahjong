@@ -106,10 +106,9 @@ public struct RoundState: Sendable {
     public static let maxCount = 1_000
     public static let maxScore = 100_000_000
     /// The largest honba a running game reaches: the game ends (`GameEnd.counterLimit`)
-    /// rather than deal a hand with more. Not a rule of either client, a bound that
-    /// keeps `300 × honba` payments within 32-bit `Int`. Sticks and scores need no
-    /// running bound: every point moves between the seats and the table, so their
-    /// total stays what it was at the start (Codex final finding 2).
+    /// rather than deal a hand with more. An engine bound to keep `300 × honba`
+    /// payments within 32-bit `Int`. Sticks and scores need no running bound because
+    /// every point stays among the seats and the table, preserving their initial sum.
     public static let maxRunningHonba = 1_000_000
 
     public let rules: Rules
@@ -732,8 +731,7 @@ public struct RoundState: Sendable {
     /// nearest the discarder (every winner under `Rules.honbaToEveryRonWinner`).
     /// Given `answers` (the window's answers), the winners are the seats that answer
     /// `ron` there, and the request is nil if `seat` does not, or if three rons
-    /// abort the hand; without them, `seat` is taken to be the only winner (Gemini
-    /// final finding 2).
+    /// abort the hand; without them, `seat` is taken to be the only winner.
     public func winRequest(for seat: Seat, answers: Answers? = nil) -> ScoreRequest? {
         func ronHonba(from discarder: Seat) -> Int? {
             guard let answers else { return honba }

@@ -374,7 +374,7 @@ extension Mjai {
     }
 
     /// The decision a bot's reply answers: which seat, what it may do, and what
-    /// asked it (Codex final findings 1 and 5, Gemini final finding 3).
+    /// asked it.
     public struct Decision: Sendable, Hashable {
         public enum Trigger: Sendable, Hashable {
             /// The seat's own turn, with its drawn tile (nil after a chi or pon).
@@ -481,10 +481,10 @@ extension Mjai {
     }
 
     /// A bot's reply for an action (the same JSON a bot would send), with every
-    /// field mjai has for it (Gemini final finding 5): `target` is the discarder or
-    /// kan seat of a ron or call, `tile` the drawn tile of a tsumo or the tile
-    /// taken; `consumed` for an open kan and a closed kan come from the hand, so
-    /// they are passed in (a closed kan defaults to four plain tiles).
+    /// field mjai has for it: `target` is the discarder or kan seat of a ron or
+    /// call, `tile` the drawn tile of a tsumo or the tile taken; `consumed` for an
+    /// open kan and a closed kan come from the hand, so they are passed in (a closed
+    /// kan defaults to four plain tiles).
     public static func reply(_ a: Action, seat: Seat, target: Seat? = nil, tile: Tile? = nil,
                              consumed: [Tile] = []) -> String {
         func r(_ type: String, _ f: [(String, JSONOut)] = []) -> String {

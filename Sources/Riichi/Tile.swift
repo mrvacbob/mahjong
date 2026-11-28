@@ -119,8 +119,7 @@ public struct Tile: Hashable, Comparable, Sendable, CustomStringConvertible {
 }
 
 /// Parses "123m406p77z" (or "-") into tiles in the order written. Only the ASCII
-/// digits `0`–`9` are digits (Gemini final finding 1: other numeric characters
-/// such as `⑽` are refused, not read as numbers).
+/// digits `0`–`9` are accepted (other numeric characters such as `⑽` are refused).
 public func parseTiles(_ text: Substring) -> [Tile]? {
     if text == "-" { return [] }
     var out: [Tile] = []

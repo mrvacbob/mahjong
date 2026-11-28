@@ -47,7 +47,7 @@ public struct RoundResult: Hashable, Sendable {
         if case .wins(let w) = outcome { w } else { [] }
     }
 
-    /// The honba count of the next hand (design §5 step 2): reset only after a win
+    /// The honba count of the next hand: reset only after a win
     /// with no dealer among the winners.
     public func nextHonba(after honba: Int) -> Int {
         if case .wins(let w) = outcome, !w.contains(where: { $0.winner == dealer }) { return 0 }

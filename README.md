@@ -30,23 +30,27 @@ entries, with its briefs and reviews) is on the `shootout` branch.
 
 ## Building and running the corpus
 
-    ./build.sh          # needs Swift 6; builds the Mercury cross-check too if `mmc` is installed
-    python3.14 Tools/harness.py <path-to-mj> Corpus/*.txt
+    make                # needs Swift 6; builds the Mercury cross-check too if `mmc` is installed
+    make check          # unit tests, corpus (both implementations), scenarios
 
 `mj` is any executable following the runner contract in `Spec/formats.md`.
 
-`mj selfplay` (bots against each other, including external mjai bots) writes
-referee-only files: the unmasked mjai log (`.jsonl`, with every wall and hand), the
-trace (`.trace`, with the game seed and every decision), the `--legal` rows (all four
-seats' hands and waits) and the `--requests` dumps. Keep them out of reach of any
-player or bot. With an external bot at the table each game draws a fresh seed from
-the system unless `--seed` is given (which makes the walls predictable to the bot;
-for tests only). `mj check-log` checks mjai logs from elsewhere; `Tools/reallogs.py`
-runs it over tar shards of real game records (see `Docs/Notes/p3-reallogs.md`).
-`--length east` plays East-only games; `mj selfplay --scenario NAME` plays directed games that reach one rare branch in bulk
-(four winds, four riichi, triple ron, a robbed closed kan, pao, nagashi, four kans by
-one seat, all-last positions); `Tools/libriichi_diff.sh` and `Tools/mercury_diff.sh`
-run them through the two cross-checks (see `Docs/Notes/p3-closeout.md`).
+`mj selfplay` runs bots against each other, including external mjai bots. Pass
+`--length east` for East-only games, or `--scenario NAME` to play directed games that
+reach rare branches in bulk (four winds, four riichi, triple ron, a robbed closed kan,
+pao, nagashi, four kans by one seat, all-last positions). `Tools/libriichi_diff.sh`
+and `Tools/mercury_diff.sh` run those games through the two cross-checks (see
+`Docs/Notes/p3-closeout.md`).
+
+`mj selfplay` writes referee-only files: the unmasked mjai log (`.jsonl`, with every
+wall and hand), the trace (`.trace`, with the game seed and every decision), `--legal`
+rows (all four seats' hands and waits), and `--requests` dumps. Keep them out of reach
+of any player or bot. With an external bot at the table, each game draws a fresh seed
+from the system unless `--seed` is given (which makes the walls predictable to the
+bot and is for tests only).
+
+`mj check-log` checks mjai logs from elsewhere; `Tools/reallogs.py` runs it over tar
+shards of real game records (see `Docs/Notes/p3-reallogs.md`).
 
 The reference tools expect the third-party sources checked out beside this repo, in
 `../3p/mahjong` and `../3p/Mortal` (or set `MJ_ORACLE_PATH`).

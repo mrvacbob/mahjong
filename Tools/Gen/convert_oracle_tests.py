@@ -5,10 +5,10 @@
 
 Runs the library's pytest suite in-process with recording wrappers around
 HandCalculator.estimate_hand_value, Shanten.*, Agari.is_agari and
-HandDivider.divide_hand. Every recorded input that fits the shootout format becomes a
+HandDivider.divide_hand. Every recorded input that fits the line-protocol format becomes a
 request in Tools/Gen/oracle_test_requests.txt (tab-separated: test id, request without
 an id). generate.py adds them to the corpus and computes the expected answers under the
-shootout rules, so the tests' own assertions (which use assorted rule options) are
+project rules, so the tests' own assertions (which use assorted rule options) are
 deliberately not copied.
 
 Nothing is written into the library checkout (no bytecode, no pytest cache, no coverage).

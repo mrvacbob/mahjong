@@ -1,15 +1,13 @@
-# Phase 3 design: the full engine
+# Engine design
 
-Status: **as built at the end of Phase 3.** Draft 1 was reviewed by Opus, Codex and
-Gemini (`Docs/Reviews/p3/design-*.md`; section 11 lists what changed from it); draft 2
-was then built in packages A–F and corrected by the reviews and the real-log campaign
-(`Docs/Notes/p3-*.md`). This document describes the engine as it now is.
-
-Before Phase 3 the engine answered questions about one hand (`agari`, `shanten`,
-`waits`, `score`, `legal` in `Spec/formats.md`). Phase 3 added everything needed to
-play a whole game: the wall, turns, calls, riichi, furiten, draws, payments, dealer
-rotation and game end. Rules are `Spec/rules.md`; where this document and `rules.md`
-disagree, `rules.md` wins and this document has a bug.
+This document describes the full-game engine as built. Beyond single-hand
+analysis (`agari`, `shanten`, `waits`, `score`, `legal` in `Spec/formats.md`),
+it implements everything needed to play a complete game: the wall, turns, calls,
+riichi, furiten, draws, payments, dealer rotation, and game end. Design reviews
+are in `Docs/Reviews/p3/design-*.md` (section 11 lists what changed after the
+first draft) and implementation notes in `Docs/Notes/p3-*.md`. Rules are defined
+in `Spec/rules.md`; where this document and `rules.md` disagree, `rules.md` wins
+and this document has a bug.
 
 ## 1. Goals and non-goals
 
@@ -31,8 +29,7 @@ Goals:
    by a `Rules` value that reaches scoring and legality as well as game flow.
    Three-player is out of scope but should not be designed out.
 
-Non-goals for Phase 3: bots beyond random ones, any UI, networking, three-player,
-local yaku.
+Non-goals: bots beyond random ones, any UI, networking, three-player, local yaku.
 
 ## 2. Package layout
 
@@ -51,8 +48,8 @@ Tests/mjTests/         the driver and the mjai adapter in process (`@testable im
 - `RiichiMjai` carries a hand-written JSON reader and writer, also without
   Foundation. The reader must skip any value it does not need, including nested
   objects and arrays of floats: Mortal's replies carry a `meta` object with both.
-- The five line-protocol operations work as before, with Mahjong Soul rules as their
-  default, and the corpus runs against `mj` on every change. `legal` is its own
+- The five line-protocol operations use Mahjong Soul rules by default, and the
+  corpus runs against `mj` on every change. `legal` is its own
   entry point (`LegalRequest`, `Legal.swift`): a hypothetical hand with no round
   behind it. Its request is weaker than a table position (no score, so no riichi
   affordability test; the strict `Spec/formats.md` fifth-copy rule for riichi), so
@@ -86,7 +83,7 @@ every point stays among the seats and the table.
 
 ## 3. Core types
 
-Kept: `Kind`, `Tile` (kind + red flag), `Counts`, `Wind`, the scoring types.
+From single-hand analysis: `Kind`, `Tile` (kind + red flag), `Counts`, `Wind`, and the scoring types.
 
 ```swift
 public struct Seat: Hashable, Sendable { public let index: Int }  // 0...3, fixed for the game;
@@ -281,7 +278,7 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
   live tiles can be ronned (houtei) but not called. Haitei applies to a win on a
   normal draw that leaves zero live tiles; a replacement draw is rinshan only, never
   haitei [18], though the discard after it is houtei if no live tiles remain.
-- **Kuikae and dead-end calls** [12, 13]: existing `legal` code, now fed from
+- **Kuikae and dead-end calls** [12, 13]: handled by the `legal` code, fed from
   `TableMeld`.
 - **Pao** [31, 32]: set when the pon or open kan that completes the third dragon set
   or fourth wind set is made, against the seat that fed it. Mahjong Soul: the liable
@@ -306,8 +303,7 @@ Each gets a scenario test (section 8). Numbers in brackets are `rules.md` §4 it
   the nagashi seats are listed in the result, and the point changes show the payment.
 - **A robbed kan never counts** toward four kans.
 - **Declining a self-drawn win outside riichi** and then keeping the wait: no
-  temporary furiten on either client (settled by the close-out,
-  `Docs/Notes/p3-closeout.md`). Declining by a discard leaves the seat furiten on
+  temporary furiten on either client (see `Docs/Notes/p3-closeout.md`). Declining by a discard leaves the seat furiten on
   the discarded tile anyway (the 13 tiles left wait on it); declining by a closed or
   added kan, Tenhou's records show the seat winning by ron before its next live
   draw. `Rules.temporaryFuritenOnDeclinedTsumo` (off for both) keeps the strict
@@ -441,9 +437,9 @@ it, and how many copies of each the seat cannot see; and defensive facts against
 seat: `genbutsu` (kinds it cannot ron now: its own discards, discards after its
 riichi, and discards since its own last one, an open window's discard excepted),
 `suji` (kinds no two-sided wait can win on without furiten: a heuristic) and
-`allCopiesSeen`. `ScoreRequest(hand:tableMelds:...)` takes the table's melds. The
-JSON form of views and actions, and a decision envelope for remote bots, are for
-Phase 5 (section 10).
+`allCopiesSeen`. `ScoreRequest(hand:tableMelds:...)` takes the table's melds. JSON
+codecs for views and actions, and a decision envelope for remote bots, are deferred
+to the web and remote-bot work (section 10).
 
 **The API is the step API**: `legalActions`, `apply`, `resolve`, `PlayerView`, masked
 events. JavaScript cannot block inside a callback, so nothing in `Riichi` calls out
@@ -482,13 +478,13 @@ own, JSON lines):
   benchmark's illegal-move rate; a reply is never taken as a pass because it could
   not be read.
 
-**From JavaScript** (Phase 5): exported functions taking and returning UTF-8 buffers
+**From JavaScript** (planned): exported functions taking and returning UTF-8 buffers
 of JSON, covering mjai events and also `PlayerView` and legal actions (mjai alone
 cannot drive a UI).
 
 ## 7. Command line
 
-Added to `mj` (the line protocol on stdin stays the default):
+Subcommands of `mj` (with no subcommand, it runs the line protocol on stdin):
 
 - `mj selfplay --seed N --games K [--rules tenhou] [--length east] [--bots
   random|eager|mjai:CMD] [--seat N=BOT] [--scenario NAME] [--out DIR] [--legal]
@@ -532,17 +528,16 @@ Added to `mj` (the line protocol on stdin stays the default):
    compares the fixture's own expectations (all of `events` where given, in order
    for `events_order`). `Rules` fields no preset turns on are checked by flipping one
    field on an existing scenario.
-2. **Differential against libriichi** (Tenhou rules), in a new AGPL crate
-   `AGPL/libriichi-check` that depends on Mortal's `libriichi` itself, vendored once
-   so it builds offline. `AGPL/mj-rs` is not grown: it deliberately has no event
-   processing.
+2. **Differential against libriichi** (Tenhou rules), in the AGPL crate
+   `AGPL/libriichi-check`, which depends on Mortal's vendored `libriichi` so it
+   builds offline. `AGPL/mj-rs` has no event processing.
    - *Board replay*: load our wall, hands and indicators into libriichi's own board,
      drive it with the decisions from our trace, and compare its event log with ours
      event by event, then the result: point changes, sticks, dealer repeat. This
      covers draws, nagashi, pao, multi-ron splits, abort timing and dora order.
    - *Legality*: feed each seat's masked events to libriichi's player state and
      compare its action flags, discard and kan candidates, waits and furiten flag
-     with ours for **all four seats after every event**, which also catches a
+     with ours for all four seats after every event, which also catches a
      decision we failed to offer.
    - *Known differences*, kept as a written list in the crate
      (`AGPL/libriichi-check/NOTES.md`) and in `Tools/classify_libriichi.py`, and
@@ -610,14 +605,14 @@ it occurs; component pao on a composite yakuman has none.
 | F | Scenario tests | Gemini | Codex |
 
 A came first because it fixed the shared types; B–D followed in order; E and F were
-written alongside A, from this document, without reading the engine's source. Then
-the real-log campaign, the close-out (directed play) and the final reviews' fixes
+written alongside A, from this document, without reading the engine's source.
+Real-log verification, directed play, and final review fixes followed
 (`Docs/Notes/p3-final-fixes.md`).
 
-Gate for leaving Phase 3 (passed, `Docs/Notes/p3-closeout.md`): every scenario test
+Completion gate (passed, `Docs/Notes/p3-closeout.md`): every scenario test
 passes; 50,000 `eager` and 50,000 random self-play games under Tenhou rules with no
 unexplained difference from libriichi; the coverage report shows every listed branch
-reached; the corpus still at 12,439 of 12,439; council review of the code.
+reached; the corpus stays at 12,439 of 12,439; code review completed.
 
 ## 10. Still open
 
@@ -626,7 +621,7 @@ reached; the corpus still at 12,439 of 12,439; council review of the code.
    hand, kan dora on a rinshan win after an open kan, leftover sticks at the end of
    a game, the riichi kan of a waited tile. Each is the published rule or a `Rules`
    field.
-2. **For Phase 5** (the website and remote bots), each needing its own design: JSON
+2. **Website and remote bots**, each needing its own design: JSON
    codecs for views, actions and results; a versioned wasm boundary; a seat-scoped
    decision envelope (decision id, trigger, typed options) for bots that are not
    mjai child processes; the scoring interpretation behind a `Scored` (which tile and
